@@ -1,0 +1,39 @@
+# SPDX-License-Identifier: MIT
+---
+- name: Deploy proxy vhost configurations
+  ansible.builtin.template:
+    src: generic-proxy-vhost.conf.j2
+    dest: "/etc/nginx/sites-available/{{ item.name }}.conf"
+    mode: '0644'
+  loop: "{{ nginx_proxy_vhosts }}"
+  notify: Reload nginx
+
+- name: Enable proxy vhosts
+  ansible.builtin.file:
+    src: "/etc/nginx/sites-available/{{ item.name }}.conf"
+    dest: "/etc/nginx/sites-enabled/{{ item.name }}.conf"
+    state: link
+  loop: "{{ nginx_proxy_vhosts }}"
+  notify: Reload nginx
+
+- name: Deploy firewall rules for Wireguard-restricted proxies
+  ansible.builtin.copy:
+    content: |
+      tcp dport { 80, 443 } accept \
+      comment "Accept https access to {{ item.name }}"
+    dest: "/etc/nftables.d/filter-input-wg/proxy-{{ item.name }}.nft"
+    mode: '0644'
+  loop: "{{ nginx_proxy_vhosts }}"
+  when: item.firewall_zone | default('public') == 'wg'
+  notify: Reload nftables
+
+- name: Deploy firewall rules for Public proxies
+  ansible.builtin.copy:
+    content: |
+      tcp dport 443 accept \
+      comment "Accept https access to {{ item.name }}"
+    dest: "/etc/nftables.d/filter-input/proxy-{{ item.name }}.nft"
+    mode: '0644'
+  loop: "{{ nginx_proxy_vhosts }}"
+  when: item.firewall_zone | default('public') == 'public'
+  notify: Reload nftables

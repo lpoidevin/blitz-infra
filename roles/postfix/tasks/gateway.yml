@@ -1,0 +1,103 @@
+# SPDX-License-Identifier: MIT
+---
+- name: Configure gateway parameters
+  ansible.builtin.lineinfile:
+    path: /etc/postfix/main.cf
+    regexp: '^{{ item.name }}\s*='
+    line: "{{ item.name }} = {{ item.value }}"
+  loop:
+    - { name: "smtpd_sasl_auth_enable", value: "{{ 'yes' if postfix_server_auth_enable else 'no' }}" }
+    - { name: "smtpd_sasl_security_options", value: "noanonymous" }
+    - { name: "smtpd_sasl_local_domain", value: "$myhostname" }
+    - { name: "smtpd_tls_security_level", value: "{{ 'encrypt' if postfix_server_auth_enable else 'may' }}" }
+    - { name: "local_recipient_maps", value: "" }
+    - { name: "local_transport", value: "error:local mail delivery is disabled" }
+    - { name: "virtual_alias_maps", value: "hash:/etc/postfix/virtual" }
+  notify: Reload postfix
+
+- name: Configure gateway TLS certificates
+  ansible.builtin.lineinfile:
+    path: /etc/postfix/main.cf
+    regexp: '^{{ item.name }}\s*='
+    line: "{{ item.name }} = {{ item.value }}"
+  loop:
+    - { name: "smtpd_tls_cert_file", value: "{{ postfix_tls_cert_file }}" }
+    - { name: "smtpd_tls_key_file", value: "{{ postfix_tls_key_file }}" }
+  when: postfix_tls_cert_file is defined and postfix_tls_key_file is defined
+  notify: Reload postfix
+
+- name: Deploy virtual aliases file
+  ansible.builtin.template:
+    src: virtual.j2
+    dest: /etc/postfix/virtual
+    mode: "0644"
+  when: postfix_virtual_aliases | length > 0
+  notify: Rebuild virtual
+
+- name: Ensure SASL plugin directory exists
+  ansible.builtin.file:
+    path: /etc/postfix/sasl
+    state: directory
+    mode: "0755"
+
+- name: Configure smtpd SASL plugin (auxprop)
+  ansible.builtin.copy:
+    dest: /etc/postfix/sasl/smtpd.conf
+    content: |
+      pwcheck_method: auxprop
+      auxprop_plugin: sasldb
+      mech_list: PLAIN LOGIN
+    mode: "0644"
+  when: postfix_server_auth_enable
+  notify: Restart postfix
+
+- name: Provision SASL users dynamically from inventory
+  ansible.builtin.shell:
+    cmd: >
+      set -o pipefail &&
+      echo "{{ hostvars[item]['postfix_relay_auth_password'] }}" |
+      saslpasswd2 -p -c -f /var/spool/postfix/etc/sasldb2
+      -u {{ ansible_facts['fqdn'] }}
+      {{ hostvars[item]['postfix_relay_auth_user'] | default(item) }}
+  loop: "{{ groups[postfix_server_client_group] | default([]) }}"
+  when:
+    - postfix_server_auth_enable
+    - "item != inventory_hostname"
+    - "item in hostvars"
+    - "'postfix_relay_auth_password' in hostvars[item]"
+  no_log: true
+  changed_when: false
+  notify: Restart postfix
+
+- name: Provision SASL users for external applications
+  ansible.builtin.shell:
+    cmd: >
+      set -o pipefail &&
+      echo "{{ item.password }}" |
+      saslpasswd2 -p -c -f /var/spool/postfix/etc/sasldb2
+      -u {{ ansible_facts['fqdn'] }}
+      {{ item.user }}
+  loop: "{{ postfix_server_app_users }}"
+  when:
+    - postfix_server_auth_enable
+    - postfix_server_app_users | length > 0
+  no_log: true
+  changed_when: false
+  notify: Restart postfix
+
+- name: Ensure correct permissions on chrooted sasldb2
+  ansible.builtin.file:
+    path: /var/spool/postfix/etc/sasldb2
+    owner: root
+    group: postfix
+    mode: "0640"
+  when: postfix_server_auth_enable
+
+- name: Deploy firewall rule
+  ansible.builtin.copy:
+    content: |
+      tcp dport 25 accept \
+      comment "Accept postfix access"
+    dest: /etc/nftables.d/filter-input-wg/postfix.nft
+    mode: "0644"
+  notify: Reload nftables

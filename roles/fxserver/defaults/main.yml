@@ -1,0 +1,21 @@
+# SPDX-License-Identifier: MIT
+---
+# Directories
+fxserver_home_dir: /srv/cfx
+fxserver_install_dir: "{{ fxserver_home_dir }}/artifacts"
+fxserver_data_dir: "{{ fxserver_home_dir }}/txData"
+
+# System defaults
+fxserver_user: citizenfx
+fxserver_group: citizenfx
+fxserver_sftp_keys: []
+
+# Database defaults
+fxserver_db_host: localhost
+fxserver_db_port: 3306
+fxserver_db_name: fxserver
+fxserver_db_user: fxserver
+
+# Provider defaults
+fxserver_provider_name: DefaultHosting
+# fxserver_provider_logo: https://github.com/citizenfx/txAdmin/raw/master/docs/banner.png

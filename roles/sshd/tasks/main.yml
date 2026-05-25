@@ -1,0 +1,36 @@
+# SPDX-License-Identifier: MIT
+---
+- name: Configure global sshd settings
+  ansible.builtin.lineinfile:
+    path: /etc/ssh/sshd_config
+    regexp: '^#?\s*{{ item.key }}\b'
+    line: "{{ item.key }} {{ item.value }}"
+    state: present
+    validate: /usr/sbin/sshd -t -f %s
+  loop: "{{ sshd_global_config | dict2items }}"
+  notify: Restart sshd
+
+- name: Deploy match blocks to drop-in directory
+  ansible.builtin.template:
+    src: match-blocks.conf.j2
+    dest: /etc/ssh/sshd_config.d/99-match-blocks.conf
+    owner: root
+    group: root
+    mode: '0600'
+    validate: /usr/sbin/sshd -t -f %s
+  when: sshd_match_blocks | length > 0
+  notify: Restart sshd
+
+- name: Remove 50-cloud-init.conf
+  ansible.builtin.file:
+    path: /etc/ssh/sshd_config.d/50-cloud-init.conf
+    state: absent
+
+- name: Deploy firewall rule
+  ansible.builtin.copy:
+    content: |
+      log tcp dport 22 accept \
+      comment "Allow SSH"
+    dest: /etc/nftables.d/filter-input-v6/sshd.nft
+    mode: '0644'
+  notify: Reload nftables

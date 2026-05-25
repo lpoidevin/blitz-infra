@@ -1,0 +1,12 @@
+# SPDX-License-Identifier: MIT
+---
+lego_certificates:
+  cdn:
+    challenge: ovh-dns
+    account: blitz-security
+    domains:
+      - cdn.blitz-infra.net
+
+lego_deploy_targets:
+  - name: cdn
+    service_cmd: /usr/bin/systemctl reload nginx

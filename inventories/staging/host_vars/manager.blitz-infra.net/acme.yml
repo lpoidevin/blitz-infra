@@ -1,0 +1,32 @@
+# SPDX-License-Identifier: MIT
+---
+lego_certificates:
+  email:
+    challenge: ovh-dns
+    account: blitz-security
+    domains:
+      - smtp.blitz-infra.net
+  monitoring:
+    challenge: ovh-dns
+    account: blitz-security
+    domains:
+      - monitoring.blitz-infra.net
+  ldap:
+    challenge: ovh-dns
+    account: blitz-security
+    domains:
+      - ldap.blitz-infra.net
+
+lego_deploy_targets:
+  - name: email
+    service_cmd: /usr/bin/systemctl reload postfix
+  - name: monitoring
+    service_cmd: /usr/bin/systemctl reload nginx
+  - name: ldap
+    cert_dest: /etc/ldap/tls/ldap.crt
+    key_dest: /etc/ldap/tls/ldap.key
+    issuer_dest: /etc/ldap/tls/ldap.issuer.crt
+    owner: openldap
+    group: openldap
+    key_mode: "0400"
+    service_cmd: /usr/bin/systemctl restart slapd

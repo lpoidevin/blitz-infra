@@ -1,0 +1,38 @@
+# SPDX-License-Identifier: MIT
+---
+- name: Setup game server
+  ansible.builtin.import_tasks: install.yml
+
+- name: Deploy public SSH key for SFTP access
+  ansible.posix.authorized_key:
+    user: "{{ fxserver_user }}"
+    state: present
+    key: "{{ item }}"
+  loop: "{{ fxserver_sftp_keys }}"
+
+- name: Deploy alloy configuration
+  ansible.builtin.template:
+    src: 70-fxserver.alloy.j2
+    dest: /etc/alloy.d/70-fxserver.alloy
+    mode: '0644'
+  notify: Restart alloy
+
+- name: Deploy firewall rules
+  ansible.builtin.copy:
+    content: |
+      tcp dport 30120 accept \
+      comment "Accept fxserver traffic"
+      udp dport 30120 accept \
+      comment "Accept fxserver traffic"
+    dest: /etc/nftables.d/filter-input/fxserver.nft
+    mode: '0644'
+  notify: Reload nftables
+
+- name: Deploy firewall rules
+  ansible.builtin.copy:
+    content: |
+      tcp dport 30120 accept \
+      comment "Accept fxserver traffic"
+    dest: /etc/nftables.d/filter-input-wg/fxserver.nft
+    mode: '0644'
+  notify: Reload nftables

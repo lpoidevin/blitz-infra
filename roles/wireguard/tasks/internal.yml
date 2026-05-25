@@ -1,0 +1,41 @@
+# SPDX-License-Identifier: MIT
+---
+- name: Check if 25-wg-int encrypted credential exists
+  ansible.builtin.stat:
+    path: /etc/credstore.encrypted/network.wireguard.private.25-wg-int
+  register: wireguard_int_cred_file
+
+- name: Generate and encrypt 25-wg-int private key
+  when: not wireguard_int_cred_file.stat.exists
+  block:
+    - name: Generate 25-wg-int private key
+      ansible.builtin.command: wg genkey
+      register: wireguard_int_private_key
+      changed_when: true
+      no_log: true
+
+    - name: Encrypt 25-wg-int private key with systemd-creds
+      community.general.systemd_creds_encrypt:
+        secret: "{{ wireguard_int_private_key.stdout }}"
+      register: wireguard_encrypted_wg_key
+
+    - name: Save encrypted credential
+      ansible.builtin.copy:
+        content: "{{ wireguard_encrypted_wg_key.value }}"
+        dest: /etc/credstore.encrypted/network.wireguard.private.25-wg-int
+        owner: root
+        group: systemd-network
+        mode: '0640'
+      notify: Restart systemd-networkd
+
+- name: Deploy wg-int configuration
+  ansible.builtin.template:
+    src: "{{ item.file }}.j2"
+    dest: "/etc/systemd/network/25-{{ item.file }}"
+    owner: root
+    group: systemd-network
+    mode: "{{ item.mode }}"
+  loop:
+    - { file: wg-int.netdev, mode: '0640' }
+    - { file: wg-int.network, mode: '0644' }
+  notify: Restart systemd-networkd

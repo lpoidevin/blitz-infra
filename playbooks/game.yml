@@ -1,0 +1,26 @@
+# SPDX-License-Identifier: MIT
+---
+- name: Setup game server
+  hosts: game
+  roles:
+    - { role: common, tags: ["common"] }
+    - { role: nftables, tags: ["nftables"] }
+    - { role: wireguard, tags: ["wireguard"] }
+    - { role: alloy, tags: ["alloy", "monitoring"] }
+    # - { role: prometheus_systemd_exporter, tags: ["monitoring"] }
+    # - { role: prometheus_smartctl_exporter, tags: ["monitoring"] }
+    # - { role: prometheus_ipmi_exporter, tags: ["monitoring"] }
+    - { role: sssd, tags: ["sssd"] }
+    - { role: sshd, tags: ["sshd"] }
+    - { role: postfix, tags: ["postfix"] }
+    # - os_hardening
+    # - ssh_hardening
+    - { role: lego, tags: ["lego"] }
+    - { role: nginx_core, tags: ["nginx"] }
+    # - nginx_hardening
+    - { role: mariadb, tags: ["mariadb"] }
+    - { role: fxserver, tags: ["fxserver"] }
+    - { role: nginx_proxy, tags: ["nginx"] }
+    # - { role: fail2ban, tags: ["fail2ban"] }
+    # - { role: crowdsec, tags: ["crowdsec"] }
+    # - { role: restic, tags: ["restic"] }

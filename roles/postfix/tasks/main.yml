@@ -1,0 +1,36 @@
+# SPDX-License-Identifier: MIT
+---
+- name: Install postfix and SASL dependencies
+  ansible.builtin.apt:
+    name:
+      - postfix
+      - libsasl2-modules
+      - sasl2-bin
+      - bsd-mailx
+    state: present
+
+- name: Set myorigin to domain name
+  ansible.builtin.copy:
+    dest: /etc/mailname
+    content: "{{ ansible_facts['domain'] }}\n"
+    mode: '0644'
+  notify: Reload postfix
+
+- name: Configure core Postfix parameters
+  ansible.builtin.lineinfile:
+    path: /etc/postfix/main.cf
+    regexp: '^{{ item.name }}\s*='
+    line: "{{ item.name }} = {{ item.value }}"
+  loop:
+    - { name: "mydestination", value: "" }
+    - { name: "inet_protocols", value: "{{ postfix_inet_protocols }}" }
+    - { name: "inet_interfaces", value: "{{ postfix_inet_interfaces }}" }
+  notify: Restart postfix
+
+- name: Configure gateway
+  ansible.builtin.import_tasks: null-client.yml
+  when: postfix_inet_interfaces == 'loopback-only'
+
+- name: Configure gateway
+  ansible.builtin.import_tasks: gateway.yml
+  when: postfix_inet_interfaces != 'loopback-only'

@@ -1,0 +1,41 @@
+# SPDX-License-Identifier: MIT
+---
+argument_specs:
+  main:
+    short_description: Deploy and configure Grafana
+    options:
+      grafana_domain:
+        type: str
+        required: true
+        description: The public FQDN of the Grafana instance (e.g., grafana.example.com)
+
+      grafana_datasources:
+        type: list
+        elements: dict
+        description: Dynamic list of provisioning datasources
+        default: []
+
+      # LDAP Configuration
+      grafana_ldap_enabled:
+        type: bool
+        default: false
+      grafana_ldap_server:
+        type: str
+        description: Required if LDAP is enabled
+      grafana_ldap_bind_dn:
+        type: str
+      grafana_ldap_bind_password:
+        type: str
+        no_log: true
+      grafana_ldap_search_base_dns:
+        type: str
+      grafana_ldap_search_filter:
+        type: str
+        default: "(cn=%s)"
+      grafana_ldap_group_search_base_dns:
+        type: str
+      grafana_ldap_group_search_filter:
+        type: str
+        default: "(&(objectClass=posixGroup)(memberUid=%s))"
+      grafana_ldap_admin_group_dn:
+        type: str

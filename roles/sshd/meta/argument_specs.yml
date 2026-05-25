@@ -1,0 +1,39 @@
+# SPDX-License-Identifier: MIT
+---
+argument_specs:
+  main:
+    short_description: Configure and harden SSH daemon using global settings and drop-in Match blocks
+    options:
+      sshd_global_config:
+        type: dict
+        description: >
+          A dictionary of global SSH configuration directives.
+          Keys are the directive names (e.g., 'PermitRootLogin') and values are their settings.
+          These are applied directly to /etc/ssh/sshd_config.
+        default:
+          AddressFamily: inet6
+          PermitRootLogin: "no"
+          PubkeyAuthentication: "yes"
+          PasswordAuthentication: "no"
+          AllowAgentForwarding: "yes"
+          AllowTcpForwarding: "yes"
+          X11Forwarding: "no"
+
+      sshd_match_blocks:
+        type: list
+        elements: dict
+        default: []
+        description: >
+          A list of conditional Match blocks to deploy as a drop-in file
+          in /etc/ssh/sshd_config.d/99-match-blocks.conf.
+        options:
+          condition:
+            type: str
+            required: true
+            description: The Match criteria (e.g., 'Group sftpusers', 'User foo', 'Address 192.168.1.*').
+          rules:
+            type: dict
+            required: true
+            description: >
+              Dictionary of SSH configuration directives to apply when the condition is met
+              (e.g., { ChrootDirectory: "/sftp/%u", ForceCommand: "internal-sftp" }).

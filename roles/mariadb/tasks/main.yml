@@ -1,0 +1,50 @@
+# SPDX-License-Identifier: MIT
+---
+- name: Install mariadb server and tools
+  ansible.builtin.apt:
+    name:
+      - mariadb-server
+      - python3-pymysql
+    state: present
+
+- name: Deploy server configuration
+  ansible.builtin.import_tasks: configure.yml
+
+- name: Secure database installation
+  ansible.builtin.import_tasks: secure-installation.yml
+
+- name: Ensure MySQL databases are present
+  community.mysql.mysql_db:
+    name: "{{ item.name }}"
+    collation: "{{ item.collation | default('utf8mb4_unicode_ci') }}"
+    encoding: "{{ item.encoding | default('utf8mb4') }}"
+    state: "{{ item.state | default('present') }}"
+    target: "{{ item.target | default(omit) }}"
+  loop: "{{ mariadb_databases }}"
+
+- name: Ensure MySQL users are present
+  community.mysql.mysql_user:
+    name: "{{ item.name }}"
+    host: "{{ item.host | default('localhost') }}"
+    password: "{{ item.password }}"
+    priv: "{{ item.priv | default('*.*:USAGE') }}"
+    state: "{{ item.state | default('present') }}"
+    append_privs: "{{ item.append_privs | default(false) }}"
+    encrypted: "{{ item.encrypted | default(false) }}"
+    column_case_sensitive: "{{ item.case_sensitive | default(false) }}"
+    update_password: "{{ item.update_password | default('always') }}"
+    tls_requires: "{{ item.tls_requires | default({}) }}"
+  loop: "{{ mariadb_users }}"
+  no_log: "{{ mariadb_hide_passwords }}"
+
+- name: Setup database monitoring
+  ansible.builtin.import_tasks: monitoring.yml
+
+- name: Deploy firewall rule
+  ansible.builtin.copy:
+    content: |
+      tcp dport {{ mariadb_port }} accept \
+      comment "Accept mariadb access from VPN"
+    dest: /etc/nftables.d/filter-input-wg/mariadb.nft
+    mode: '0644'
+  notify: Reload nftables

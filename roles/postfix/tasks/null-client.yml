@@ -1,0 +1,30 @@
+# SPDX-License-Identifier: MIT
+---
+- name: Configure relayhost
+  ansible.builtin.lineinfile:
+    path: /etc/postfix/main.cf
+    regexp: '^relayhost\s*='
+    line: "relayhost = {{ postfix_relayhost }}"
+  when: postfix_relayhost is defined
+  notify: Reload postfix
+
+- name: Configure client SASL authentication
+  ansible.builtin.lineinfile:
+    path: /etc/postfix/main.cf
+    regexp: '^{{ item.name }}\s*='
+    line: "{{ item.name }} = {{ item.value }}"
+  loop:
+    - { name: "smtp_sasl_auth_enable", value: "{{ 'yes' if postfix_relay_auth_enable else 'no' }}" }
+    - { name: "smtp_sasl_password_maps", value: "hash:/etc/postfix/sasl_passwd" }
+    - { name: "smtp_sasl_security_options", value: "noanonymous" }
+    - { name: "smtp_tls_security_level", value: "{{ 'encrypt' if postfix_relay_auth_enable else 'may' }}" }
+    - { name: "smtp_tls_CAfile", value: "{{ postfix_tls_ca_file }}" }
+  notify: Reload postfix
+
+- name: Deploy sasl_passwd file
+  ansible.builtin.template:
+    src: sasl_passwd.j2
+    dest: /etc/postfix/sasl_passwd
+    mode: '0600'
+  when: postfix_relay_auth_enable
+  notify: Rebuild sasl_passwd

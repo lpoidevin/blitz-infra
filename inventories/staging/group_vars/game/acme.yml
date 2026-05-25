@@ -1,0 +1,15 @@
+# SPDX-License-Identifier: MIT
+---
+lego_certificates:
+  fxserver:
+    challenge: ovh-dns
+    account: blitz-security
+    domains:
+      - "{{ fxserver_connect_endpoint }}"
+      - "{{ fxserver_txadmin_endpoint }}"
+      # - play.coursepoursuite.fr
+      # - connect.coursepoursuite.fr
+
+lego_deploy_targets:
+  - name: fxserver
+    service_cmd: /usr/bin/systemctl reload nginx

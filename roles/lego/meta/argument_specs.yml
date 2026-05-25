@@ -1,0 +1,93 @@
+# SPDX-License-Identifier: MIT
+---
+argument_specs:
+  main:
+    short_description: Obtain and renew Let's Encrypt certificates using Lego
+    options:
+      lego_version:
+        type: str
+        default: "5.1.0"
+        description: The version of the Lego binary to download from GitHub
+      lego_arch:
+        type: str
+        default: "linux_amd64"
+        description: The architecture of the Lego binary
+      lego_user:
+        type: str
+        default: lego
+      lego_group:
+        type: str
+        default: lego
+      lego_home:
+        type: str
+        default: /var/lib/lego
+        description: The directory where Lego will store generated certificates and account keys
+      lego_config_dir:
+        type: str
+        default: /etc/lego
+        description: The directory where Lego configuration files (e.g., lego.yml, ovh.env) are stored
+
+      # OVH Specific Variables
+      lego_ovh_endpoint:
+        type: str
+        default: ovh-eu
+        choices: [ovh-eu, ovh-ca]
+        description: OVH API Endpoint
+      lego_ovh_app_key:
+        type: str
+        required: true
+        description: OVH API Application Key
+      lego_ovh_app_secret:
+        type: str
+        required: true
+        no_log: true
+        description: OVH API Application Secret
+      lego_ovh_consumer_key:
+        type: str
+        required: true
+        no_log: true
+        description: OVH API Consumer Key
+
+      lego_accounts:
+        type: dict
+        default: {}
+        description: Global accounts configuration
+      lego_challenges:
+        type: dict
+        default: {}
+        description: Global DNS/HTTP challenge configurations
+      lego_hooks:
+        type: dict
+        default: {}
+        description: Global hook configurations
+      lego_certificates:
+        type: dict
+        required: true
+        description: Host-specific certificate definitions
+
+      lego_deploy_targets:
+        type: list
+        elements: dict
+        default: []
+        description: List of targets for the deploy hook script.
+        options:
+          name:
+            type: str
+            required: true
+          cert_dest:
+            type: str
+          key_dest:
+            type: str
+          issuer_dest:
+            type: str
+          owner:
+            type: str
+            default: root
+          group:
+            type: str
+            default: root
+          key_mode:
+            type: str
+            default: "0400"
+          service_cmd:
+            type: str

@@ -1,0 +1,38 @@
+{{ ansible_managed | comment }}
+
+[sssd]
+config_file_version = 2
+domains = {{ sssd_domain }}
+#services = nss, pam, ssh
+
+#[nss]
+
+#[pam]
+
+#[ssh]
+
+[domain/{{ sssd_domain }}]
+id_provider = ldap
+auth_provider = ldap
+
+ldap_uri = {{ sssd_uri }}
+ldap_tls_reqcert = {{ sssd_tls_reqcert }}
+lookup_family_order = ipv6_first
+
+ldap_default_bind_dn = {{ sssd_bind_dn }}
+ldap_default_authtok_type = password
+ldap_default_authtok = {{ sssd_bind_passwd }}
+
+ldap_search_base = {{ sssd_base_dn }}
+ldap_user_search_base = {{ sssd_user_base }}
+ldap_group_search_base = {{ sssd_group_base }}
+ldap_schema = {{ sssd_schema }}
+
+ldap_pwd_policy = shadow
+ldap_chpass_update_last_change = true
+
+access_provider = simple
+simple_allow_groups = {{ sssd_simple_allow_groups }}
+
+cache_credentials = true
+auto_private_groups = true

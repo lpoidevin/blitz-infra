@@ -1,0 +1,47 @@
+# SPDX-License-Identifier: MIT
+---
+- name: Add grafana repository
+  ansible.builtin.deb822_repository:
+    name: grafana
+    types: deb
+    uris: https://apt.grafana.com
+    suites: stable
+    components: main
+    signed_by: https://apt.grafana.com/gpg.key
+    state: present
+  register: loki_repo
+
+- name: Update apt cache
+  ansible.builtin.apt:
+    update_cache: true
+  when: loki_repo.changed
+
+- name: Install loki
+  ansible.builtin.apt:
+    name: loki
+    state: present
+
+- name: Deploy loki configuration
+  ansible.builtin.template:
+    src: config.yml.j2
+    dest: /etc/loki/config.yml
+    owner: root
+    group: root
+    mode: '0640'
+  notify: Restart loki
+
+- name: Deploy alloy configuration
+  ansible.builtin.template:
+    src: config.alloy.j2
+    dest: /etc/alloy.d/loki.alloy
+    mode: '0644'
+  notify: Restart alloy
+
+- name: Deploy firewall rule
+  ansible.builtin.copy:
+    content: |
+      tcp dport 3100 accept \
+      comment "Accept loki access"
+    dest: /etc/nftables.d/filter-input-wg/loki.nft
+    mode: '0644'
+  notify: Reload nftables

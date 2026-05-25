@@ -1,0 +1,47 @@
+# SPDX-License-Identifier: MIT
+---
+- name: Check if 30-wg-ops encrypted credential exists
+  ansible.builtin.stat:
+    path: /etc/credstore.encrypted/network.wireguard.private.30-wg-ops
+  register: wireguard_ops_cred_file
+
+- name: Generate and encrypt 30-wg-ops private key
+  when: not wireguard_ops_cred_file.stat.exists
+  block:
+    - name: Generate 30-wg-ops private key
+      ansible.builtin.command: wg genkey
+      register: wireguard_ops_private_key
+      changed_when: true
+      no_log: true
+
+    - name: Encrypt 30-wg-ops private key with systemd-creds
+      community.general.systemd_creds_encrypt:
+        secret: "{{ wireguard_ops_private_key.stdout }}"
+      register: wireguard_encrypted_wg_key
+
+    - name: Save encrypted credential
+      ansible.builtin.copy:
+        content: "{{ wireguard_encrypted_wg_key.value }}"
+        dest: /etc/credstore.encrypted/network.wireguard.private.30-wg-ops
+        owner: root
+        group: systemd-network
+        mode: '0640'
+      notify: Restart systemd-networkd
+
+- name: Deploy wg-ops configuration
+  ansible.builtin.template:
+    src: "{{ item.file }}.j2"
+    dest: "/etc/systemd/network/30-{{ item.file }}"
+    owner: root
+    group: systemd-network
+    mode: "{{ item.mode }}"
+  loop:
+    - { file: wg-ops.netdev, mode: '0640'}
+    - { file: wg-ops.network, mode: '0644'}
+  notify: Restart systemd-networkd
+
+- name: Enable IPv6 forwarding
+  ansible.posix.sysctl:
+    name: net.ipv6.conf.all.forwarding
+    value: '1'
+    state: present

@@ -1,0 +1,28 @@
+# SPDX-License-Identifier: MIT
+---
+argument_specs:
+  main:
+    short_description: Deploy and configure Grafana Loki
+    options:
+      loki_listen_address:
+        type: str
+        default: "::"
+        description: IP address for the HTTP server to listen on.
+      loki_listen_port:
+        type: int
+        default: 3100
+
+      # Storage & Paths
+      loki_data_dir:
+        type: str
+        default: "/var/lib/loki"
+        description: Persistent storage directory for chunks and indexes.
+
+      # Data Retention
+      loki_retention_enabled:
+        type: bool
+        default: true
+        description: Enable log retention via the compactor.
+      loki_retention_period:
+        type: str
+        default: "720h" # 30 days

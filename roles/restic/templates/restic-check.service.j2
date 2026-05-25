@@ -1,0 +1,10 @@
+[Unit]
+Description=Restic maintenance task
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=oneshot
+User={{ restic_user }}
+Group={{ restic_group }}
+ExecStart=/usr/local/sbin/backup-check.sh

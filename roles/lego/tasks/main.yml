@@ -1,0 +1,136 @@
+# SPDX-License-Identifier: MIT
+---
+# - name: Install lego
+#   ansible.builtin.apt:
+#     name: lego
+#     state: present
+
+- name: Ensure required base packages are installed
+  ansible.builtin.apt:
+    name:
+      - ca-certificates
+      - tar
+    state: present
+
+- name: Download and install Lego v5 binary
+  ansible.builtin.unarchive:
+    src: "https://github.com/go-acme/lego/releases/download/v{{ lego_version }}/lego_v{{ lego_version }}_{{ lego_arch }}.tar.gz"
+    dest: /usr/local/bin/
+    remote_src: true
+    creates: "/usr/local/bin/lego"
+    owner: root
+    group: root
+    mode: '0755'
+    extra_opts:
+      - lego
+
+- name: Ensure lego group exists
+  ansible.builtin.group:
+    name: "{{ lego_group }}"
+    system: true
+    state: present
+
+- name: Ensure lego user exists
+  ansible.builtin.user:
+    name: "{{ lego_user }}"
+    group: "{{ lego_group }}"
+    system: true
+    home: "{{ lego_home }}"
+    shell: /usr/sbin/nologin
+    create_home: true
+    state: present
+
+- name: Create Lego configuration directory
+  ansible.builtin.file:
+    path: "{{ lego_config_dir }}"
+    state: directory
+    owner: "{{ lego_user }}"
+    group: "{{ lego_group }}"
+    mode: '0750'
+
+- name: Configure OVH API secrets
+  ansible.builtin.template:
+    src: ovh.env.j2
+    dest: "{{ lego_config_dir }}/ovh.env"
+    owner: "{{ lego_user }}"
+    group: "{{ lego_group }}"
+    mode: '0600'
+
+- name: Compile unified lego configuration
+  ansible.builtin.set_fact:
+    lego_compiled_config:
+      storage: "{{ lego_home }}/"
+      accounts: "{{ lego_accounts }}"
+      challenges: "{{ lego_challenges }}"
+      hooks: "{{ lego_hooks }}"
+      certificates: "{{ lego_certificates }}"
+
+- name: Generate lego configuration
+  ansible.builtin.copy:
+    content: "{{ lego_compiled_config | dict2items | rejectattr('value', 'equalto', {}) | list | items2dict | to_nice_yaml }}"
+    dest: "{{ lego_config_dir }}/lego.yml"
+    owner: "{{ lego_user }}"
+    group: "{{ lego_group }}"
+    mode: '0600'
+
+- name: Deploy generalized deployment hook
+  ansible.builtin.template:
+    src: lego-deploy-hook.sh.j2
+    dest: /usr/local/bin/lego-deploy-hook.sh
+    owner: "{{ lego_user }}"
+    group: "{{ lego_group }}"
+    mode: '0750'
+
+- name: Allow lego user to execute hook commands via sudo
+  ansible.builtin.copy:
+    content: |
+      {% for target in lego_deploy_targets %}
+      {% if target.service_cmd is defined %}
+      {{ lego_user }} ALL=(ALL) NOPASSWD: {{ target.service_cmd }}
+      {% endif %}
+      {% endfor %}
+    dest: /etc/sudoers.d/lego-hooks
+    mode: '0440'
+    validate: /usr/sbin/visudo -cf %s
+
+- name: Check if initial certificates exist
+  ansible.builtin.stat:
+    path: "{{ lego_home }}/certificates/{{ item.key }}.crt"
+  loop: "{{ lego_certificates | dict2items }}"
+  register: lego_cert_status
+
+- name: Execute initial certificate request
+  ansible.builtin.shell:
+    cmd: |
+      # Load OVH environment variables safely
+      set -a; source {{ lego_config_dir }}/ovh.env; set +a;
+
+      # Execute Lego run as ROOT
+      /usr/local/bin/lego --config {{ lego_config_dir }}/lego.yml
+    executable: /bin/bash
+  changed_when: true
+  when: lego_cert_status.results | selectattr('stat.exists', 'equalto', false) | list | length > 0
+  register: lego_initial_request
+  notify:
+    - Display request output
+    - Enforce ownership on all files
+
+- name: Create Lego renewal systemd service
+  ansible.builtin.template:
+    src: lego-renewal.service.j2
+    dest: /etc/systemd/system/lego-renewal.service
+    mode: '0644'
+  notify: Reload systemd
+
+- name: Create Lego renewal systemd timer
+  ansible.builtin.copy:
+    src: lego-renewal.timer
+    dest: /etc/systemd/system/lego-renewal.timer
+    mode: '0644'
+  notify: Reload systemd
+
+- name: Enable and start Lego renewal timer
+  ansible.builtin.systemd_service:
+    name: lego-renewal.timer
+    state: started
+    enabled: true

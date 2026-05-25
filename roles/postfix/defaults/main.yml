@@ -1,0 +1,17 @@
+# SPDX-License-Identifier: MIT
+---
+postfix_inet_protocols: ipv6
+postfix_inet_interfaces: "loopback-only"
+postfix_tls_ca_file: /etc/ssl/certs/ca-certificates.crt
+
+postfix_relay_auth_enable: false
+postfix_server_auth_enable: false
+postfix_server_client_group: all
+postfix_server_app_users: []
+
+postfix_virtual_aliases: []
+# postfix_virtual_aliases:
+#   - alias: postmaster
+#     destination: admin@example.com
+#   - alias: root
+#     destination: admin@example.com

@@ -1,0 +1,5 @@
+# SPDX-License-Identifier: MIT
+---
+- ansible.builtin.import_playbook: playbooks/manager.yml
+- ansible.builtin.import_playbook: playbooks/cache.yml
+- ansible.builtin.import_playbook: playbooks/game.yml

@@ -1,0 +1,145 @@
+# SPDX-License-Identifier: MIT
+---
+argument_specs:
+  main:
+    short_description: Deploy, configure, and tune MariaDB Server
+    options:
+      # Network & Environment
+      mariadb_bind_address:
+        type: str
+        default: "127.0.0.1"
+        description: The IP address MariaDB should listen on.
+      mariadb_port:
+        type: int
+        default: 3306
+        description: The port MariaDB should listen on.
+      mariadb_env:
+        type: str
+        default: "production"
+        description: The environment type. Setting to anything other than 'production' enables verbose logging.
+      mariadb_socket:
+        type: str
+        default: "/run/mysqld/mysqld.sock"
+        description: The path to the Unix socket file.
+
+      # Connection Limits
+      mariadb_max_connections:
+        type: int
+        default: 500
+        description: Maximum permitted number of simultaneous client connections.
+      mariadb_max_allowed_packet:
+        type: str
+        default: "64M"
+        description: Maximum size of one packet or any generated/intermediate string.
+      mariadb_wait_timeout:
+        type: int
+        default: 600
+        description: Number of seconds the server waits for activity on a noninteractive connection.
+      mariadb_interactive_timeout:
+        type: int
+        default: 600
+        description: Number of seconds the server waits for activity on an interactive connection.
+      mariadb_connect_timeout:
+        type: int
+        default: 10
+        description: Number of seconds the mysqld server waits for a connect packet before responding with Bad handshake.
+
+      # InnoDB Tuning
+      mariadb_buffer_pool_size:
+        type: str
+        default: "1G"
+        description: Memory allocated to the InnoDB buffer pool.
+      mariadb_log_file_size:
+        type: str
+        default: "256M"
+        description: Size of each log file in a log group.
+      mariadb_log_buffer_size:
+        type: str
+        default: "16M"
+        description: Size of the buffer for transactions that have not been committed yet.
+      mariadb_write_io_threads:
+        type: int
+        default: 8
+        description: Number of I/O threads for write operations in InnoDB.
+      mariadb_read_io_threads:
+        type: int
+        default: 8
+        description: Number of I/O threads for read operations in InnoDB.
+
+      # Logging
+      mariadb_long_query_time:
+        type: float
+        default: 0.5
+        description: Queries taking longer than this many seconds are logged to the slow query log.
+      mariadb_hide_passwords:
+        type: bool
+        default: false
+        description: Prevent logging of the entire user creation task output.
+
+      # Databases Management
+      mariadb_databases:
+        type: list
+        elements: dict
+        default: []
+        description: List of databases to ensure are present or absent.
+        options:
+          name:
+            type: str
+            required: true
+            description: Name of the database.
+          collation:
+            type: str
+            default: "utf8mb4_unicode_ci"
+          encoding:
+            type: str
+            default: "utf8mb4"
+          state:
+            type: str
+            choices: ["present", "absent", "dump", "import"]
+            default: "present"
+          target:
+            type: str
+            description: Path to a SQL file for import/dump.
+
+      # Users Management
+      mariadb_users:
+        type: list
+        elements: dict
+        default: []
+        description: List of users to ensure are present or absent.
+        options:
+          name:
+            type: str
+            required: true
+            description: The username.
+          host:
+            type: str
+            default: "localhost"
+          password:
+            type: str
+            no_log: true
+            description: The user's password. Masked automatically in output.
+          priv:
+            type: str
+            default: "*.*:USAGE"
+            description: Privileges string (e.g., 'mydb.*:ALL,GRANT').
+          state:
+            type: str
+            choices: ["present", "absent"]
+            default: "present"
+          append_privs:
+            type: bool
+            default: false
+          encrypted:
+            type: bool
+            default: false
+          case_sensitive:
+            type: bool
+            default: false
+          update_password:
+            type: str
+            choices: ["always", "on_create"]
+            default: "always"
+          tls_requires:
+            type: dict
+            description: TLS requirements dictionary.

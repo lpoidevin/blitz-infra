@@ -1,0 +1,47 @@
+# SPDX-License-Identifier: MIT
+---
+argument_specs:
+  main:
+    short_description: Configure SSSD for LDAP authentication
+    options:
+      sssd_domain:
+        type: str
+        default: "example.com"
+        description: The SSSD domain name.
+      sssd_uri:
+        type: str
+        required: true
+        description: The LDAP URI (e.g., ldap://ldap.example.com).
+      sssd_bind_dn:
+        type: str
+        default: "uid=sssd,ou=sysaccounts,dc=example,dc=com"
+        description: The DN used to bind to the LDAP directory.
+      sssd_tls_reqcert:
+        type: str
+        default: "hard"
+        description: TLS certificate requirement behavior.
+      sssd_bind_passwd:
+        type: str
+        required: true
+        no_log: true
+        description: The password for the bind DN.
+      sssd_base_dn:
+        type: str
+        default: "dc=example,dc=com?subtree?"
+        description: The base DN for LDAP searches.
+      sssd_user_base:
+        type: str
+        default: "ou=people,dc=example,dc=com?onelevel?"
+        description: The base DN for user searches.
+      sssd_group_base:
+        type: str
+        default: "ou=groups,dc=example,dc=com?onelevel?"
+        description: The base DN for group searches.
+      sssd_schema:
+        type: str
+        default: "rfc2307bis"
+        description: The LDAP schema in use.
+      sssd_simple_allow_groups:
+        type: str
+        default: "infra"
+        description: Comma-separated list of groups allowed to log in.

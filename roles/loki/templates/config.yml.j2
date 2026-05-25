@@ -1,0 +1,68 @@
+{{ ansible_managed | comment }}
+---
+auth_enabled: false
+
+server:
+  http_listen_address: "{{ loki_listen_address }}"
+  http_listen_port: {{ loki_listen_port }}
+
+common:
+  instance_addr: "::1"
+  path_prefix: "{{ loki_data_dir }}"
+  storage:
+    filesystem:
+      chunks_directory: "{{ loki_data_dir }}/chunks"
+      rules_directory: "{{ loki_data_dir }}/rules"
+  replication_factor: 1
+  ring:
+    kvstore:
+      store: inmemory
+
+query_range:
+  results_cache:
+    cache:
+      embedded_cache:
+        enabled: true
+        max_size_mb: 100
+
+limits_config:
+  metric_aggregation_enabled: true
+  enable_multi_variant_queries: true
+  allow_structured_metadata: true
+{% if loki_retention_enabled %}
+  retention_period: "{{ loki_retention_period }}"
+{% endif %}
+
+{% if loki_retention_enabled %}
+compactor:
+  working_directory: "{{ loki_data_dir }}/retention"
+  compaction_interval: 10m
+  retention_enabled: true
+  retention_delete_delay: 2h
+  retention_delete_worker_count: 150
+  delete_request_store: filesystem
+{% endif %}
+
+schema_config:
+  configs:
+    - from: 2020-10-24
+      store: tsdb
+      object_store: filesystem
+      schema: v13
+      index:
+        prefix: index_
+        period: 24h
+
+pattern_ingester:
+  enabled: true
+  metric_aggregation:
+    loki_address: "localhost:{{ loki_listen_port }}"
+
+ruler:
+  alertmanager_url: http://localhost:9093
+
+frontend:
+  encoding: protobuf
+
+analytics:
+  reporting_enabled: false

@@ -1,0 +1,13 @@
+# SPDX-License-Identifier: MIT
+---
+# Base hardening configuration for all servers
+sshd_global_config:
+  AddressFamily: inet6
+  PermitRootLogin: "no"
+  PubkeyAuthentication: "yes"
+  PasswordAuthentication: "no"
+  AllowAgentForwarding: "yes"
+  AllowTcpForwarding: "yes"
+  X11Forwarding: "no"
+
+sshd_match_blocks: []

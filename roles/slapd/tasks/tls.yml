@@ -1,0 +1,77 @@
+# SPDX-License-Identifier: MIT
+---
+- name: Create TLS directory
+  ansible.builtin.file:
+    path: /etc/ldap/tls
+    state: directory
+    mode: '0755'
+
+- name: Check if real certificate already exists
+  ansible.builtin.stat:
+    path: /etc/ldap/tls/ldap.crt
+  register: slapd_cert_stat
+
+- name: Generate temporary snakeoil certs for initial bootstrap
+  ansible.builtin.command:
+    cmd: openssl req -x509 -nodes -days 1 -newkey rsa:2048 -keyout /etc/ldap/tls/ldap.key -out /etc/ldap/tls/ldap.crt -subj "/CN=temporary.local"
+  changed_when: true
+  when: not slapd_cert_stat.stat.exists
+
+- name: Copy snakeoil cert to dummy issuer to satisfy OpenLDAP start
+  ansible.builtin.copy:
+    src: /etc/ldap/tls/ldap.crt
+    dest: /etc/ldap/tls/ldap.issuer.crt
+    mode: '0644'
+    remote_src: true
+  changed_when: true
+  when: not slapd_cert_stat.stat.exists
+
+- name: Set correct permissions on snakeoil TLS files
+  ansible.builtin.file:
+    path: "{{ item.path }}"
+    owner: openldap
+    group: openldap
+    mode: "{{ item.mode }}"
+  loop:
+    - { path: /etc/ldap/tls/ldap.crt, mode: '0644' }
+    - { path: /etc/ldap/tls/ldap.issuer.crt, mode: '0644' }
+    - { path: /etc/ldap/tls/ldap.key, mode: '0600' }
+  when: not slapd_cert_stat.stat.exists
+
+- name: Configure TLS certificates
+  community.general.ldap_attrs:
+    dn: cn=config
+    attributes:
+      olcTLSCertificateFile: /etc/ldap/tls/ldap.crt
+      olcTLSCertificateKeyFile: /etc/ldap/tls/ldap.key
+      olcTLSCACertificateFile: /etc/ldap/tls/ldap.issuer.crt
+    state: exact
+
+- name: Configure TLS minimum protocol
+  community.general.ldap_attrs:
+    dn: cn=config
+    attributes:
+      olcTLSProtocolMin: "{{ slapd_tls_protocol_min }}"
+    state: exact
+
+- name: Set default Security Strength Factors (SSF)
+  community.general.ldap_attrs:
+    dn: cn=config
+    attributes:
+      olcLocalSSF: 256
+      olcSecurity: ssf=128 update_ssf=128 simple_bind=128
+    state: exact
+
+- name: Configure supported SASL authentication methods
+  community.general.ldap_attrs:
+    dn: cn=config
+    attributes:
+      olcSaslSecProps: noanonymous,noplain,minssf="128"
+    state: exact
+
+- name: Enable ldaps connection
+  ansible.builtin.lineinfile:
+    path: /etc/default/slapd
+    regexp: '^SLAPD_SERVICES='
+    line: SLAPD_SERVICES="ldap://[::1]/ ldaps://[::]/ ldapi:///"
+  notify: Restart slapd

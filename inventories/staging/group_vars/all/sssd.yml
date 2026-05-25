@@ -1,0 +1,12 @@
+# SPDX-License-Identifier: MIT
+---
+sssd_domain: "{{ domain }}"
+sssd_uri: ldaps://ldap.blitz-infra.net
+sssd_tls_reqcert: allow
+
+sssd_bind_dn: "uid=sssd,ou=sysaccounts,{{ base_dn }}"
+sssd_bind_passwd: "{{ vault_sssd_bind_passwd }}"
+
+sssd_base_dn: "{{ base_dn }}?subtree?"
+sssd_user_base: "ou=people,{{ base_dn }}?onelevel?"
+sssd_group_base: "ou=groups,{{ base_dn }}?onelevel?"

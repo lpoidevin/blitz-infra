@@ -1,0 +1,51 @@
+# SPDX-License-Identifier: MIT
+---
+argument_specs:
+  main:
+    short_description: Deploy Restic backup with Rclone and service dumps
+    options:
+      restic_repo_path:
+        type: str
+        required: true
+        description: "The Restic repository URL (e.g., rclone:ovh-ftp:restic)"
+      restic_password:
+        type: str
+        required: true
+        no_log: true
+
+      restic_ovh_ftp_name:
+        type: str
+      restic_ovh_ftp_host:
+        type: str
+      restic_ovh_ftp_user:
+        type: str
+      restic_ovh_ftp_pass:
+        type: str
+        no_log: true
+
+      # Service Dumps
+      restic_mariadb_backup:
+        type: bool
+        default: false
+      restic_mariadb_socket:
+        type: str
+        default: /run/mysqld/mysqld.sock
+
+      restic_openldap_backup:
+        type: bool
+        default: false
+
+      # Alerting
+      restic_admin_email:
+        type: str
+        description: Email address to notify on failure
+
+      # Scope
+      restic_source_dirs:
+        type: list
+        elements: str
+        default: []
+      restic_exclude_patterns:
+        type: list
+        elements: str
+        default: []

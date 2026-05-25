@@ -1,0 +1,40 @@
+# SPDX-License-Identifier: MIT
+---
+- name: Deploy .my.cnf file for root socket authentication
+  ansible.builtin.template:
+    src: my.cnf.j2
+    dest: /root/.my.cnf
+    owner: root
+    group: root
+    mode: '0400'
+
+- name: Define server bind address
+  ansible.builtin.lineinfile:
+    path: /etc/mysql/mariadb.conf.d/50-server.cnf
+    regexp: '^bind-address'
+    line: bind-address           = {{ mariadb_bind_address }}
+  notify: Restart mariadb
+
+- name: Deploy tuned server configuration
+  ansible.builtin.template:
+    src: 60-tuning.cnf.j2
+    dest: /etc/mysql/mariadb.conf.d/60-tuning.cnf
+    mode: '0644'
+  notify: Restart mariadb
+
+- name: Set default-character-set to utf8mb4
+  ansible.builtin.copy:
+    content: |
+      [mysql]
+      default-character-set = utf8mb4
+    dest: /etc/mysql/conf.d/mysql.cnf
+    mode: '0644'
+  notify: Restart mariadb
+
+- name: Deploy logging configuration
+  ansible.builtin.template:
+    src: 60-logging.cnf.j2
+    dest: /etc/mysql/mariadb.conf.d/60-logging.cnf
+    mode: '0644'
+  notify: Restart mariadb
+  when: mariadb_env != 'production'

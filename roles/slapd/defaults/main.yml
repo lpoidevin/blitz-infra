@@ -1,0 +1,5 @@
+# SPDX-License-Identifier: MIT
+---
+slapd_base_dn: dc=example,dc=com
+slapd_enable_tls: false
+slapd_tls_protocol_min: 3.4

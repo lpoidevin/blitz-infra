@@ -1,0 +1,8 @@
+# SPDX-License-Identifier: MIT
+---
+prometheus_listen_address: "[::]:9090"
+prometheus_enable_remote_write: true
+
+# Data Retention
+prometheus_retention_time: "4w"
+prometheus_retention_size: "0" # 0 means disabled, retention relies entirely on time.

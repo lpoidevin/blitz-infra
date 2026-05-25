@@ -1,0 +1,43 @@
+# SPDX-License-Identifier: MIT
+---
+- name: Install common packages
+  ansible.builtin.apt:
+    name:
+      - curl
+      - vim
+      - htop
+      # - tmux
+      # - dnsutils
+      - mtr-tiny
+      - gnupg # required to add grafana signing key
+      - tpm2-tools # used by systemd credentials
+      - unattended-upgrades
+    state: present
+    update_cache: true
+    cache_valid_time: 3600
+
+- name: Set hostname from inventory_hostname
+  ansible.builtin.hostname:
+    name: "{{ inventory_hostname_short }}"
+    use: debian
+
+- name: Configure hosts file from inventory_hostname
+  ansible.builtin.template:
+    src: hosts.j2
+    dest: /etc/hosts
+    mode: "0644"
+
+- name: Set timezone via localtime
+  community.general.timezone:
+    name: "{{ common_timezone }}"
+
+- name: Setup network configuration
+  ansible.builtin.import_tasks: network.yml
+
+- name: Define report mail for unattended-upgrades
+  ansible.builtin.lineinfile:
+    dest: /etc/apt/apt.conf.d/50unattended-upgrades
+    regexp: '^\s*//\s*Unattended-Upgrade::Mail\s*|^\s*Unattended-Upgrade::Mail\s*'
+    line: 'Unattended-Upgrade::Mail "{{ common_upgrades_email }}";'
+  when: common_upgrades_email is defined
+  notify: Restart unattended-upgrades

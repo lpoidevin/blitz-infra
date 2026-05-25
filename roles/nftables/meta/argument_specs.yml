@@ -1,0 +1,10 @@
+# SPDX-License-Identifier: MIT
+---
+argument_specs:
+  main:
+    short_description: Deploy and manage nftables firewall with drop-in support
+    options:
+      nftables_enable_forwarding:
+        type: bool
+        default: false
+        description: Enable the forward chain and process forward drop-in rules.

@@ -1,0 +1,56 @@
+{{ ansible_managed | comment('c') }}
+
+loki.relabel "journal" {
+  forward_to = []
+
+  rule {
+    source_labels = ["__journal__systemd_unit"]
+    target_label  = "unit"
+  }
+  rule {
+    source_labels = ["__journal__boot_id"]
+    target_label  = "boot_id"
+  }
+  rule {
+    source_labels = ["__journal__transport"]
+    target_label  = "transport"
+  }
+  rule {
+    source_labels = ["__journal_priority_keyword"]
+    target_label  = "level"
+  }
+  rule {
+    source_labels = ["__journal__hostname"]
+    target_label  = "instance"
+  }
+}
+
+// loki.source.journal "read" {
+//   forward_to = [
+//     loki.write.local.receiver,
+//   ]
+//   relabel_rules = loki.relabel.journal.rules
+//   labels = {
+//     "job" = "integrations/journal",
+//   }
+// }
+
+prometheus.exporter.unix "default" {
+  include_exporter_metrics = true
+  disable_collectors       = ["bcache", "btrfs", "fibrechannel", "infiniband", "ipvs", "nfs", "nfsd", "xfs", "zfs"]
+  enable_collectors        = ["systemd"]
+}
+
+prometheus.scrape "node" {
+  targets = array.concat(
+    prometheus.exporter.unix.default.targets,
+    [{
+      __address__ = "localhost:12345",
+      job         = "alloy",
+    }],
+  )
+
+  scrape_interval = "15s"
+
+  forward_to = [prometheus.remote_write.default.receiver]
+}

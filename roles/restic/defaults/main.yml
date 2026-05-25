@@ -1,0 +1,26 @@
+# SPDX-License-Identifier: MIT
+---
+restic_user: restic
+restic_group: restic
+restic_home: /var/lib/restic
+restic_dump_dir: /var/backups/restic-dumps
+restic_cache_dir: /var/cache/restic
+
+restic_mariadb_backup: false
+restic_mariadb_socket: /run/mysqld/mysqld.sock
+
+restic_openldap_backup: false
+
+restic_source_dirs: []
+# restic_source_dirs:
+#   - /etc
+#   - /home
+#   - /root
+#   - /var
+
+restic_exclude_patterns: []
+# restic_exclude_patterns:
+#   - "*.log"
+#   - "/var/www/*/cache"
+#   - "/home/*/.cache"
+#   - ".DS_Store"

@@ -1,0 +1,52 @@
+# SPDX-License-Identifier: MIT
+---
+argument_specs:
+  main:
+    short_description: Configure base system and networking
+    options:
+      common_timezone:
+        type: str
+        default: Etc/UTC
+        description: System timezone (e.g., Europe/Paris, Etc/UTC).
+      common_upgrades_email:
+        type: str
+        description: Email address to receive unattended-upgrades reports.
+      common_network_interfaces:
+        type: list
+        elements: dict
+        default: []
+        description: List of systemd-networkd interface configurations.
+        options:
+          name:
+            type: str
+            required: true
+            description: Interface name (e.g., ens3)
+          mac:
+            type: str
+            description: Permanent MAC address to match
+          mtu:
+            type: int
+            description: Link MTU bytes
+          dhcp4:
+            type: bool
+            default: true
+            description: Enable IPv4 DHCP
+          ipv6_address:
+            type: str
+            description: Static IPv6 address with CIDR (e.g., 2001:db8::1/64)
+          dns:
+            type: list
+            elements: str
+            description: List of DNS servers
+          ntp:
+            type: list
+            elements: str
+            description: List of NTP servers
+          domains:
+            type: list
+            elements: str
+            description: List of search domains
+          routes:
+            type: list
+            elements: dict
+            description: List of custom routes

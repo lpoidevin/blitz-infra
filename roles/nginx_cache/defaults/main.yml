@@ -1,0 +1,7 @@
+# SPDX-License-Identifier: MIT
+---
+# Cache zone
+nginx_cache_dir: /var/cache/nginx/cfx
+nginx_cache_keys_zone_size: 48m
+nginx_cache_max_size: 20g
+nginx_cache_inactive: 2h

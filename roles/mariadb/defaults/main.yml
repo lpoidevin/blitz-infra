@@ -1,0 +1,42 @@
+# SPDX-License-Identifier: MIT
+---
+# Basic settings
+mariadb_bind_address: 127.0.0.1
+mariadb_port: 3306
+mariadb_env: production
+
+# Connections limits
+mariadb_max_connections: 500   # Default 100 is too low for heavily modded server
+mariadb_max_allowed_packet: 64M   # Prevents errors with large JSON columns/inventories
+mariadb_wait_timeout: 600   # Kills abandoned FiveM script connections
+mariadb_interactive_timeout: 600   # Match wait_timeout
+mariadb_connect_timeout: 10
+
+# InnoDB tuning
+# Note: Adjust buffer pool size to roughly 50-70% of your total RAM *IF* this is a dedicated DB server.
+# If FiveM and MariaDB share a server with 8GB RAM, 1G or 2G is usually plenty.
+mariadb_buffer_pool_size: 1G # (4G)
+
+mariadb_log_file_size: 256M # Gives InnoDB more room to batch writes (512M)
+mariadb_log_buffer_size: 16M # (64M)
+mariadb_write_io_threads: 8 # Default is 4; 8 helps with rapid inventory/position saves
+mariadb_read_io_threads: 8
+
+# Logging slow queries
+mariadb_long_query_time: 0.5 # Log queries taking longer than half a second
+
+# Databases management
+mariadb_databases: []
+#   - name: example
+#     collation: utf8_general_ci
+#     encoding: utf8
+#     replicate: 1
+
+# Users management
+mariadb_users: []
+#   - name: example
+#     host: 127.0.0.1
+#     password: secret
+#     priv: *.*:USAGE
+
+mariadb_hide_passwords: false

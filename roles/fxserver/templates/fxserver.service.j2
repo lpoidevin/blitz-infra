@@ -1,0 +1,112 @@
+{{ ansible_managed | comment }}
+
+[Unit]
+Description=CitizenFX FXServer - FiveM/RedM Dedicated Server
+After=network.target
+
+[Service]
+# ==========================================
+# Core Service & Paths
+# ==========================================
+User={{ fxserver_user }}
+Group={{ fxserver_group }}
+WorkingDirectory={{ fxserver_data_dir }}
+ExecStart={{ fxserver_install_dir }}/current/run.sh
+
+# Defines txAdmin and server environment variables
+EnvironmentFile=/etc/default/fxserver
+
+# ==========================================
+# Performance & Limits
+# ==========================================
+# Allows the server to open many files (crucial for player network sockets)
+LimitNOFILE=1048576
+
+# ==========================================
+# Privilege & Identity Sandboxing
+# ==========================================
+# Prevents the service and its children from gaining new privileges (e.g., via setuid)
+NoNewPrivileges=yes
+
+# Provides a minimal user/group mapping configured with the "root" user and group
+PrivateUsers=self
+
+# Prevents changing the kernel execution domain
+LockPersonality=yes
+
+# Prohibits the creation of set-user-ID and set-group-ID files
+RestrictSUIDSGID=yes
+
+# Drops all root capabilities to the bare minimum
+CapabilityBoundingSet=
+
+# ==========================================
+# File System Isolation
+# ==========================================
+# Makes /usr, /boot, and /etc completely read-only
+ProtectSystem=strict
+
+# Grants read/write ONLY to the specific directories FXServer/txAdmin needs
+ReadWritePaths={{ fxserver_install_dir }} {{ fxserver_data_dir }}
+
+# Hides /home directories of other users entirely
+ProtectHome=yes
+
+# Gives the process its own isolated /tmp folder
+PrivateTmp=yes
+
+# Prevents the service from seeing or interacting with real hardware devices in /dev
+PrivateDevices=yes
+
+# ==========================================
+# Network & IPC
+# ==========================================
+# Restricts networking to IPv4, IPv6, local UNIX sockets, and DNS lookups
+RestrictAddressFamilies=AF_INET AF_INET6 AF_UNIX AF_NETLINK
+
+# ==========================================
+# Kernel, Namespaces, & Processes
+# ==========================================
+# Hides hardware, kernel variables, and modules from the process
+ProtectKernelTunables=yes
+ProtectKernelModules=yes
+
+# Makes control groups (/sys/fs/cgroup) read-only
+ProtectControlGroups=yes
+
+# Hides processes owned by other users from /proc (process isolation)
+ProtectProc=invisible
+
+# Denies access to the system clock and kernel log buffers
+ProtectClock=yes
+ProtectKernelLogs=yes
+
+# Enforces native system call architectures (prevents executing 32-bit binaries to bypass filters)
+SystemCallArchitectures=native
+
+# Prevents the creation of new namespaces
+RestrictNamespaces=yes
+
+# Prevents the process from enabling real-time scheduling
+RestrictRealtime=yes
+
+# Returns an explicit permission error (EPERM) if a blocked syscall is attempted
+SystemCallErrorNumber=EPERM
+
+# ==========================================
+# Syscall Filtering
+# ==========================================
+# Restricts system calls to standard system services.
+# ADVICE: If the server crashes with a SIGSYS (Bad system call) error, check 'journalctl -xe'
+# to see which specific syscall was blocked and add it to an allowlist here
+# (e.g., SystemCallFilter=@system-service @system-api) or comment this line out.
+SystemCallFilter=@system-service
+
+# ==========================================
+# Restart Behavior
+# ==========================================
+Restart=on-failure
+RestartSec=5
+
+[Install]
+WantedBy=multi-user.target

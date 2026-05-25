@@ -1,0 +1,42 @@
+#!/bin/bash
+{{ ansible_managed | comment }}
+
+NAME="${LEGO_HOOK_CERT_NAME}"
+CERT="${LEGO_HOOK_CERT_PATH}"
+KEY="${LEGO_HOOK_CERT_KEY_PATH}"
+ISSUER="${CERT%.crt}.issuer.crt"
+
+echo "Executing deployment hook for domain: $NAME"
+
+case "$NAME" in
+{% for target in lego_deploy_targets %}
+  "{{ target.name }}")
+{% if target.cert_dest is defined %}
+    cp "$CERT" "{{ target.cert_dest }}"
+    chown {{ target.owner | default('root') }}:{{ target.group | default('root') }} "{{ target.cert_dest }}"
+    chmod 0644 "{{ target.cert_dest }}"
+
+{% endif %}
+{% if target.issuer_dest is defined %}
+    if [ -f "$ISSUER" ]; then
+      cp "$ISSUER" "{{ target.issuer_dest }}"
+      chown {{ target.owner | default('root') }}:{{ target.group | default('root') }} "{{ target.issuer_dest }}"
+      chmod 0644 "{{ target.issuer_dest }}"
+    fi
+
+{% endif %}
+{% if target.key_dest is defined %}
+    cp "$KEY" "{{ target.key_dest }}"
+    chown {{ target.owner | default('root') }}:{{ target.group | default('root') }} "{{ target.key_dest }}"
+    chmod {{ target.key_mode | default('0400') }} "{{ target.key_dest }}"
+
+{% endif %}
+{% if target.service_cmd is defined %}
+    sudo {{ target.service_cmd }}
+{% endif %}
+    ;;
+{% endfor %}
+  *)
+    echo "No specific deployment targets configured for $NAME."
+    ;;
+esac

@@ -1,0 +1,23 @@
+[NetDev]
+Name={{ wireguard_int_nic }}
+Kind=wireguard
+
+[WireGuard]
+ListenPort={{ wireguard_int_port }}
+
+{% for host in groups['all'] if host != inventory_hostname %}
+{% if hostvars[host].wireguard_int_public_key is defined and hostvars[host]['wireguard_int_address'] is defined %}
+[WireGuardPeer]
+PublicKey={{ hostvars[host].wireguard_int_public_key }}
+{% if hostvars[host].wireguard_ops_address is defined %}
+AllowedIPs={{ hostvars[host]['wireguard_int_address'] }}/128, {{ wireguard_ops_network }}
+{% else %}
+AllowedIPs={{ hostvars[host]['wireguard_int_address'] }}/128
+{% endif %}
+Endpoint={{ host }}:{{ wireguard_int_port }}
+
+{% else %}
+# WARNING: Peer configuration for {{ host }} was skipped.
+# Reason: Missing 'wireguard_int_public_key' or 'wireguard_int_address' host variables.
+{% endif %}
+{% endfor %}

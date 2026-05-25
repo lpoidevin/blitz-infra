@@ -1,0 +1,26 @@
+# SPDX-License-Identifier: MIT
+---
+common_timezone: Etc/UTC
+
+common_network_interfaces: []
+# common_network_interfaces:
+#   - name: ens3
+#     mac: fa:16:3e:04:9f:6c
+#     mtu: 1500
+#     dhcp4: true
+#     ipv6_address: "2001:41d0:20a:900::64f/128"
+#     dns:
+#       - 8.8.8.8
+#       - 8.8.8.8
+#     ntp:
+#       - pool0.ntp.debian.org
+#     domains:
+#       - internal.example.com
+#     routes:
+#       - dest: "2001:41d0:20a:900::/64"
+#         scope: "link"
+#       - dest: "2001:41d0:65a::/64"
+#         gw: "2001:41d0:20a:900::"
+#       - dest: "::/0"
+#         gw: "fe80::1"
+#         onlink: true

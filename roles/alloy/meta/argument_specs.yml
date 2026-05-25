@@ -1,0 +1,14 @@
+# SPDX-License-Identifier: MIT
+---
+argument_specs:
+  main:
+    short_description: Deploy and configure Grafana Alloy agent
+    options:
+      alloy_prometheus_endpoint:
+        type: str
+        required: true
+        description: The hostname or IP of the Prometheus remote write endpoint.
+      alloy_loki_endpoint:
+        type: str
+        required: true
+        description: The hostname or IP of the Loki push endpoint.

@@ -1,0 +1,58 @@
+# SPDX-License-Identifier: MIT
+---
+argument_specs:
+  main:
+    short_description: Deploy WireGuard VPNs using systemd-networkd
+    options:
+      wireguard_int_nic:
+        type: str
+        default: wg0
+        description: Interface name for the internal network.
+      wireguard_int_port:
+        type: int
+        default: 51820
+        description: Listen port for the internal network.
+      wireguard_int_address:
+        type: str
+        required: true
+        description: IPv6 address for the internal interface.
+      wireguard_int_network:
+        type: str
+        required: true
+        description: The internal subnet to route.
+      wireguard_int_public_key:
+        type: str
+        required: true
+        description: The public key of the internal peer/server.
+
+      wireguard_ops_nic:
+        type: str
+        default: wg1
+        description: Interface name for the operators network.
+      wireguard_ops_port:
+        type: int
+        default: 51821
+        description: Listen port for the operators network.
+      wireguard_ops_address:
+        type: str
+        description: IPv6 address for the operators interface.
+      wireguard_ops_network:
+        type: str
+        description: The operators subnet to route.
+      wireguard_ops_peers:
+        type: list
+        elements: dict
+        description: List of operator peers.
+        options:
+          name:
+            type: str
+            required: true
+          public_key:
+            type: str
+            required: true
+          psk:
+            type: str
+            no_log: true
+          allowed_ip:
+            type: str
+            required: true

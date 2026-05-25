@@ -1,0 +1,13 @@
+{{ ansible_managed | comment }}
+
+vhost_traffic_status_zone;
+
+server {
+    listen [::]:9113;
+
+    location = /metrics {
+        access_log off;
+        vhost_traffic_status_display;
+        vhost_traffic_status_display_format prometheus;
+    }
+}

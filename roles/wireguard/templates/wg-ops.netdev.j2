@@ -1,0 +1,23 @@
+[NetDev]
+Name={{ wireguard_ops_nic }}
+Kind=wireguard
+
+[WireGuard]
+ListenPort={{ wireguard_ops_port }}
+
+{% if wireguard_ops_peers is defined %}
+{% for peer in wireguard_ops_peers %}
+# {{ peer.name }}
+[WireGuardPeer]
+PublicKey={{ peer.public_key }}
+{# Only apply PSK if it exists for this specific admin #}
+{% if peer.psk is defined %}
+PresharedKey={{ peer.psk }}
+{% endif %}
+{# Lock the routing down to just the admin's assigned internal IP #}
+AllowedIPs={{ peer.allowed_ip }}/128
+
+{% endfor %}
+{% else %}
+# WARNING: No admin peers defined. 'wireguard_ops_peers' variable is missing.
+{% endif %}

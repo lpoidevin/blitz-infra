@@ -1,0 +1,21 @@
+# SPDX-License-Identifier: MIT
+---
+- name: Install mariadb-backup
+  ansible.builtin.apt:
+    name: mariadb-backup
+    state: present
+
+# - name: Create restic mysqld database user
+#   community.mysql.mysql_user:
+#     name: "{{ restic_user }}"
+#     host: localhost
+#     plugin: unix_socket
+#     priv: "*.*:RELOAD, PROCESS, LOCK TABLES, BINLOG MONITOR"
+#     state: present
+    # login_password: NouveauMotDePasse
+
+- name: Create restic system user
+  ansible.builtin.user:
+    name: "{{ restic_user }}"
+    groups: mysql
+    append: true

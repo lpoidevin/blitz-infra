@@ -1,0 +1,5 @@
+# SPDX-License-Identifier: MIT
+---
+# We supply an empty list by default.
+# Users must define this list in their group_vars/host_vars to deploy proxies.
+nginx_proxy_vhosts: []

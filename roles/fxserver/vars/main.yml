@@ -1,0 +1,4 @@
+# SPDX-License-Identifier: MIT
+---
+fxserver_github_base: https://api.github.com/repos/citizenfx/fivem/commits/v1.0.0.
+fxserver_artifacts_base: https://runtime.fivem.net/artifacts/fivem/build_proot_linux/master/

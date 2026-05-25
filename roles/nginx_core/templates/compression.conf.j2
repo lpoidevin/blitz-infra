@@ -1,0 +1,33 @@
+{{ ansible_managed | comment }}
+
+# Gzip
+gzip on;
+gzip_comp_level 5;
+gzip_min_length {{ nginx_core_comp_min_length }};
+gzip_proxied any;
+gzip_vary on;
+
+gzip_types
+{% for type in nginx_core_comp_types %}
+{% if loop.last %}
+    {{ type }};
+{% else %}
+    {{ type }}
+{% endif %}
+{% endfor %}
+
+{% if nginx_core_brotli_module %}
+# Brotli
+brotli on;
+brotli_comp_level 6;
+brotli_min_length {{ nginx_core_comp_min_length }};
+
+brotli_types
+{% for type in nginx_core_comp_types %}
+{% if loop.last %}
+    {{ type }};
+{% else %}
+    {{ type }}
+{% endif %}
+{% endfor %}
+{% endif %}

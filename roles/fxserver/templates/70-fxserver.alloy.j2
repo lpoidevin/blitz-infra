@@ -1,0 +1,10 @@
+{{ ansible_managed | comment('c') }}
+
+prometheus.scrape "fxserver" {
+    targets = [{"__address__" = "localhost:30120", "job" = "fxserver"}]
+    metrics_path = "/perf"
+
+    scrape_interval = "15s"
+
+    forward_to = [prometheus.remote_write.default.receiver]
+}

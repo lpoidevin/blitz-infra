@@ -1,0 +1,16 @@
+# SPDX-License-Identifier: MIT
+---
+nginx_core_geoip2_module: true
+nginx_core_vts_module: true
+
+nginx_core_ipinfo_token: "{{ vault_nginx_core_ipinfo_token }}"
+
+nginx_core_tls_cert_path: /var/lib/lego/certificates/cdn.crt
+nginx_core_tls_key_path: /var/lib/lego/certificates/cdn.key
+nginx_core_tls_issuer_path: /var/lib/lego/certificates/cdn.issuer.crt
+
+nginx_cache_endpoint: cdn.blitz-infra.net
+nginx_cache_backend: fivem.blitz-infra.net
+nginx_cache_keys_zone_size: 50m
+nginx_cache_max_size: 25g
+nginx_cache_inactive: 2d

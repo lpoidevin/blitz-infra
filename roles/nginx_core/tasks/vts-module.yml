@@ -1,0 +1,101 @@
+# SPDX-License-Identifier: MIT
+---
+- name: Install required build dependencies
+  ansible.builtin.apt:
+    name:
+      - make
+      - build-essential
+      - libpcre2-dev
+      - libssl-dev
+      - libxslt1-dev
+      - libgd-dev
+      - libgeoip-dev
+      - libperl-dev
+    state: present
+
+- name: Get installed nginx version
+  ansible.builtin.command: nginx -v
+  register: nginx_core_v_out
+  changed_when: false
+
+- name: Parse nginx version
+  ansible.builtin.set_fact:
+    nginx_core_version: "{{ nginx_core_v_out.stderr | regex_search('nginx/([0-9\\.]+)', '\\1') | first }}"
+
+- name: Get latest VTS module tag from GitHub API
+  ansible.builtin.uri:
+    url: "https://api.github.com/repos/vozlt/nginx-module-vts/tags"
+    return_content: true
+    headers:
+      Accept: "application/vnd.github.v3+json"
+  register: nginx_core_github_api_response
+
+- name: Parse VTS module versions
+  ansible.builtin.set_fact:
+    nginx_core_vts_tag: "{{ nginx_core_github_api_response.json[0].name }}"
+    nginx_core_vts_version: "{{ nginx_core_github_api_response.json[0].name | regex_replace('^v', '') }}"
+
+- name: Download and extract nginx sources
+  ansible.builtin.unarchive:
+    src: "https://nginx.org/download/nginx-{{ nginx_core_version }}.tar.gz"
+    dest: "/opt"
+    remote_src: true
+    creates: "/opt/nginx-{{ nginx_core_version }}/configure"
+
+- name: Download and extract the VTS module
+  ansible.builtin.unarchive:
+    src: "https://github.com/vozlt/nginx-module-vts/archive/refs/tags/{{ nginx_core_vts_tag }}.tar.gz"
+    dest: "/tmp"
+    remote_src: true
+    creates: "/tmp/nginx-module-vts-{{ nginx_core_vts_version }}/config"
+
+- name: Configure and compile the VTS dynamic module
+  ansible.builtin.shell: |
+    set -o pipefail
+
+    # Extract arguments and strip the leading "configure arguments:" text
+    CONFIGURE_ARGS=$(nginx -V 2>&1 | grep 'configure arguments:' | sed 's/configure arguments://')
+
+    # Evaluate configure to properly handle single quotes in nginx arguments (like --with-cc-opt)
+    eval "./configure $CONFIGURE_ARGS --add-dynamic-module=/tmp/nginx-module-vts-{{ nginx_core_vts_version }}"
+
+    # Compile only the modules
+    make modules
+  args:
+    chdir: "/opt/nginx-{{ nginx_core_version }}"
+    executable: /bin/bash
+    creates: "/opt/nginx-{{ nginx_core_version }}/objs/ngx_http_vhost_traffic_status_module.so"
+
+- name: Copy compiled VTS module to nginx modules directory
+  ansible.builtin.copy:
+    src: "/opt/nginx-{{ nginx_core_version }}/objs/ngx_http_vhost_traffic_status_module.so"
+    dest: /usr/lib/nginx/modules/ngx_http_vhost_traffic_status_module.so
+    remote_src: true
+    mode: '0644'
+  notify: Reload nginx
+
+- name: Create VTS module configuration file
+  ansible.builtin.copy:
+    dest: /etc/nginx/modules-available/90-mod-vts.conf
+    content: |
+      load_module /usr/lib/nginx/modules/ngx_http_vhost_traffic_status_module.so;
+    mode: '0644'
+
+- name: Enable VTS module by creating a symlink
+  ansible.builtin.file:
+    src: /etc/nginx/modules-available/90-mod-vts.conf
+    dest: /etc/nginx/modules-enabled/90-mod-vts.conf
+    state: link
+
+- name: Deploy VTS vhost
+  ansible.builtin.template:
+    src: vts.conf.j2
+    dest: /etc/nginx/sites-available/vts.conf
+    mode: '0644'
+  notify: Reload nginx
+
+- name: Enable VTS vhost with symbolic link
+  ansible.builtin.file:
+    src: /etc/nginx/sites-available/vts.conf
+    dest: /etc/nginx/sites-enabled/vts.conf
+    state: link

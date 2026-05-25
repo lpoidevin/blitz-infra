@@ -1,0 +1,33 @@
+# SPDX-License-Identifier: MIT
+---
+argument_specs:
+  main:
+    short_description: Deploy NGINX reverse proxy with caching for fxserver
+    options:
+      # Required Proxy Settings
+      nginx_cache_endpoint:
+        type: str
+        required: true
+        description: The public FQDN for the CDN/Cache (e.g., cdn.example.com)
+      nginx_cache_backend:
+        type: str
+        required: true
+        description: The internal/backend server to proxy and cache requests for (e.g., app.example.com)
+
+      # Cache Zone Defaults
+      nginx_cache_dir:
+        type: str
+        default: "/var/cache/nginx/cfx"
+        description: Filesystem path to store cached assets
+      nginx_cache_keys_zone_size:
+        type: str
+        default: "48m"
+        description: Size of the shared memory zone for cache keys
+      nginx_cache_max_size:
+        type: str
+        default: "20g"
+        description: Maximum size of the cache on disk
+      nginx_cache_inactive:
+        type: str
+        default: "2h"
+        description: Time after which inactive cached items are removed

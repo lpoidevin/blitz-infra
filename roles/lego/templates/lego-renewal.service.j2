@@ -1,0 +1,20 @@
+{{ ansible_managed | comment }}
+[Unit]
+Description=Lego ACME Renewal
+After=network-online.target
+
+[Service]
+Type=oneshot
+User={{ lego_user }}
+Group={{ lego_group }}
+
+WorkingDirectory={{ lego_home }}
+
+EnvironmentFile=-{{ lego_config_dir }}/ovh.env
+
+ExecStart=/usr/local/bin/lego --config {{ lego_config_dir }}/lego.yml
+
+ProtectSystem=strict
+ReadWritePaths={{ lego_home }}
+PrivateTmp=yes
+NoNewPrivileges=yes

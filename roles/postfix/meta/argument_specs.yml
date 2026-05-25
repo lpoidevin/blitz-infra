@@ -1,0 +1,76 @@
+# SPDX-License-Identifier: MIT
+---
+argument_specs:
+  main:
+    short_description: Deploy and configure Postfix MTA with dynamic SASL and TLS
+    options:
+      # Network Options
+      postfix_inet_protocols:
+        type: str
+        default: ipv6
+        choices: ["all", "ipv4", "ipv6"]
+      postfix_inet_interfaces:
+        type: str
+        default: loopback-only
+      postfix_relayhost:
+        type: str
+        description: Upstream SMTP relay host (e.g., [mail.example.com]:587)
+
+      # TLS Configuration
+      postfix_tls_cert_file:
+        type: str
+        description: Path to the server TLS certificate (Required for gateway)
+      postfix_tls_key_file:
+        type: str
+        description: Path to the server TLS private key (Required for gateway)
+      postfix_tls_ca_file:
+        type: str
+        default: /etc/ssl/certs/ca-certificates.crt
+        description: CA file for the client to verify the upstream server
+
+      # Client Auth (Null Client)
+      postfix_relay_auth_enable:
+        type: bool
+        default: false
+      postfix_relay_auth_user:
+        type: str
+      postfix_relay_auth_password:
+        type: str
+        no_log: true
+
+      # Server Auth (Gateway)
+      postfix_server_auth_enable:
+        type: bool
+        default: false
+      postfix_server_client_group:
+        type: str
+        default: "all"
+        description: The Ansible inventory group containing null clients
+
+      # Application Auth
+      postfix_server_app_users:
+        type: list
+        elements: dict
+        default: []
+        no_log: true
+        description: List of standalone application credentials for SMTP auth
+        options:
+          user:
+            type: str
+            required: true
+          password:
+            type: str
+            required: true
+
+      # Virtual Maps
+      postfix_virtual_aliases:
+        type: list
+        elements: dict
+        default: []
+        options:
+          alias:
+            type: str
+            required: true
+          destination:
+            type: str
+            required: true

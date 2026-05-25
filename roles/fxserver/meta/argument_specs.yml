@@ -1,0 +1,64 @@
+# SPDX-License-Identifier: MIT
+---
+argument_specs:
+  main:
+    short_description: Deploy and manage FiveM/RedM FXServer
+    options:
+      # Required Endpoints/Build
+      fxserver_connect_endpoint:
+        type: str
+        required: true
+        description: The public endpoint for player connection (e.g., play.example.com)
+      fxserver_txadmin_endpoint:
+        type: str
+        required: true
+        description: The public endpoint for txAdmin (e.g., txadmin.example.com)
+      fxserver_build_number:
+        type: str
+        required: true
+        description: The specific FXServer build number to install (e.g., "7290")
+
+      # Database Configuration
+      fxserver_db_host:
+        type: str
+        default: localhost
+      fxserver_db_port:
+        type: int
+        default: 3306
+      fxserver_db_name:
+        type: str
+        default: fxserver
+      fxserver_db_user:
+        type: str
+        default: fxserver
+      fxserver_db_pass:
+        type: str
+        required: true
+        no_log: true
+
+      # Service / User Configuration
+      fxserver_user:
+        type: str
+        default: citizenfx
+      fxserver_group:
+        type: str
+        default: citizenfx
+      fxserver_home_dir:
+        type: str
+        default: /srv/cfx
+      fxserver_sftp_keys:
+        type: list
+        elements: str
+        default: []
+        description: List of SSH public keys for SFTP access
+
+      # Meta Information
+      fxserver_provider_name:
+        type: str
+        default: "DefaultHosting"
+      fxserver_provider_logo:
+        type: str
+        description: URL to the provider banner/logo
+      fxserver_account:
+        type: str
+        description: txAdmin initial account

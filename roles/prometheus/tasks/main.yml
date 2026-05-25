@@ -1,0 +1,42 @@
+# SPDX-License-Identifier: MIT
+---
+- name: Install prometheus
+  ansible.builtin.apt:
+    name: prometheus
+    state: present
+
+- name: Remove standalone prometheus-node-exporter
+  ansible.builtin.apt:
+    name: prometheus-node-exporter
+    state: absent
+    autoremove: true
+
+- name: Deploy prometheus environment defaults
+  ansible.builtin.template:
+    src: default_prometheus.j2
+    dest: /etc/default/prometheus
+    mode: '0644'
+  notify: Restart prometheus
+
+- name: Deploy prometheus main configuration
+  ansible.builtin.template:
+    src: prometheus.yml.j2
+    dest: /etc/prometheus/prometheus.yml
+    mode: '0644'
+  notify: Reload prometheus
+
+- name: Deploy alloy configuration
+  ansible.builtin.template:
+    src: config.alloy.j2
+    dest: /etc/alloy.d/prometheus.alloy
+    mode: '0644'
+  notify: Restart alloy
+
+- name: Deploy firewall rule
+  ansible.builtin.copy:
+    content: |
+      tcp dport 9090 accept \
+      comment "Accept prometheus access"
+    dest: /etc/nftables.d/filter-input-wg/prometheus.nft
+    mode: '0644'
+  notify: Reload nftables

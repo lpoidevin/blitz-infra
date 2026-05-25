@@ -1,0 +1,31 @@
+{{ ansible_managed | comment }}
+
+[mysqld]
+# Cache Settings
+query_cache_type        = 0     # Disabled to prevent lock contention on constant UPDATEs
+query_cache_size        = 0
+
+# Connection Limits
+max_connections         = {{ mariadb_max_connections }}
+max_allowed_packet      = {{ mariadb_max_allowed_packet }}
+wait_timeout            = {{ mariadb_wait_timeout }}
+interactive_timeout     = {{ mariadb_interactive_timeout }}
+connect_timeout         = {{ mariadb_connect_timeout }}
+
+# InnoDB Tuning for Write-Heavy workload
+innodb_buffer_pool_size = {{ mariadb_buffer_pool_size }}
+innodb_log_file_size    = {{ mariadb_log_file_size }}
+innodb_log_buffer_size  = {{ mariadb_log_buffer_size }}
+innodb_write_io_threads = {{ mariadb_write_io_threads }}
+innodb_read_io_threads  = {{ mariadb_read_io_threads }}
+
+# Logs are written after each transaction commit and flushed to disk once per second
+innodb_flush_log_at_trx_commit = 2
+
+# OS Level Optimizations
+innodb_flush_method     = O_DIRECT # Bypasses OS cache to prevent double-buffering
+innodb_file_per_table   = 1
+
+# Character Set
+character-set-server = utf8mb4
+collation-server = utf8mb4_unicode_ci

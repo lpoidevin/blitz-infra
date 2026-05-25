@@ -1,0 +1,13 @@
+{{ ansible_managed | comment }}
+
+# Internal network
+define wg_int_net = {{ wireguard_int_network }}
+define wg_int_nic = {{ wireguard_int_nic }}
+define wg_int_port = {{ wireguard_int_port }}
+
+# Operators network
+define wg_ops_net = {{ wireguard_ops_network }}
+{% if wireguard_ops_address is defined %}
+define wg_ops_nic = {{ wireguard_ops_nic }}
+define wg_ops_port = {{ wireguard_ops_port }}
+{% endif %}

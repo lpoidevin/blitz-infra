@@ -1,0 +1,79 @@
+# SPDX-License-Identifier: MIT
+---
+argument_specs:
+  main:
+    short_description: Deploy and configure Nginx core settings
+    options:
+      # Modules
+      nginx_core_brotli_module:
+        type: bool
+        default: false
+        description: Install and enable the Brotli compression module.
+      nginx_core_geoip2_module:
+        type: bool
+        default: false
+        description: Install and enable the GeoIP2 module.
+      nginx_core_ipinfo_token:
+        type: str
+        no_log: true
+        description: >
+          The API token for downloading the IPinfo mmdb.
+          Required if nginx_core_geoip2_module is true.
+      nginx_core_vts_module:
+        type: bool
+        default: false
+        description: Install and enable the VTS monitoring module.
+
+      # TLS Settings
+      nginx_core_enable_http3:
+        type: bool
+        default: false
+        description: Enable HTTP/3 Alt-Svc headers.
+      nginx_core_enable_hsts:
+        type: bool
+        default: false
+        description: Enable Strict-Transport-Security headers.
+      nginx_core_enable_ocsp:
+        type: bool
+        default: false
+        description: Enable OCSP Stapling.
+      nginx_core_resolver:
+        type: str
+        default: "127.0.0.53"
+        description: IP address of the DNS resolver for OCSP stapling.
+      nginx_core_tls_cert_path:
+        type: str
+        required: true
+        description: Path to the TLS certificate file.
+      nginx_core_tls_key_path:
+        type: str
+        required: true
+        description: Path to the TLS key file.
+      nginx_core_tls_issuer_path:
+        type: str
+        required: true
+        description: Path to the TLS issuer file.
+
+      # Compression
+      nginx_core_enable_comp:
+        type: bool
+        default: false
+        description: Enable gzip/brotli compression.
+      nginx_core_comp_min_length:
+        type: int
+        default: 256
+        description: Minimum length of a response to compress.
+      nginx_core_comp_types:
+        type: list
+        elements: str
+        default:
+          - text/plain
+          - text/css
+          - application/javascript
+          - application/json
+          - application/x-javascript
+          - text/xml
+          - application/xml
+          - application/xml+rss
+          - text/javascript
+        description: List of MIME types to compress.

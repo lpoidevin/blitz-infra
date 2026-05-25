@@ -1,0 +1,7 @@
+[{{ restic_ovh_ftp_name }}]
+type = ftp
+host = {{ restic_ovh_ftp_host }}
+user = {{ restic_ovh_ftp_user }}
+pass = {{ restic_obscured_password.stdout }}
+explicit_tls = true
+concurrency = 3

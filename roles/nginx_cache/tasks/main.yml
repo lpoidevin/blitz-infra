@@ -1,0 +1,43 @@
+# SPDX-License-Identifier: MIT
+---
+- name: Ensure nginx cache directory exists
+  ansible.builtin.file:
+    path: /var/cache/nginx
+    state: directory
+    mode: '0755'
+
+- name: Deploy nginx vhost
+  ansible.builtin.template:
+    src: vhost.conf.j2
+    dest: /etc/nginx/sites-available/cache.conf
+    mode: '0644'
+  notify: Reload nginx
+
+- name: Enable nginx vhost with symbolic link
+  ansible.builtin.file:
+    src: /etc/nginx/sites-available/cache.conf
+    dest: /etc/nginx/sites-enabled/cache.conf
+    state: link
+
+# - name: Deploy nginx logging config
+#   ansible.builtin.template:
+#     src: logging.conf.j2
+#     dest: /etc/nginx/conf.d/logging.conf
+#     mode: '0644'
+#   notify: Reload nginx
+
+- name: Deploy alloy config
+  ansible.builtin.template:
+    src: 50-nginx.alloy.j2
+    dest: /etc/alloy.d/50-nginx.alloy
+    mode: '0644'
+  notify: Reload alloy
+
+- name: Deploy firewall rule
+  ansible.builtin.copy:
+    content: |
+      tcp dport 443 accept \
+      comment "Accept https traffic"
+    dest: /etc/nftables.d/filter-input/cache.nft
+    mode: '0644'
+  notify: Reload nftables

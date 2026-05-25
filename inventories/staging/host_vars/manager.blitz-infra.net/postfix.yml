@@ -1,0 +1,26 @@
+# SPDX-License-Identifier: MIT
+---
+# Network Options
+postfix_inet_protocols: all
+postfix_inet_interfaces: all
+
+# TLS Configuration
+postfix_tls_cert_file: /var/lib/lego/certificates/email.crt
+postfix_tls_key_file: /var/lib/lego/certificates/email.key
+
+# Server Auth
+postfix_server_auth_enable: true
+
+# Application Auth
+# postfix_server_app_users:
+#   - user: "nextcloud_app"
+#     password: "supersecretpassword"
+#   - user: "office_printer"
+#     password: "anotherpassword"
+
+# Virtual Maps
+postfix_virtual_aliases:
+  - alias: postmaster
+    destination: "postmaster@{{ domain }}"
+  - alias: root
+    destination: "root@{{ domain }}"

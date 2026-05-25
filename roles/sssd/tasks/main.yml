@@ -1,0 +1,46 @@
+# SPDX-License-Identifier: MIT
+---
+- name: Install SSSD and required PAM/NSS modules
+  ansible.builtin.apt:
+    name:
+      - sssd-ldap
+      - sssd-tools
+      - libnss-sss
+      - libpam-sss
+      - libpam-modules
+    state: present
+
+- name: Deploy sssd configuration
+  ansible.builtin.template:
+    src: sssd.conf.j2
+    dest: /etc/sssd/sssd.conf
+    owner: root
+    group: root
+    mode: '0640'
+  notify: Restart sssd
+
+- name: Enable pam_mkhomedir natively
+  ansible.builtin.command: pam-auth-update --enable mkhomedir
+  changed_when: false
+
+- name: Enable group merging in nsswitch
+  ansible.builtin.lineinfile:
+    path: /etc/nsswitch.conf
+    regexp: '^group:'
+    line: "group:          files [SUCCESS=merge] sss [SUCCESS=merge]"
+
+- name: Deploy ssh configuration
+  ansible.builtin.copy:
+    content: |
+      AuthorizedKeysCommand /usr/bin/sss_ssh_authorizedkeys
+      AuthorizedKeysCommandUser nobody
+    dest: /etc/ssh/sshd_config.d/60-sssd.conf
+    owner: root
+    group: root
+    mode: '0644'
+  notify: Restart sshd
+
+# - name: Disable remote access to debian
+#   ansible.builtin.file:
+#     path: /home/debian/.ssh/authorized_keys
+#     state: absent

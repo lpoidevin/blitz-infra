@@ -1,0 +1,57 @@
+# SPDX-License-Identifier: MIT
+---
+- name: Install nginx
+  ansible.builtin.apt:
+    name: nginx
+    state: present
+
+- name: Install brotli module
+  ansible.builtin.apt:
+    name:
+      - libnginx-mod-http-brotli-filter
+      - libnginx-mod-http-brotli-static
+    state: present
+  when: nginx_core_brotli_module
+
+- name: Install and setup geoip2 module
+  ansible.builtin.import_tasks: geoip2-module.yml
+  when: nginx_core_geoip2_module
+
+- name: Install and setup VTS module
+  ansible.builtin.import_tasks: vts-module.yml
+  when: nginx_core_vts_module
+
+- name: Deploy nginx configuration
+  ansible.builtin.template:
+    src: nginx.conf.j2
+    dest: /etc/nginx/nginx.conf
+    mode: '0644'
+  notify: Reload nginx
+
+- name: Deploy TLS headers snippet
+  ansible.builtin.template:
+    src: headers.conf.j2
+    dest: /etc/nginx/snippets/headers.conf
+    mode: '0644'
+  when: nginx_core_enable_hsts or nginx_core_enable_http3
+  notify: Reload nginx
+
+- name: Deploy TLS params snippet
+  ansible.builtin.template:
+    src: ssl-params.conf.j2
+    dest: /etc/nginx/snippets/ssl-params.conf
+    mode: '0644'
+  notify: Reload nginx
+
+- name: Deploy compression config
+  ansible.builtin.template:
+    src: compression.conf.j2
+    dest: /etc/nginx/conf.d/compression.conf
+    mode: '0644'
+  when: nginx_core_enable_comp
+  notify: Reload nginx
+
+- name: Disable default vhost
+  ansible.builtin.file:
+    path: /etc/nginx/sites-enabled/default
+    state: absent

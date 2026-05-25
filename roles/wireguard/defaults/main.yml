@@ -1,0 +1,11 @@
+# SPDX-License-Identifier: MIT
+---
+# Internal network
+wireguard_int_nic: wg0
+wireguard_int_port: 51820
+
+# Operators network
+wireguard_ops_nic: wg1
+wireguard_ops_port: 51821
+# Defaulting to an empty list prevents undefined variable errors in loops
+wireguard_ops_peers: []

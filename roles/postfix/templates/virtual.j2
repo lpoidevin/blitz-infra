@@ -1,0 +1,5 @@
+{{ ansible_managed | comment }}
+
+{% for mapping in postfix_virtual_aliases %}
+{{ "%-20s" | format(mapping.alias) }} {{ mapping.destination }}
+{% endfor %}

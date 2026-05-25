@@ -1,0 +1,51 @@
+#!/usr/bin/bash
+
+export RESTIC_CACHE_DIR="{{ restic_cache_dir }}"
+export RESTIC_REPOSITORY="{{ restic_repo_path }}"
+export RESTIC_PASSWORD="{{ restic_password }}"
+
+export ADMIN_EMAIL="{{ restic_admin_email }}"
+
+info() { printf "\n%s %s\n\n" "$( date )" "$*" >&2; }
+trap 'echo $( date ) Maintenance interrupted >&2; exit 2' INT TERM
+
+info "Starting Restic maintenance routine..."
+global_exit=0
+
+info "Running basic repository integrity check..."
+restic check
+check_exit=$?
+
+if [ ${check_exit} -ne 0 ]; then
+    info "CRITICAL ERROR: Repository check failed! Aborting maintenance to protect data."
+    # Exit immediately. Do not forget, do not prune.
+    exit 1
+fi
+
+info "Integrity verified. Running forget policy..."
+restic forget --keep-daily 7 --keep-weekly 4
+[ $? -ne 0 ] && global_exit=1
+
+if [ "$(date +%u)" -eq 1 ]; then
+    info "Monday Maintenance: Pruning repository..."
+    restic prune
+    [ $? -ne 0 ] && global_exit=1
+fi
+
+if [ "$(date +%d)" = "01" ]; then
+    info "Monthly Maintenance: Running deep data validation (20%)..."
+    restic check --read-data-subset=20%
+    [ $? -ne 0 ] && global_exit=1
+fi
+
+if [ ${global_exit} -eq 0 ]; then
+    info "Maintenance completed successfully."
+else
+    error_message="WARNING: Maintenance task failed on $(hostname) with exit code ${global_exit}. Please check the server logs immediately."
+    info "${error_message}"
+
+    # Send the email alert
+    echo "${error_message}" | mail -s "Backup Alert: $(hostname) Failed" "${ALERT_EMAIL}"
+fi
+
+exit ${global_exit}

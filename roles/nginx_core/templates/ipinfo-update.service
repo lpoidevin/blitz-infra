@@ -1,0 +1,11 @@
+{{ ansible_managed | comment }}
+[Unit]
+Description=Update IPinfo GeoIP Database
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=oneshot
+ExecStart=/bin/bash -c "curl -sS -L -f -o /tmp/ipinfo-lite.mmdb {{ nginx_core_ipinfo_file_url }}?token=${IPINFO_TOKEN} && mv /tmp/ipinfo-lite.mmdb /etc/nginx/ipinfo-lite.mmdb"
+ExecStartPost=/usr/bin/systemctl reload nginx
+EnvironmentFile=/etc/default/ipinfo-update

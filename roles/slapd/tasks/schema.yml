@@ -1,0 +1,68 @@
+# SPDX-License-Identifier: MIT
+---
+- name: Check if rfc2307bis schema is present
+  ansible.builtin.command: >
+    ldapsearch -Q -LLL -Y EXTERNAL -H ldapi:/// -b cn=schema,cn=config -s one 'cn=*rfc2307bis' dn
+  register: slapd_rfc2307bis_check
+  changed_when: false
+
+- name: Add rfc2307bis schema
+  when: "'cn=' not in slapd_rfc2307bis_check.stdout"
+  block:
+    # https://github.com/jtyr/rfc2307bis
+    - name: Copy rfc2307bis schema
+      ansible.builtin.copy:
+        src: schema/rfc2307bis.schema
+        dest: /etc/ldap/schema/rfc2307bis.schema
+        mode: '0644'
+
+    - name: Run add-rfc2307bis script
+      ansible.builtin.script: add-rfc2307bis.sh
+
+- name: Check if ldapns schema is present
+  ansible.builtin.command: >
+    ldapsearch -Q -LLL -Y EXTERNAL -H ldapi:/// -b cn=schema,cn=config -s one 'cn=*ldapns' dn
+  register: slapd_ldapns_check
+  changed_when: false
+
+- name: Add ldapns schema
+  when: "'cn=' not in slapd_ldapns_check.stdout"
+  block:
+    # https://github.com/PADL/pam_ldap/blob/master/ldapns.schema
+    - name: Copy ldapns schema
+      ansible.builtin.copy:
+        src: schema/ldapns.schema
+        dest: /etc/ldap/schema/ldapns.schema
+        mode: '0644'
+
+    - name: Add ldapns ldif
+      ansible.builtin.shell:
+        cmd: |
+          set -o pipefail
+          schema2ldif /etc/ldap/schema/ldapns.schema | ldapadd -Q -Y EXTERNAL -H ldapi:///
+        executable: /usr/bin/bash
+      changed_when: true
+
+- name: Check if openssh-lpk schema is present
+  ansible.builtin.command: >
+    ldapsearch -Q -LLL -Y EXTERNAL -H ldapi:/// -b cn=schema,cn=config -s one 'cn=*openssh-lpk' dn
+  register: slapd_openssh_lpk_check
+  changed_when: false
+
+- name: Add openssh-lpk schema
+  when: "'cn=' not in slapd_openssh_lpk_check.stdout"
+  block:
+    # https://github.com/AndriiGrytsenko/openssh-ldap-publickey
+    - name: Copy openssh-lpk schema
+      ansible.builtin.copy:
+        src: schema/openssh-lpk.schema
+        dest: /etc/ldap/schema/openssh-lpk.schema
+        mode: '0644'
+
+    - name: Add openssh-lpk ldif
+      ansible.builtin.shell:
+        cmd: |
+          set -o pipefail
+          schema2ldif /etc/ldap/schema/openssh-lpk.schema | ldapadd -Q -Y EXTERNAL -H ldapi:///
+        executable: /usr/bin/bash
+      changed_when: true

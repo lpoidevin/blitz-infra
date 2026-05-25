@@ -1,0 +1,28 @@
+# SPDX-License-Identifier: MIT
+---
+argument_specs:
+  main:
+    short_description: Deploy and configure OpenLDAP (slapd)
+    options:
+      slapd_base_dn:
+        type: str
+        default: "dc=example,dc=com"
+        description: The root suffix for the LDAP directory.
+      slapd_config_passwd:
+        type: str
+        required: true
+        no_log: true
+        description: Argon2 hashed password for the cn=config database root user.
+      slapd_admin_passwd:
+        type: str
+        required: true
+        no_log: true
+        description: Argon2 hashed password for the main database admin user.
+      slapd_enable_tls:
+        type: bool
+        default: false
+        description: Whether to configure and require TLS.
+      slapd_tls_protocol_min:
+        type: float
+        default: 3.4
+        description: Minimum TLS version (3.4 = TLS 1.3).

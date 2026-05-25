@@ -1,0 +1,83 @@
+# SPDX-License-Identifier: MIT
+---
+- name: Add grafana repository
+  ansible.builtin.deb822_repository:
+    name: grafana
+    types: deb
+    uris: https://apt.grafana.com
+    suites: stable
+    components: main
+    signed_by: https://apt.grafana.com/gpg.key
+    state: present
+  register: grafana_repo
+
+- name: Update apt cache
+  ansible.builtin.apt:
+    update_cache: true
+  when: grafana_repo.changed
+
+- name: Install grafana
+  ansible.builtin.apt:
+    name: grafana
+    state: present
+
+- name: Define global grafana configuration
+  community.general.ini_file:
+    path: /etc/grafana/grafana.ini
+    section: "{{ item.section }}"
+    option: "{{ item.option }}"
+    value: "{{ item.value }}"
+    mode: '0640'
+  loop:
+    - { section: server, option: http_addr, value: "::1" }
+    - { section: server, option: domain, value: "{{ grafana_domain }}" }
+    - { section: server, option: root_url, value: "https://{{ grafana_domain }}/" }
+    - { section: analytics, option: reporting_enabled, value: "false" }
+    - { section: analytics, option: check_for_updates, value: "false" }
+    - { section: analytics, option: check_for_plugin_updates, value: "false" }
+    - { section: analytics, option: feedback_links_enabled, value: "false" }
+    - { section: security, option: disable_initial_admin_creation, value: "true" }
+    - { section: auth.ldap, option: enabled, value: "{{ 'true' if grafana_ldap_enabled else 'false' }}" }
+    - { section: news, option: news_feed_enabled, value: "false" }
+  notify: Restart grafana
+
+- name: Deploy ldap configuration
+  ansible.builtin.template:
+    src: ldap.toml.j2
+    dest: /etc/grafana/ldap.toml
+    owner: root
+    group: grafana
+    mode: '0640'
+  notify: Restart grafana
+
+- name: Deploy datasources config
+  ansible.builtin.template:
+    src: datasources.yaml.j2
+    dest: /etc/grafana/provisioning/datasources/default.yaml
+    owner: root
+    group: grafana
+    mode: '0640'
+  notify: Restart grafana
+
+- name: Deploy dashboards provider config
+  ansible.builtin.template:
+    src: dashboards.yaml.j2
+    dest: /etc/grafana/provisioning/dashboards/default.yaml
+    owner: root
+    group: grafana
+    mode: '0640'
+
+- name: Copy grafana dashboards
+  ansible.builtin.copy:
+    src: dashboards/
+    dest: /var/lib/grafana/dashboards
+    owner: grafana
+    group: grafana
+    directory_mode: '0750'
+    mode: '0640'
+
+- name: Ensure grafana is enabled and started
+  ansible.builtin.systemd_service:
+    name: grafana-server.service
+    enabled: true
+    state: started

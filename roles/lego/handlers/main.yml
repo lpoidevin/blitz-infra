@@ -1,0 +1,17 @@
+# SPDX-License-Identifier: MIT
+---
+- name: Reload systemd
+  ansible.builtin.systemd_service:
+    daemon_reload: true
+
+- name: Display request output
+  ansible.builtin.debug:
+    var: lego_initial_request.stdout_lines
+
+- name: Enforce ownership on all files
+  ansible.builtin.file:
+    path: "{{ lego_home }}"
+    state: directory
+    owner: "{{ lego_user }}"
+    group: "{{ lego_group }}"
+    recurse: true

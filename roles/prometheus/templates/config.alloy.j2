@@ -1,0 +1,4 @@
+prometheus.scrape "prometheus" {
+    targets = [{"__address__" = "localhost:9090", "job" = "prometheus"}]
+    forward_to = [prometheus.remote_write.default.receiver]
+}

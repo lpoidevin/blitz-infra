@@ -1,0 +1,9 @@
+# SPDX-License-Identifier: MIT
+---
+# Default datasources
+grafana_datasources: []
+
+# LDAP
+grafana_ldap_enabled: false
+grafana_ldap_search_filter: "(cn=%s)"
+grafana_ldap_group_search_filter: "(&(objectClass=posixGroup)(memberUid=%s))"

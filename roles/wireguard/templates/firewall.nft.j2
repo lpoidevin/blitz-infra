@@ -1,0 +1,14 @@
+{{ ansible_managed | comment }}
+
+table inet filter {
+    chain inbound_wg {
+        include "/etc/nftables.d/filter-input-wg/*.nft"
+        log prefix "WIREGUARD_IN_DROP: " drop
+    }
+}
+
+add element inet filter input_iif_map { $wg_int_nic comment "Traffic from internal vpn network" : jump inbound_wg }
+
+{% if wireguard_ops_address is defined %}
+add element inet filter input_iif_map { $wg_ops_nic comment "Traffic from operators vpn network" : jump inbound_wg }
+{% endif %}

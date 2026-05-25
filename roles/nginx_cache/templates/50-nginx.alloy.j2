@@ -1,0 +1,22 @@
+{{ ansible_managed | comment('c') }}
+
+local.file_match "nginx_logs" {
+    path_targets = [
+        {"__path__" = "/var/log/nginx/access.log", "job" = "nginx_access"},
+        {"__path__" = "/var/log/nginx/error.log", "job" = "nginx_error"},
+    ]
+}
+
+// loki.source.file "nginx_tailer" {
+//     targets    = local.file_match.nginx_logs.targets
+//
+//     forward_to = [loki.write.default.receiver]
+// }
+
+prometheus.scrape "nginx_metrics" {
+    targets = [{"__address__" = "localhost:9113", "job" = "nginx"}]
+
+    scrape_interval = "15s"
+
+    forward_to = [prometheus.remote_write.default.receiver]
+}

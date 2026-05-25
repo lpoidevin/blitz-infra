@@ -1,0 +1,11 @@
+# SPDX-License-Identifier: MIT
+---
+- name: Restart mariadb
+  ansible.builtin.systemd_service:
+    name: mariadb.service
+    state: restarted
+
+# - name: Restart prometheus-mysqld-exporter
+#   ansible.builtin.systemd_service:
+#     name: prometheus-mysqld-exporter.service
+#     state: restarted

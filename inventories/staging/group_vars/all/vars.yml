@@ -1,0 +1,23 @@
+# SPDX-License-Identifier: MIT
+---
+# Global variables
+domain: blitz-infra.net
+base_dn: dc=blitz-infra,dc=net
+
+# Common
+common_timezone: Etc/UTC
+common_upgrades_email: "root@{{ domain }}"
+
+# Backup
+restic_admin_email: "root@{{ domain }}"
+
+# Monitoring
+alloy_loki_endpoint: monitoring.blitz-infra.net
+alloy_prometheus_endpoint: monitoring.blitz-infra.net
+
+# Security reports
+# fail2ban_destemail: "security@{{ domain }}"
+# Crowdsec
+# crowdsec_auto_registration_network: "{{ internal_network }}"
+# crowdsec_auto_registration_token: "{{ vault_crowdsec_auto_registration_token }}"
+# crowdsec_lapi_url: http://[{{ hostvars['manager.blitz-infra.net']['wireguard_int_address'] }}]:8080

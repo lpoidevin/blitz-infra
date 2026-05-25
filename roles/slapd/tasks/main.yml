@@ -1,0 +1,95 @@
+# SPDX-License-Identifier: MIT
+---
+- name: Install slapd and tools
+  ansible.builtin.apt:
+    name:
+      - slapd
+      - ldap-utils
+      - schema2ldif
+      - python3-ldap
+      - libarchive-zip-perl  # required by add-rfc2307bis.sh script
+    state: present
+
+- name: Include schema tasks
+  ansible.builtin.import_tasks: schema.yml
+
+- name: Include argon2 tasks
+  ansible.builtin.import_tasks: argon2.yml
+
+- name: Include tls tasks
+  ansible.builtin.import_tasks: tls.yml
+  when: slapd_enable_tls
+
+- name: Set the cn=config database root credentials
+  community.general.ldap_attrs:
+    dn: olcDatabase={0}config,cn=config
+    attributes:
+      olcRootPW: "{{ slapd_config_passwd }}"
+    state: exact
+
+- name: Require authn to get ldap access
+  community.general.ldap_attrs:
+    dn: olcDatabase={-1}frontend,cn=config
+    attributes:
+      olcRequires: authc
+    state: exact
+
+- name: Set the main database suffix
+  community.general.ldap_attrs:
+    dn: olcDatabase={1}mdb,cn=config
+    attributes:
+      olcSuffix: "{{ slapd_base_dn }}"
+    state: exact
+
+- name: Set the main database root credentials
+  community.general.ldap_attrs:
+    dn: olcDatabase={1}mdb,cn=config
+    attributes:
+      olcRootDN: "cn=admin,{{ slapd_base_dn }}"
+      olcRootPW: "{{ slapd_admin_passwd }}"
+    state: exact
+
+- name: Configure Access Control List
+  community.general.ldap_attrs:
+    dn: olcDatabase={1}mdb,cn=config
+    attributes:
+      olcAccess:
+        - >-
+          to attrs=userPassword
+          by self write
+          by anonymous auth
+          by * none
+        - >-
+          to attrs=shadowLastChange
+          by self write
+          by * read
+        - >-
+          to attrs=loginShell
+          by self write
+          by * read
+        - >-
+          to *
+          by * read
+    ordered: true
+    state: exact
+
+- name: Define indexes present in the main database
+  community.general.ldap_attrs:
+    dn: olcDatabase={1}mdb,cn=config
+    attributes:
+      olcDbIndex:
+        - objectClass eq
+        - cn,uid eq
+        - uidNumber,gidNumber eq
+        - member,memberUid eq
+    state: exact
+
+- name: Deploy firewall rule
+  ansible.builtin.copy:
+    content: |
+      tcp dport 636 accept \
+      comment "Accept ldaps access"
+    dest: /etc/nftables.d/filter-input-wg/slapd.nft
+    mode: '0644'
+  notify: Reload nftables
+  when: slapd_enable_tls

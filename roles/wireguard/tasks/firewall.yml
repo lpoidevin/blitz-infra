@@ -1,0 +1,61 @@
+# SPDX-License-Identifier: MIT
+---
+- name: Create wireguard chain drop-in directory
+  ansible.builtin.file:
+    path: /etc/nftables.d/filter-input-wg
+    state: directory
+    mode: '0755'
+
+- name: Deploy firewall variables
+  ansible.builtin.template:
+    src: defines.nft.j2
+    dest: /etc/nftables.d/defines/wireguard.nft
+    mode: '0644'
+  notify: Reload nftables
+
+- name: Deploy firewall rules
+  ansible.builtin.template:
+    src: firewall.nft.j2
+    dest: /etc/nftables.d/wireguard.nft
+    mode: '0644'
+  notify: Reload nftables
+
+- name: Open port for the internal vpn
+  ansible.builtin.copy:
+    content: |
+      udp dport $wg_int_port accept \
+      comment "Traffic for internal vpn"
+    dest: /etc/nftables.d/filter-input-v6/wg-internal.nft
+    mode: '0644'
+  notify: Reload nftables
+
+- name: Deploy specific configs for operators vpn
+  when: wireguard_ops_address is defined
+  block:
+    - name: Limit operators vpn to access on internal network only
+      ansible.builtin.copy:
+        content: |
+          iifname $wg_ops_nic oifname != $wg_int_nic \
+          log prefix "[nftables] VPN misuse: " counter drop \
+          comment "Allow operators traffic towards the internal network only"
+        dest: /etc/nftables.d/filter-forward/00-internal-only.nft
+        mode: '0644'
+      notify: Reload nftables
+
+    - name: Accept operators traffic
+      ansible.builtin.copy:
+        content: |
+          iifname $wg_ops_nic accept \
+          comment "Accept operators traffic"
+        dest: /etc/nftables.d/filter-forward/10-operators-vpn.nft
+        mode: '0644'
+      notify: Reload nftables
+
+    - name: Open port for the operators vpn
+      ansible.builtin.copy:
+        content: |
+          udp dport $wg_ops_port accept \
+          comment "Traffic for operators vpn"
+        dest: /etc/nftables.d/filter-input/wg-operators.nft
+        mode: '0644'
+      notify: Reload nftables

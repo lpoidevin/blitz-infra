@@ -1,0 +1,12 @@
+# SPDX-License-Identifier: MIT
+---
+sssd_domain: example.com
+sssd_bind_dn: uid=sssd,ou=sysaccounts,dc=example,dc=com
+sssd_tls_reqcert: hard
+
+sssd_base_dn: dc=example,dc=com?subtree?
+sssd_user_base: ou=people,dc=example,dc=com?onelevel?
+sssd_group_base: ou=groups,dc=example,dc=com?onelevel?
+sssd_schema: rfc2307bis
+
+sssd_simple_allow_groups: infra

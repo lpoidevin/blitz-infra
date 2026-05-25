@@ -1,0 +1,10 @@
+[Unit]
+Description=Weekly update of IPinfo GeoIP Database
+
+[Timer]
+OnCalendar=weekly
+Persistent=true
+RandomizedDelaySec=3600
+
+[Install]
+WantedBy=timers.target

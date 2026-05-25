@@ -1,0 +1,17 @@
+# SPDX-License-Identifier: MIT
+---
+nginx_core_enable_hsts: true
+nginx_core_tls_cert_path: /var/lib/lego/certificates/monitoring.crt
+nginx_core_tls_key_path: /var/lib/lego/certificates/monitoring.key
+nginx_core_tls_issuer_path: /var/lib/lego/certificates/monitoring.issuer.crt
+
+nginx_proxy_vhosts:
+  - name: grafana
+    domain: "{{ grafana_domain }}"
+    upstream_port: 3000
+    firewall_zone: wg
+    is_default: true
+    websockets: true
+    set_x_forwarded_for: true
+    set_x_forwarded_proto: true
+    pass_request_headers: false

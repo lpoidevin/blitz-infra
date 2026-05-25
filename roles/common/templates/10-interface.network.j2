@@ -1,0 +1,59 @@
+{{ ansible_managed | comment }}
+
+[Match]
+{% if item.mac is defined %}
+PermanentMACAddress={{ item.mac }}
+{% endif %}
+Name={{ item.name }}
+
+{% if item.mtu is defined %}
+[Link]
+MTUBytes={{ item.mtu }}
+{% endif %}
+
+[Network]
+DHCP={{ 'ipv4' if item.dhcp4 | default(true) else 'no' }}
+LinkLocalAddressing=ipv6
+IPv6AcceptRA=no
+
+{% if item.ipv6_address is defined %}
+Address={{ item.ipv6_address }}
+{% endif %}
+
+{% if item.dns is defined %}
+{% for server in item.dns %}
+DNS={{ server }}
+{% endfor %}
+{% endif %}
+{% if item.domains is defined %}
+{% for domain in item.domains %}
+Domains={{ domain }}
+{% endfor %}
+{% endif %}
+{% if item.ntp is defined %}
+{% for server in item.ntp %}
+NTP={{ server }}
+{% endfor %}
+{% endif %}
+{% if item.routes is defined %}
+{% for route in item.routes %}
+
+[Route]
+Destination={{ route.dest }}
+{% if route.gw is defined %}
+Gateway={{ route.gw }}
+{% endif %}
+{% if route.onlink | default(false) %}
+GatewayOnLink=true
+{% endif %}
+{% if route.scope is defined %}
+Scope={{ route.scope }}
+{% endif %}
+{% endfor %}
+{% endif %}
+
+{% if item.dhcp4 | default(true) %}
+[DHCPv4]
+RouteMetric=100
+UseMTU=true
+{% endif %}

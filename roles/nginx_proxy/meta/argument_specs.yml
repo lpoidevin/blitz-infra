@@ -1,0 +1,53 @@
+# SPDX-License-Identifier: MIT
+---
+argument_specs:
+  main:
+    short_description: Deploy data-driven reverse proxy vhosts
+    options:
+      nginx_proxy_vhosts:
+        type: list
+        default: []
+        description: List of proxy definitions to deploy.
+        elements: dict
+        options:
+          name:
+            type: str
+            required: true
+            description: Short name of the service (e.g., grafana)
+          domain:
+            type: str
+            required: true
+            description: The FQDN for the server_name
+          upstream_port:
+            type: int
+            required: true
+            description: The internal port to proxy to
+          is_default:
+            type: bool
+            default: false
+            description: Mark as the default_server in NGINX
+          firewall_zone:
+            type: str
+            choices: ["public", "wg"]
+            default: "public"
+            description: Determine firewall rules via nftables
+          websockets:
+            type: bool
+            default: false
+            description: Enable websocket upgrade headers
+          set_x_forwarded_for:
+            type: bool
+            default: true
+            description: Pass X-Forwarded-For header
+          set_x_forwarded_proto:
+            type: bool
+            default: false
+            description: Pass X-Forwarded-Proto header
+          pass_request_headers:
+            type: bool
+            default: false
+            description: Enable proxy_pass_request_headers
+          http_version_1_1:
+            type: bool
+            default: false
+            description: Use HTTP/1.1 with the upstream server

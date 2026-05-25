@@ -1,0 +1,17 @@
+# SPDX-License-Identifier: MIT
+---
+# Core System Defaults
+lego_version: "5.1.0"
+lego_arch: "linux_amd64"
+lego_user: lego
+lego_group: lego
+lego_home: /var/lib/lego
+lego_config_dir: /etc/lego
+
+lego_accounts: {}
+lego_challenges: {}
+lego_hooks: {}
+lego_deploy_targets: []
+
+# OVH Defaults
+lego_ovh_endpoint: "ovh-eu"

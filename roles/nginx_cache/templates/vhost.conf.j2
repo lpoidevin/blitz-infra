@@ -1,0 +1,35 @@
+{{ ansible_managed | comment }}
+
+proxy_cache_path {{ nginx_cache_dir }} levels=1:2 keys_zone=assets:{{ nginx_cache_keys_zone_size }} max_size={{ nginx_cache_max_size }} inactive={{ nginx_cache_inactive }} use_temp_path=off;
+
+upstream backend {
+    server {{ nginx_cache_backend }}:30120;
+}
+
+server {
+    listen 443 ssl;
+    listen [::]:443 ssl;
+
+    http2 on;
+
+    server_name {{ nginx_cache_endpoint }};
+
+    include /etc/nginx/snippets/ssl-params.conf;
+
+    # Enforce user-agent verification
+    if ($http_user_agent != "CitizenFX/1") { return 444; }
+
+    location /files/ {
+        proxy_pass http://backend$request_uri;
+        proxy_cache assets;
+        proxy_cache_lock on;
+        proxy_cache_valid 200 1y;
+        proxy_cache_key $request_uri$is_args$args;
+        proxy_cache_revalidate on;
+
+        # Add a header so you can see if the cache is working (HIT/MISS) in browser dev tools
+        add_header X-Cache-Status $upstream_cache_status;
+        # Allow CORS for NUI resources
+        #add_header Access-Control-Allow-Origin *;
+    }
+}

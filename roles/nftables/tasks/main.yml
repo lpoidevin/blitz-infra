@@ -1,0 +1,30 @@
+# SPDX-License-Identifier: MIT
+---
+- name: Install nftables
+  ansible.builtin.apt:
+    name: nftables
+    state: present
+
+- name: Create nftables drop-in directories
+  ansible.builtin.file:
+    path: "{{ item }}"
+    state: directory
+    mode: '0755'
+  loop:
+    - /etc/nftables.d/defines
+    - /etc/nftables.d/filter-input
+    - /etc/nftables.d/filter-input-v4
+    - /etc/nftables.d/filter-input-v6
+    - /etc/nftables.d/filter-forward
+
+- name: Deploy base nftables rules
+  ansible.builtin.template:
+    src: nftables.conf.j2
+    dest: /etc/nftables.conf
+    mode: '0644'
+  notify: Reload nftables
+
+- name: Ensure nftables is enabled
+  ansible.builtin.systemd_service:
+    name: nftables.service
+    enabled: true

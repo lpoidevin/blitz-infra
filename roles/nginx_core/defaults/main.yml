@@ -1,0 +1,26 @@
+# SPDX-License-Identifier: MIT
+---
+# Modules
+nginx_core_brotli_module: false
+nginx_core_geoip2_module: false
+nginx_core_vts_module: false
+
+# TLS
+nginx_core_enable_http3: false
+nginx_core_enable_hsts: false
+nginx_core_enable_ocsp: false
+nginx_core_resolver: "127.0.0.53"
+
+# Compression
+nginx_core_enable_comp: false
+nginx_core_comp_min_length: 256
+nginx_core_comp_types:
+ - text/plain
+ - text/css
+ - application/javascript
+ - application/json
+ - application/x-javascript
+ - text/xml
+ - application/xml
+ - application/xml+rss
+ - text/javascript

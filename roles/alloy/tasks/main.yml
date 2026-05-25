@@ -1,0 +1,62 @@
+# SPDX-License-Identifier: MIT
+---
+- name: Add grafana repository
+  ansible.builtin.deb822_repository:
+    name: grafana
+    types: deb
+    uris: https://apt.grafana.com
+    suites: stable
+    components: main
+    signed_by: https://apt.grafana.com/gpg.key
+    state: present
+  register: alloy_repo
+
+- name: Update apt cache
+  ansible.builtin.apt:
+    update_cache: true
+  when: alloy_repo.changed
+
+- name: Install alloy
+  ansible.builtin.apt:
+    name: alloy
+    state: present
+
+- name: Create Ansible-managed drop-in directory
+  ansible.builtin.file:
+    path: /etc/alloy.d
+    state: directory
+    owner: alloy
+    group: alloy
+    mode: '0755'
+
+- name: Define config file as directory path
+  ansible.builtin.lineinfile:
+    path: /etc/default/alloy
+    regexp: '^CONFIG_FILE='
+    line: CONFIG_FILE="/etc/alloy.d"
+  notify: Restart alloy
+
+- name: Edit alloy listen address
+  ansible.builtin.lineinfile:
+    path: /etc/default/alloy
+    regexp: '^CUSTOM_ARGS='
+    line: CUSTOM_ARGS="--server.http.listen-addr=[::1]:12345"
+  notify: Restart alloy
+
+- name: Deploy alloy configuration
+  ansible.builtin.template:
+    src: "{{ item }}.j2"
+    dest: "/etc/alloy.d/{{ item }}"
+    owner: alloy
+    group: alloy
+    mode: '0644'
+  loop:
+    - 00-base.alloy
+    - 10-node.alloy
+  notify: Reload alloy
+
+- name: Ensure alloy is enabled and started
+  ansible.builtin.systemd_service:
+    name: alloy.service
+    enabled: true
+    state: started

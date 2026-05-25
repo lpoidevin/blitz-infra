@@ -1,0 +1,92 @@
+# SPDX-License-Identifier: MIT
+---
+- name: Ensure group exists
+  ansible.builtin.group:
+    name: "{{ fxserver_group }}"
+    system: true
+    state: present
+
+- name: Create the system account
+  ansible.builtin.user:
+    name: "{{ fxserver_user }}"
+    group: "{{ fxserver_group }}"
+    system: true
+    home: "{{ fxserver_home_dir }}"
+    shell: /usr/sbin/nologin
+    state: present
+
+- name: Ensure citizenfx install/home directory exists with correct perms
+  ansible.builtin.file:
+    path: "{{ item }}"
+    state: directory
+    owner: root
+    group: root
+    mode: '0755'
+  loop:
+    - "{{ fxserver_home_dir }}"
+    - "{{ fxserver_install_dir }}"
+
+- name: Create data folder owned by the service user
+  ansible.builtin.file:
+    path: "{{ fxserver_data_dir }}"
+    state: directory
+    owner: "{{ fxserver_user }}"
+    group: "{{ fxserver_group }}"
+    mode: '0750'
+
+- name: Fetch the commit data for the build tag from GitHub API
+  ansible.builtin.uri:
+    url: "{{ fxserver_github_base }}{{ fxserver_build_number }}"
+    return_content: true
+    headers:
+      Accept: "application/vnd.github.v3+json"
+  register: fxserver_github_api_response
+
+- name: Extract commit SHA and construct the download URL
+  ansible.builtin.set_fact:
+    fxserver_artifact_url: "{{ fxserver_artifacts_base }}{{ fxserver_build_number }}-{{ fxserver_github_api_response.json.sha }}/fx.tar.xz"
+
+- name: Create artifact directory
+  ansible.builtin.file:
+    path: "{{ fxserver_install_dir }}/{{ fxserver_build_number }}"
+    state: directory
+    owner: root
+    group: root
+    mode: '0755'
+
+- name: Download and extract the artifact directly to the server
+  ansible.builtin.unarchive:
+    src: "{{ fxserver_artifact_url }}"
+    dest: "{{ fxserver_install_dir }}/{{ fxserver_build_number }}"
+    owner: "{{ fxserver_user }}"
+    group: "{{ fxserver_group }}"
+    remote_src: true
+    creates: "{{ fxserver_install_dir }}/{{ fxserver_build_number }}/run.sh"
+
+- name: Create symlink to the current artifact version
+  ansible.builtin.file:
+    src: "{{ fxserver_install_dir }}/{{ fxserver_build_number }}"
+    dest: "{{ fxserver_install_dir }}/current"
+    state: link
+  notify: Restart fxserver
+
+- name: Create fxserver service
+  ansible.builtin.template:
+    src: fxserver.service.j2
+    dest: /etc/systemd/system/fxserver.service
+    mode: '0644'
+  notify: Reload daemon and restart fxserver
+
+- name: Create citizenfx env file
+  ansible.builtin.template:
+    src: fxserver.env.j2
+    dest: /etc/default/fxserver
+    owner: "{{ fxserver_user }}"
+    group: "{{ fxserver_group }}"
+    mode: '0640'
+  notify: Restart fxserver
+
+- name: Enable fxserver
+  ansible.builtin.systemd_service:
+    name: fxserver.service
+    enabled: true

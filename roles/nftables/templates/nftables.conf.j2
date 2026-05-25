@@ -1,0 +1,69 @@
+{{ ansible_managed | comment }}
+
+# Create the table if it doesn't exist so we can safely flush it
+table inet filter { }
+flush table inet filter
+
+include "/etc/nftables.d/defines/*.nft"
+
+table inet filter {
+    chain inbound_ipv4 {
+        icmp type { echo-request, destination-unreachable, time-exceeded } limit rate 5/second accept \
+        comment "Accept ping and critical ICMPv4"
+
+        include "/etc/nftables.d/filter-input-v4/*.nft"
+    }
+
+    chain inbound_ipv6 {
+        icmpv6 type { nd-neighbor-solicit, nd-neighbor-advert } accept \
+        comment "Accept neighbour discovery otherwise connectivity breaks"
+
+        icmpv6 type { echo-request, destination-unreachable, packet-too-big, time-exceeded, parameter-problem } limit rate 5/second accept \
+        comment "Accept ping and critical ICMPv6"
+
+        include "/etc/nftables.d/filter-input-v6/*.nft"
+    }
+
+    map input_iif_map {
+        type ifname : verdict
+    }
+
+    chain inbound {
+        type filter hook input priority 0; policy drop;
+
+        iifname lo accept \
+        comment "Accept any localhost traffic"
+
+        ct state vmap { established : accept, related : accept, invalid : drop } \
+        comment "Allow traffic from established and related packets, drop invalid"
+
+        meta protocol vmap { ip : jump inbound_ipv4, ip6 : jump inbound_ipv6 }
+
+        iifname vmap @input_iif_map
+
+        include "/etc/nftables.d/filter-input/*.nft"
+
+        # log prefix "[nftables] Inbound Denied: " counter drop \
+        # comment "Enable logging of denied inbound traffic"
+    }
+
+    chain forward {
+        type filter hook forward priority 0; policy drop;
+
+{% if nftables_enable_forwarding %}
+        ct state vmap { established : accept, related : accept, invalid : drop } \
+        comment "Allow traffic from established and related packets, drop invalid"
+
+        include "/etc/nftables.d/filter-forward/*.nft"
+
+        log prefix "[nftables] Forward Denied: " counter drop \
+        comment "Enable logging of denied forward traffic"
+{% endif %}
+    }
+
+    chain outbound {
+        type filter hook output priority 0;
+    }
+}
+
+include "/etc/nftables.d/*.nft"

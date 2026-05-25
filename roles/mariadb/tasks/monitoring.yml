@@ -1,0 +1,28 @@
+# SPDX-License-Identifier: MIT
+---
+# - name: Define prometheus mysqld exporter configuration
+#   ansible.builtin.lineinfile:
+#     path: /etc/default/prometheus-mysqld-exporter
+#     regexp: '^ARGS='
+#     line: ARGS="--config.my-cnf /etc/.mysqld_exporter.cnf"
+#     # line: ARGS="--collect.binlog_size --collect.info_schema.processlist --collect.info_schema.userstats"
+#   notify: Restart prometheus-mysqld-exporter
+
+- name: Create exporter user
+  community.mysql.mysql_user:
+    name: alloy
+    host: localhost
+    plugin: unix_socket
+    priv: "*.*:PROCESS,REPLICATION CLIENT,SLAVE MONITOR/performance_schema.*:SELECT"
+    state: present
+    resource_limits:
+      MAX_USER_CONNECTIONS: 3
+
+- name: Deploy alloy config
+  ansible.builtin.template:
+    src: 60-mariadb.alloy.j2
+    dest: /etc/alloy.d/60-mariadb.alloy
+    owner: root
+    group: root
+    mode: '0644'
+  notify: Reload alloy

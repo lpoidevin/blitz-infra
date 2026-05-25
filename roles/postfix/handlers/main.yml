@@ -1,0 +1,21 @@
+# SPDX-License-Identifier: MIT
+---
+- name: Restart postfix
+  ansible.builtin.systemd_service:
+    name: postfix.service
+    state: restarted
+
+- name: Reload postfix
+  ansible.builtin.systemd_service:
+    name: postfix.service
+    state: reloaded
+
+- name: Rebuild virtual
+  ansible.builtin.command:
+    cmd: postmap /etc/postfix/virtual
+  changed_when: true
+
+- name: Rebuild sasl_passwd
+  ansible.builtin.command:
+    cmd: postmap /etc/postfix/sasl_passwd
+  changed_when: true

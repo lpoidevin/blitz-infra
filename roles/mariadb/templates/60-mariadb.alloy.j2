@@ -1,0 +1,22 @@
+{{ ansible_managed | comment('c') }}
+
+prometheus.exporter.mysql "mariadb" {
+    data_source_name = "alloy@unix({{ mariadb_socket }})/"
+
+    // Enable relevant collectors for MariaDB
+    enable_collectors = [
+        "info_schema.innodb_metrics",
+        "info_schema.processlist",
+        "perf_schema.eventsstatements",
+    ]
+    // enable_collectors = ["heartbeat", "mysql.user"]
+}
+
+prometheus.scrape "mariadb" {
+    targets = prometheus.exporter.mysql.mariadb.targets
+
+    job_name = "mariadb"
+    scrape_interval = "15s"
+
+    forward_to = [prometheus.remote_write.default.receiver]
+}

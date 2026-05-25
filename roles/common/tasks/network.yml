@@ -1,0 +1,62 @@
+# SPDX-License-Identifier: MIT
+---
+- name: Ensure network packages are installed
+  ansible.builtin.apt:
+    name:
+      - systemd-resolved
+      - systemd-timesyncd
+    state: present
+
+- name: Disable LLMNR in systemd-resolved
+  community.general.ini_file:
+    path: /etc/systemd/resolved.conf
+    section: Resolve
+    option: LLMNR
+    value: "false"
+    mode: "0644"
+  notify: Reload systemd-resovled
+
+- name: Deploy systemd-networkd interface configurations
+  ansible.builtin.template:
+    src: 10-interface.network.j2
+    dest: /etc/systemd/network/10-{{ item.name }}.network
+    mode: "0644"
+  loop: "{{ common_network_interfaces }}"
+  when: common_network_interfaces | length > 0
+  notify: Restart systemd-networkd
+
+- name: Remove netplan.io
+  ansible.builtin.apt:
+    name: netplan.io
+    state: absent
+    purge: true
+
+# - name: Create backup directory for old Netplan configs
+#   ansible.builtin.file:
+#     path: /etc/netplan/disabled_by_ansible
+#     state: directory
+#     mode: '0755'
+
+# - name: Find active Netplan configurations
+#   ansible.builtin.find:
+#     paths: /etc/netplan
+#     patterns: "*.yaml"
+#   register: common_netplan_files
+
+# - name: Move Netplan configs to backup to disable them
+#   ansible.builtin.command:
+#     cmd: "mv {{ item.path }} /etc/netplan/disabled_by_ansible/{{ item.path | basename }}.bak"
+#     creates: /etc/netplan/disabled_by_ansible/{{ item.path | basename }}.bak
+#   loop: "{{ common_netplan_files.files }}"
+#   when: common_netplan_files.matched > 0
+
+# - name: Ensure networking service is disabled
+#   ansible.builtin.systemd_service:
+#     name: networking.service
+#     enabled: false
+#   notify: Reboot
+
+# - name: Ensure systemd-networkd is enabled
+#   ansible.builtin.systemd_service:
+#     name: systemd-networkd.service
+#     enabled: true
