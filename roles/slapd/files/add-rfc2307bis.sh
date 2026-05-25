@@ -1,4 +1,5 @@
 #!/usr/bin/bash
+# SPDX-License-Identifier: MIT
 set -o pipefail
 
 # Variables for common paths
