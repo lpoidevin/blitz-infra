@@ -1,0 +1,46 @@
+# SPDX-License-Identifier: MIT
+---
+# Global config
+grafana_domain: monitoring.staging.blitz-infra.net
+
+grafana_datasources:
+  - name: Prometheus
+    type: prometheus
+    access: proxy
+    orgId: 1
+    url: http://localhost:9090
+    isDefault: true
+    jsonData:
+      timeInterval: 15s # Must match alloy scrape interval
+    # version: 1
+    editable: false
+  - name: Loki
+    type: loki
+    access: proxy
+    orgId: 1
+    url: http://localhost:3100
+    # jsonData:
+    #   manageAlerts: false
+    # version: 1
+    editable: false
+  - name: Alertmanager
+    type: alertmanager
+    access: proxy
+    orgId: 1
+    # uid: my_unique_uid
+    url: http://localhost:9093
+    jsonData:
+      implementation: prometheus
+    # version: 1
+    editable: false
+
+# LDAP
+grafana_ldap_enabled: true
+grafana_ldap_server: ldap.blitz-infra.net
+grafana_ldap_bind_dn: "uid=grafana,ou=sysaccounts,{{ base_dn }}"
+grafana_ldap_bind_password: "{{ vault_grafana_ldap_bind_password }}"
+grafana_ldap_search_base_dns: "ou=people,{{ base_dn }}"
+grafana_ldap_search_filter: (uid=%s)
+grafana_ldap_group_search_base_dns: "ou=groups,{{ base_dn }}"
+grafana_ldap_group_search_filter: "(&(objectClass=posixGroup)(member=uid=%s,ou=people,{{ base_dn }}))"
+grafana_ldap_admin_group_dn: "cn=infra,ou=groups,{{ base_dn }}"

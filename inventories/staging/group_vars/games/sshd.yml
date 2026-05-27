@@ -1,0 +1,11 @@
+# SPDX-License-Identifier: MIT
+---
+sshd_match_blocks:
+  - condition: "User {{ fxserver_user }}"
+    rules:
+      ChrootDirectory: "%h"
+      ForceCommand: "internal-sftp -u 0022 -l VERBOSE"
+      AllowAgentForwarding: "no"
+      AllowTcpForwarding: "no"
+      X11Forwarding: "no"
+      PermitTTY: "no"

@@ -1,0 +1,4 @@
+# SPDX-License-Identifier: MIT
+---
+# Security
+# crowsec_fivem_regexp: "{{ vault_crowsec_fivem_regexp }}"

@@ -1,5 +1,0 @@
-# SPDX-License-Identifier: MIT
----
-postfix_relay_auth_enable: true
-postfix_relay_auth_user: "{{ inventory_hostname_short }}"
-postfix_relay_auth_password: "{{ vault_postfix_relay_auth_password }}"

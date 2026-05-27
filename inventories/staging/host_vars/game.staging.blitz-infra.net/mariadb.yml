@@ -1,0 +1,17 @@
+# SPDX-License-Identifier: MIT
+---
+mariadb_bind_address: "*"
+mariadb_env: staging
+mariadb_hide_passwords: false
+
+mariadb_databases:
+  - name: fivem
+    collation: utf8mb4_unicode_ci
+    encoding: utf8mb4
+    state: present
+
+mariadb_users:
+  - name: fivem
+    host: localhost
+    password: "{{ vault_fivem_db_pass }}"
+    priv: fivem.*:ALL

@@ -1,7 +1,0 @@
-# SPDX-License-Identifier: MIT
----
-# Email
-postfix_relayhost: smtp.blitz-infra.net
-
-# Security
-# crowsec_fivem_regexp: "{{ vault_crowsec_fivem_regexp }}"

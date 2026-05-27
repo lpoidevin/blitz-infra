@@ -1,0 +1,17 @@
+# SPDX-License-Identifier: MIT
+---
+- name: Deploy infrastructure services
+  hosts: directory
+  roles:
+    - role: lego
+      tags: ["lego"]
+    - role: slapd
+      tags: ["ldap"]
+
+- name: Deploy game server services
+  hosts: games
+  roles:
+    - role: mariadb
+      tags: ["mariadb"]
+    - role: fxserver
+      tags: ["fxserver"]

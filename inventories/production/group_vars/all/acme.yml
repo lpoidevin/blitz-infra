@@ -1,0 +1,21 @@
+# SPDX-License-Identifier: MIT
+---
+lego_accounts:
+  blitz-security:
+    server: https://acme-v02.api.letsencrypt.org/directory
+    email: "security@{{ domain }}"
+    keyType: EC384
+    acceptsTermsOfService: true
+
+lego_challenges:
+  ovh-dns:
+    dns:
+      provider: ovh
+
+lego_hooks:
+  deploy:
+    command: /usr/local/bin/lego-deploy-hook.sh
+
+lego_ovh_app_key: "{{ vault_lego_ovh_app_key }}"
+lego_ovh_app_secret: "{{ vault_lego_ovh_app_secret }}"
+lego_ovh_consumer_key: "{{ vault_lego_ovh_consumer_key }}"

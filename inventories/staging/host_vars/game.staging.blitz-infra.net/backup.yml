@@ -1,0 +1,19 @@
+# SPDX-License-Identifier: MIT
+---
+# restic_repo_path: rclone:ovh-ftp:restic
+# restic_password: "{{ vault_restic_password }}"
+
+# restic_ovh_ftp_name: ovh-ftp
+# restic_ovh_ftp_host: "{{ vault_restic_ovh_ftp_host }}"
+# restic_ovh_ftp_user: "{{ vault_restic_ovh_ftp_user }}"
+# restic_ovh_ftp_pass: "{{ vault_restic_ovh_ftp_pass }}"
+
+# restic_mariadb_backup: true
+
+# restic_source_dirs:
+#   - /srv/cfx/txData
+
+# restic_exclude_patterns:
+#   - "*.log"
+#   - "*.history"
+#   - "cache"

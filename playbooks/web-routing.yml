@@ -1,0 +1,21 @@
+# SPDX-License-Identifier: MIT
+---
+- name: Setup web foundations
+  hosts: managers, caches, games
+  roles:
+    - role: lego
+      tags: ["lego"]
+    - role: nginx_core
+      tags: ["nginx"]
+
+- name: Setup reverse proxies
+  hosts: managers, games
+  roles:
+    - role: nginx_proxy
+      tags: ["nginx", "proxy"]
+
+- name: Setup cache configuration
+  hosts: caches
+  roles:
+    - role: nginx_cache
+      tags: ["nginx", "cache"]

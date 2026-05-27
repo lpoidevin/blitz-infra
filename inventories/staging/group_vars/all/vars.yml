@@ -1,8 +1,9 @@
 # SPDX-License-Identifier: MIT
 ---
 # Global variables
-domain: blitz-infra.net
-base_dn: dc=blitz-infra,dc=net
+domain: staging.blitz-infra.net
+base_dn: dc=staging,dc=blitz-infra,dc=net
+# install_mail_catcher: true
 
 # Common
 common_timezone: Etc/UTC
@@ -12,8 +13,8 @@ common_upgrades_email: "root@{{ domain }}"
 restic_admin_email: "root@{{ domain }}"
 
 # Monitoring
-alloy_loki_endpoint: monitoring.blitz-infra.net
-alloy_prometheus_endpoint: monitoring.blitz-infra.net
+alloy_loki_endpoint: monitoring.staging.blitz-infra.net
+alloy_prometheus_endpoint: monitoring.staging.blitz-infra.net
 
 # Security reports
 # fail2ban_destemail: "security@{{ domain }}"

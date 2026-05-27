@@ -1,0 +1,17 @@
+# SPDX-License-Identifier: MIT
+---
+- name: Deploy monitoring agents
+  hosts: all
+  roles:
+    - role: alloy
+      tags: ["alloy"]
+
+- name: Deploy monitoring backend
+  hosts: monitor
+  roles:
+    - role: prometheus
+      tags: ["prometheus"]
+    - role: loki
+      tags: ["loki"]
+    - role: grafana
+      tags: ["grafana"]

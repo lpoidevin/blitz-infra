@@ -1,0 +1,15 @@
+# SPDX-License-Identifier: MIT
+---
+- name: Configure base operating system
+  hosts: all
+  roles:
+    - role: common
+      tags: ["common"]
+    - role: nftables
+      tags: ["nftables"]
+    - role: wireguard
+      tags: ["wireguard"]
+    - role: sssd
+      tags: ["sssd"]
+    - role: sshd
+      tags: ["sshd"]

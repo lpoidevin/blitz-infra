@@ -1,0 +1,20 @@
+# SPDX-License-Identifier: MIT
+---
+- name: Setup mailling infrastructure
+  hosts: all
+  roles:
+    - role: postfix
+      tags: ["postfix"]
+
+# - name: Deploy staging mail sandbox
+#   hosts: mta-gateway
+#   roles:
+#     - role: mailpit
+#       tags: ["mailpit"]
+#       when: install_mail_catcher | bool
+
+- name: Setup certificates via ACME
+  hosts: mta-gateway
+  roles:
+    - role: lego
+      tags: ["lego"]

@@ -1,0 +1,24 @@
+# SPDX-License-Identifier: MIT
+---
+nginx_core_tls_cert_path: "/var/lib/lego/certificates/fxserver.crt"
+nginx_core_tls_key_path: "/var/lib/lego/certificates/fxserver.key"
+nginx_core_tls_issuer_path: "/var/lib/lego/certificates/fxserver.issuer.crt"
+
+nginx_proxy_vhosts:
+  - name: connect
+    domain: "{{ fxserver_connect_endpoint }}"
+    upstream_port: 30120
+    firewall_zone: public
+    is_default: true
+    set_x_forwarded_for: false
+    set_x_forwarded_proto: false
+    pass_request_headers: true
+    http_version_1_1: true
+
+  - name: txadmin
+    domain: "{{ fxserver_txadmin_endpoint }}"
+    upstream_port: 40120
+    firewall_zone: public
+    set_x_forwarded_for: true
+    set_x_forwarded_proto: false
+    pass_request_headers: false
