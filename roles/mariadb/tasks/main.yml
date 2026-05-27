@@ -14,7 +14,7 @@
   ansible.builtin.import_tasks: secure-installation.yml
 
 - name: Ensure MySQL databases are present
-  community.mysql.mysql_db:
+  ansible.mysql.mysql_db:
     name: "{{ item.name }}"
     collation: "{{ item.collation | default('utf8mb4_unicode_ci') }}"
     encoding: "{{ item.encoding | default('utf8mb4') }}"
@@ -23,7 +23,7 @@
   loop: "{{ mariadb_databases }}"
 
 - name: Ensure MySQL users are present
-  community.mysql.mysql_user:
+  ansible.mysql.mysql_user:
     name: "{{ item.name }}"
     host: "{{ item.host | default('localhost') }}"
     password: "{{ item.password }}"

@@ -9,7 +9,7 @@
 #   notify: Restart prometheus-mysqld-exporter
 
 - name: Create exporter user
-  community.mysql.mysql_user:
+  ansible.mysql.mysql_user:
     name: alloy
     host: localhost
     plugin: unix_socket

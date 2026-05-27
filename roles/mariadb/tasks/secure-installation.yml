@@ -1,29 +1,29 @@
 # SPDX-License-Identifier: MIT
 ---
 - name: Ensure root uses unix_socket authentication
-  community.mysql.mysql_user:
+  ansible.mysql.mysql_user:
     name: root
     host: localhost
     plugin: unix_socket
 
 - name: Ensure that anonymous users are absent
-  community.mysql.mysql_user:
+  ansible.mysql.mysql_user:
     name: ''
     host_all: true
     state: absent
 
 - name: Ensure that the test database is absent
-  community.mysql.mysql_db:
+  ansible.mysql.mysql_db:
     name: test
     state: absent
 
 - name: Get all existing hosts for the root user
-  community.mysql.mysql_query:
+  ansible.mysql.mysql_query:
     query: SELECT Host FROM mysql.user WHERE User = 'root'
   register: mariadb_root_hosts
 
 - name: Ensure root can only login from localhost (Drop all unknown hosts)
-  community.mysql.mysql_user:
+  ansible.mysql.mysql_user:
     name: root
     host: "{{ item.Host }}"
     state: absent
