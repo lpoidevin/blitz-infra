@@ -1,7 +1,19 @@
 # SPDX-License-Identifier: MIT
 ---
-- ansible.builtin.import_playbook: playbooks/base-os.yml
-- ansible.builtin.import_playbook: playbooks/monitoring.yml
-- ansible.builtin.import_playbook: playbooks/mailing.yml
-- ansible.builtin.import_playbook: playbooks/web-routing.yml
-- ansible.builtin.import_playbook: playbooks/applications.yml
+- name: Deploy base system configuration
+  ansible.builtin.import_playbook: playbooks/base-os.yml
+
+- name: Provision monitoring infrastructure
+  ansible.builtin.import_playbook: playbooks/monitoring.yml
+
+- name: Provision mailing infrastructure
+  ansible.builtin.import_playbook: playbooks/mailing.yml
+
+- name: Provision databases
+  ansible.builtin.import_playbook: playbooks/databases.yml
+
+- name: Provision applications
+  ansible.builtin.import_playbook: playbooks/applications.yml
+
+- name: Provision web services
+  ansible.builtin.import_playbook: playbooks/web-routing.yml
