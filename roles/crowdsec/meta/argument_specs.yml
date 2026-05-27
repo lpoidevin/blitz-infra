@@ -1,0 +1,149 @@
+# SPDX-License-Identifier: MIT
+---
+argument_specs:
+  main:
+    short_description: Deploy CrowdSec intrusion detection system
+    description: >-
+      Install and configure CrowdSec with optional LAPI server, agents, and
+      bouncers (firewall, nginx). Supports custom detection rules via regex
+      patterns and email notifications.
+
+    options:
+      crowdsec_lapi_server:
+        type: bool
+        default: false
+        description: >-
+          Whether this host runs the central LAPI server.
+          If false, acts as an agent connecting to remote LAPI.
+
+      crowdsec_lapi_url:
+        type: str
+        default: http://localhost:8080
+        description: >-
+          URL of the LAPI server. Used by agents and bouncers to connect.
+          For agents: should be remote server. For LAPI server: can be localhost.
+
+      crowdsec_lapi_server_host:
+        type: str
+        description: >-
+          Hostname of the LAPI server for delegation (used when creating bouncer API keys).
+          Defaults to first host in 'manager' group.
+
+      crowdsec_auto_registration_token:
+        type: str
+        description: >-
+          Token for auto-registering agents with LAPI server.
+          Only used when crowdsec_lapi_server=true. Required for agent auto-enrollment.
+
+      crowdsec_auto_registration_network:
+        type: str
+        description: >-
+          Network CIDR allowed for auto-registration (e.g., 10.0.0.0/8).
+          Only used when crowdsec_lapi_server=true.
+
+      crowdsec_sender_email:
+        type: str
+        description: >-
+          Email address for sending CrowdSec notifications.
+          Only used if crowdsec_enable_email_notifications=true.
+
+      crowdsec_receiver_emails:
+        type: list
+        elements: str
+        default: []
+        description: >-
+          List of email addresses to receive CrowdSec alerts.
+          Only used if crowdsec_enable_email_notifications=true.
+
+      crowdsec_fivem_regexp:
+        type: list
+        elements: str
+        default: []
+        description: >-
+          List of regex patterns to detect honeypot hits in nginx logs.
+          Example patterns for FiveM resource scripts to ban on first access.
+          Only used for cache nodes with nginx log acquisition enabled.
+
+      crowdsec_enable_firewall_bouncer:
+        type: bool
+        default: true
+        description: Install and enable firewall bouncer (nftables).
+
+      crowdsec_enable_nginx_bouncer:
+        type: bool
+        default: false
+        description: >-
+          Install and enable nginx bouncer.
+          Should be true only for cache/web nodes.
+
+      crowdsec_enable_email_notifications:
+        type: bool
+        default: false
+        description: Enable email notifications for alerts.
+
+      crowdsec_enable_nginx_acquisition:
+        type: bool
+        default: false
+        description: >-
+          Enable nginx log acquisition for custom detection rules.
+          Should be true only for cache nodes running nginx.
+
+      crowdsec_parser_routines:
+        type: int
+        default: 1
+        description: >-
+          Number of parser routines. Higher values increase throughput but use more CPU.
+          Leave at 1 unless experiencing high log volume.
+
+      crowdsec_db_type:
+        type: str
+        default: sqlite
+        choices:
+          - sqlite
+          - mysql
+          - postgresql
+        description: Database backend for storing events and decisions.
+
+      crowdsec_db_path:
+        type: str
+        default: /var/lib/crowdsec/data/crowdsec.db
+        description: Path to SQLite database (only used if db_type=sqlite).
+
+      crowdsec_db_flush_max_items:
+        type: int
+        default: 5000
+        description: Maximum number of events to keep in database before flushing.
+
+      crowdsec_db_flush_max_age:
+        type: str
+        default: 7d
+        description: >-
+          Maximum age of events in database (e.g., 7d, 30d).
+          Older events are automatically purged.
+
+      crowdsec_prometheus_enabled:
+        type: bool
+        default: true
+        description: Enable Prometheus metrics exposure.
+
+      crowdsec_prometheus_level:
+        type: str
+        default: full
+        choices:
+          - full
+          - partial
+        description: >-
+          Detail level for Prometheus metrics.
+          'full' includes all metrics, 'partial' includes basic metrics only.
+
+      crowdsec_prometheus_listen_addr:
+        type: str
+        default: "::1"
+        description: >-
+          IP address to listen for Prometheus metrics on.
+          Use "::1" for IPv6 localhost, "127.0.0.1" for IPv4 only.
+
+      crowdsec_prometheus_listen_port:
+        type: int
+        default: 6060
+        description: Port for Prometheus metrics endpoint.

@@ -17,7 +17,7 @@
     src: "https://github.com/go-acme/lego/releases/download/v{{ lego_version }}/lego_v{{ lego_version }}_{{ lego_arch }}.tar.gz"
     dest: /usr/local/bin/
     remote_src: true
-    creates: "/usr/local/bin/lego"
+    creates: /usr/local/bin/lego
     owner: root
     group: root
     mode: '0755'

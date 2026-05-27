@@ -1,0 +1,38 @@
+# SPDX-License-Identifier: MIT
+---
+# Honeypot detection configuration for cache nodes (FiveM resource honeypot)
+
+- name: Deploy honeypot parser/enricher
+  ansible.builtin.template:
+    src: honeypot-enricher.yaml.j2
+    dest: /etc/crowdsec/parsers/s02-enrich/fivem-honeypot.yaml
+    owner: root
+    group: root
+    mode: '0644'
+    backup: true
+  notify: reload crowdsec
+  when: crowdsec_fivem_regexp | length > 0
+
+- name: Deploy honeypot detection scenario
+  ansible.builtin.template:
+    src: honeypot-scenario.yaml.j2
+    dest: /etc/crowdsec/scenarios/fivem-honeypot.yaml
+    owner: root
+    group: root
+    mode: '0644'
+    backup: true
+  notify: reload crowdsec
+  when: crowdsec_fivem_regexp | length > 0
+
+- name: Enable nginx log acquisition for honeypot detection
+  ansible.builtin.template:
+    src: acquis-nginx.yaml.j2
+    dest: /etc/crowdsec/acquis.d/nginx.yaml
+    owner: root
+    group: root
+    mode: '0644'
+    backup: true
+  notify: reload crowdsec
+  when:
+    - crowdsec_enable_nginx_acquisition
+    - crowdsec_fivem_regexp | length > 0

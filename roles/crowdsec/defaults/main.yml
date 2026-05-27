@@ -1,0 +1,49 @@
+# SPDX-License-Identifier: MIT
+---
+# CrowdSec Role Configuration
+# Defines whether this host runs the LAPI (central) server or acts as an agent
+crowdsec_lapi_server: false
+# Local API server URL (used by agents/bouncers to connect to LAPI)
+crowdsec_lapi_url: http://localhost:8080
+# Hostname of the LAPI server for delegation (used when creating bouncer API keys)
+crowdsec_lapi_server_host: "{{ groups['manager'][0] | default('localhost') }}"
+
+# LAPI Server Configuration
+# Token for auto-registration of agents
+crowdsec_auto_registration_token: ""
+# Network CIDR allowed for auto-registration (e.g., 10.0.0.0/8)
+crowdsec_auto_registration_network: ""
+
+# Email Notification Settings
+crowdsec_sender_email: ""
+crowdsec_receiver_emails: []
+
+# Custom Detection Rules - FiveM Honeypot
+# List of regex patterns to detect honeypot hits in nginx logs
+# Example: [".*toto_\\d+\\.(yft|ytd).*", ".*grangerb\\.(yft|ytd).*"]
+crowdsec_fivem_regexp: []
+
+# Feature Flags
+crowdsec_enable_firewall_bouncer: true
+crowdsec_enable_nginx_bouncer: false # Only for cache nodes
+crowdsec_enable_email_notifications: false
+
+# Log Acquisition
+# Enable nginx log acquisition for honeypot detection (requires nginx logs)
+crowdsec_enable_nginx_acquisition: false
+
+# Parser Configuration
+# Number of parser routines to use (1 = single-threaded, higher = more throughput)
+crowdsec_parser_routines: 1
+
+# Database Configuration
+crowdsec_db_type: sqlite
+crowdsec_db_path: /var/lib/crowdsec/data/crowdsec.db
+crowdsec_db_flush_max_items: 5000
+crowdsec_db_flush_max_age: "7d"
+
+# Prometheus Metrics
+crowdsec_prometheus_enabled: true
+crowdsec_prometheus_level: full
+crowdsec_prometheus_listen_addr: "::1"
+crowdsec_prometheus_listen_port: 6060

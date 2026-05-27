@@ -1,0 +1,20 @@
+# SPDX-License-Identifier: MIT
+---
+galaxy_info:
+  author: Louis Poidevin
+  description: >-
+    Deploy and configure CrowdSec intrusion detection system with LAPI server
+    and agent/bouncer support. Includes custom detection rules for honeypot
+    hits and email notifications.
+
+  license: MIT
+  min_ansible_version: "2.20"
+
+  platforms:
+    - name: Debian
+      versions:
+        - trixie
+
+  galaxy_tags: []
+
+dependencies: []

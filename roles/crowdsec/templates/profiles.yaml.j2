@@ -1,0 +1,33 @@
+# {{ ansible_managed | comment }}
+---
+name: default_ip_remediation
+filters:
+  - Alert.Remediation == true && Alert.GetScope() == "Ip"
+decisions:
+  - type: ban
+    duration: 4h
+notifications:
+  - email_default
+on_success: break
+
+---
+name: default_range_remediation
+filters:
+  - Alert.Remediation == true && Alert.GetScope() == "Range"
+decisions:
+  - type: ban
+    duration: 4h
+notifications:
+  - email_default
+on_success: break
+
+---
+name: fivem_honeypot
+filters:
+  - Alert.Scenario == 'custom/five-honeypot'
+notifications:
+  - email_default
+decisions:
+  - type: ban
+    duration: 24h
+    scope: Range

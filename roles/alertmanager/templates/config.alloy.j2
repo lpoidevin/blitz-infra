@@ -1,0 +1,11 @@
+{{ ansible_managed | comment }}
+
+prometheus.scrape "alertmanager" {
+    targets = [
+        {
+            "__address__" = "localhost:9093",
+            "job" = "alertmanager"
+        }
+    ]
+    forward_to = [prometheus.remote_write.default.receiver]
+}

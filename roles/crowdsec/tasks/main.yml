@@ -1,0 +1,74 @@
+# SPDX-License-Identifier: MIT
+---
+- name: Validate CrowdSec configuration variables
+  ansible.builtin.assert:
+    that:
+      - crowdsec_lapi_url is defined
+      - crowdsec_lapi_url | length > 0
+      - crowdsec_fivem_regexp is defined
+      - crowdsec_fivem_regexp is iterable
+    fail_msg: "Missing or invalid CrowdSec configuration variables"
+
+- name: Add CrowdSec APT repository
+  ansible.builtin.deb822_repository:
+    name: crowdsec
+    types: deb
+    uris: https://packagecloud.io/crowdsec/crowdsec/debian
+    suites: any
+    components: main
+    signed_by: https://packagecloud.io/crowdsec/crowdsec/gpgkey
+    state: present
+
+- name: Install CrowdSec core package
+  ansible.builtin.apt:
+    name: crowdsec
+    state: present
+    update_cache: true
+
+- name: Deploy CrowdSec main configuration
+  ansible.builtin.template:
+    src: config.yaml.j2
+    dest: /etc/crowdsec/config.yaml
+    owner: root
+    group: root
+    mode: '0600'
+    backup: true
+  notify: reload crowdsec
+  register: crowdsec_config_deployed
+
+- name: Validate CrowdSec configuration syntax
+  ansible.builtin.command:
+    cmd: cscli config show --format json
+  changed_when: false
+  failed_when: false
+  register: crowdsec_config_validation
+  when: crowdsec_config_deployed is changed
+
+- name: Fail if configuration is invalid
+  ansible.builtin.fail:
+    msg: "CrowdSec configuration validation failed: {{ crowdsec_config_validation.stderr }}"
+  when:
+    - crowdsec_config_deployed is changed
+    - crowdsec_config_validation.rc != 0
+
+- name: Configure firewall bouncer
+  ansible.builtin.include_tasks: bouncer-firewall.yml
+  when: crowdsec_enable_firewall_bouncer
+
+- name: Configure nginx bouncer (cache nodes only)
+  ansible.builtin.include_tasks: bouncer-nginx.yml
+  when:
+    - crowdsec_enable_nginx_bouncer
+    - "'cache' in group_names"
+
+- name: Configure honeypot detection (cache nodes only)
+  ansible.builtin.include_tasks: honeypot.yml
+  when: "'cache' in group_names"
+
+- name: Configure LAPI server
+  ansible.builtin.include_tasks: lapi-server.yml
+  when: crowdsec_lapi_server
+
+- name: Register agent to LAPI server
+  ansible.builtin.include_tasks: register-agent.yml
+  when: not crowdsec_lapi_server

@@ -1,0 +1,38 @@
+# SPDX-License-Identifier: MIT
+---
+# LAPI server-specific configuration
+
+- name: Validate LAPI server settings
+  ansible.builtin.assert:
+    that:
+      - crowdsec_auto_registration_token is defined
+      - crowdsec_auto_registration_token | length > 0
+      - crowdsec_auto_registration_network is defined
+      - crowdsec_auto_registration_network | length > 0
+    fail_msg: "LAPI server requires auto_registration_token and auto_registration_network"
+
+- name: Deploy profiles configuration
+  ansible.builtin.template:
+    src: profiles.yaml.j2
+    dest: /etc/crowdsec/profiles.yaml
+    owner: root
+    group: root
+    mode: '0644'
+    backup: true
+  notify: reload crowdsec
+
+- name: Configure email notifications (if enabled)
+  ansible.builtin.include_tasks: notifications-email.yml
+  when: crowdsec_enable_email_notifications
+
+- name: Deploy firewall access rules for LAPI
+  ansible.builtin.copy:
+    content: |
+      tcp dport 8080 accept \
+      comment "Accept CrowdSec LAPI traffic from VPN"
+    dest: /etc/nftables.d/filter-input-wg/crowdsec.nft
+    owner: root
+    group: root
+    mode: '0644'
+  notify: reload nftables
+

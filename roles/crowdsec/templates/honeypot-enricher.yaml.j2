@@ -1,0 +1,16 @@
+# {{ ansible_managed | comment }}
+name: custom/fivem-honeypot
+description: "Detect honeypot hits for FiveM resources"
+filter: "evt.Parsed.program == 'nginx'"
+nodes:
+  - filter: |
+{% for regexp in crowdsec_fivem_regexp %}
+{% if loop.last %}
+      evt.Parsed.request matches '{{ regexp }}'
+{% else %}
+      evt.Parsed.request matches '{{ regexp }}' ||
+{% endif %}
+{% endfor %}
+    statics:
+      - meta: log_type
+        value: honeypot_hit

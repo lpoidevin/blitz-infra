@@ -1,0 +1,11 @@
+# {{ ansible_managed | comment }}
+type: leaky
+name: custom/fivem-honeypot
+description: "Immediate ban for touching honeypot resources"
+filter: "evt.Meta.log_type == 'honeypot_hit'"
+groupby: "evt.Meta.source_ip"
+capacity: 1
+leakspeed: "1h"
+blackhole: 5m
+labels:
+  remediation: true

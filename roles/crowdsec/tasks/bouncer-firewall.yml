@@ -1,0 +1,68 @@
+# SPDX-License-Identifier: MIT
+---
+- name: Install firewall bouncer (nftables)
+  ansible.builtin.apt:
+    name: crowdsec-firewall-bouncer-nftables
+    state: present
+
+- name: Configure firewall bouncer API URL
+  ansible.builtin.lineinfile:
+    path: /etc/crowdsec/bouncers/crowdsec-firewall-bouncer.yaml
+    regexp: '^api_url:'
+    line: "api_url: {{ crowdsec_lapi_url }}/"
+    mode: '0600'
+  register: firewall_bouncer_api_url
+
+- name: Set firewall bouncer API key placeholder
+  ansible.builtin.lineinfile:
+    path: /etc/crowdsec/bouncers/crowdsec-firewall-bouncer.yaml
+    regexp: '^api_key:'
+    line: 'api_key: ""  # Will be set during registration'
+    mode: '0600'
+  when: not crowdsec_lapi_server
+
+- name: Generate firewall bouncer API key on LAPI server
+  ansible.builtin.shell:
+    cmd: cscli bouncers list -o json | jq -r '.[] | select(.name=="cs-firewall-bouncer-{{ inventory_hostname_short }}") | .api_key' || echo ""
+  register: crowdsec_firewall_key_check
+  changed_when: false
+  delegate_to: "{{ crowdsec_lapi_server_host | default('localhost') }}"
+  when: not crowdsec_lapi_server
+
+- name: Create firewall bouncer API key if not exists
+  ansible.builtin.command:
+    cmd: cscli bouncers add cs-firewall-bouncer-{{ inventory_hostname_short }} -o raw
+  register: crowdsec_firewall_api_key
+  changed_when: crowdsec_firewall_api_key.rc == 0
+  delegate_to: "{{ crowdsec_lapi_server_host | default('localhost') }}"
+  when:
+    - not crowdsec_lapi_server
+    - crowdsec_firewall_key_check.stdout | length == 0
+
+- name: Retrieve existing firewall bouncer API key
+  ansible.builtin.command:
+    cmd: cscli bouncers list -o json | jq -r '.[] | select(.name=="cs-firewall-bouncer-{{ inventory_hostname_short }}") | .api_key'
+  register: crowdsec_firewall_api_key
+  changed_when: false
+  delegate_to: "{{ crowdsec_lapi_server_host | default('localhost') }}"
+  when:
+    - not crowdsec_lapi_server
+    - crowdsec_firewall_key_check.stdout | length > 0
+
+- name: Configure firewall bouncer API key
+  ansible.builtin.lineinfile:
+    path: /etc/crowdsec/bouncers/crowdsec-firewall-bouncer.yaml
+    regexp: '^api_key:'
+    line: 'api_key: {{ crowdsec_firewall_api_key.stdout }}'
+    mode: '0600'
+  notify: restart firewall bouncer
+  when: not crowdsec_lapi_server
+
+- name: Deploy firewall nftables rules
+  ansible.builtin.template:
+    src: _firewall.nft.j2
+    dest: /etc/nftables.d/filter-input-wg/crowdsec.nft
+    owner: root
+    group: root
+    mode: '0644'
+  notify: reload nftables

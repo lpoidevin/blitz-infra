@@ -1,0 +1,33 @@
+# SPDX-License-Identifier: MIT
+---
+# Email notification configuration for LAPI alerts
+
+- name: Configure email notification settings
+  ansible.builtin.lineinfile:
+    path: /etc/crowdsec/notifications/email.yaml
+    regexp: "^{{ item.key }}"
+    line: "{{ item.value }}"
+    owner: root
+    group: root
+    mode: '0600'
+  notify: reload crowdsec
+  loop:
+    - { key: "smtp_host:", value: 'smtp_host: localhost' }
+    - { key: "smtp_port:", value: 'smtp_port: 25' }
+    - { key: "auth_type:", value: 'auth_type: "none"' }
+    - { key: "encryption_type:", value: 'encryption_type: "none"' }
+    - { key: "sender_email:", value: 'sender_email: {{ crowdsec_sender_email }}' }
+
+- name: Configure email recipients
+  ansible.builtin.blockinfile:
+    path: /etc/crowdsec/notifications/email.yaml
+    insertafter: '^receiver_emails:'
+    block: |
+      {% for email in crowdsec_receiver_emails %}
+        - {{ email }}
+      {% endfor %}
+    owner: root
+    group: root
+    mode: '0600'
+  notify: reload crowdsec
+  when: crowdsec_receiver_emails | length > 0

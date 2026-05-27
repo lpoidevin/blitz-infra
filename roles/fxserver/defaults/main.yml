@@ -18,4 +18,3 @@ fxserver_db_user: fxserver
 
 # Provider defaults
 fxserver_provider_name: DefaultHosting
-# fxserver_provider_logo: https://github.com/citizenfx/txAdmin/raw/master/docs/banner.png

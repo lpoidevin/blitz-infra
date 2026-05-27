@@ -1,0 +1,37 @@
+# SPDX-License-Identifier: MIT
+---
+# Agent registration with LAPI server for non-LAPI nodes
+
+- name: Validate LAPI registration settings
+  ansible.builtin.assert:
+    that:
+      - crowdsec_auto_registration_token is defined
+      - crowdsec_auto_registration_token | length > 0
+    fail_msg: "crowdsec_auto_registration_token is required for agent registration"
+
+- name: Check if agent is already registered
+  ansible.builtin.command:
+    cmd: cscli lapi status -o json
+  register: crowdsec_lapi_status
+  changed_when: false
+  failed_when: false
+
+- name: Register agent with LAPI server
+  ansible.builtin.command:
+    cmd: cscli lapi register --machine {{ inventory_hostname_short }} --url {{ crowdsec_lapi_url }} --token {{ crowdsec_auto_registration_token }}
+  register: crowdsec_agent_registration
+  changed_when: crowdsec_agent_registration.rc == 0
+  failed_when:
+    - crowdsec_agent_registration.rc != 0
+    - "'already exist' not in crowdsec_agent_registration.stderr"
+  notify: reload crowdsec
+  when: crowdsec_lapi_status.rc != 0 or 'not ok' in crowdsec_lapi_status.stdout
+
+- name: Verify agent is connected to LAPI
+  ansible.builtin.command:
+    cmd: cscli lapi status
+  register: crowdsec_lapi_verify
+  changed_when: false
+  retries: 3
+  delay: 2
+  until: crowdsec_lapi_verify.rc == 0 and 'ok' in crowdsec_lapi_verify.stdout

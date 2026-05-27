@@ -1,0 +1,73 @@
+# SPDX-License-Identifier: MIT
+---
+- name: Reload crowdsec
+  ansible.builtin.systemd_service:
+    name: crowdsec.service
+    state: reloaded
+  listen: reload crowdsec
+
+- name: Restart crowdsec-firewall-bouncer
+  ansible.builtin.systemd_service:
+    name: crowdsec-firewall-bouncer.service
+    state: restarted
+  listen: restart firewall bouncer
+
+# - name: Restart nginx
+#   ansible.builtin.systemd_service:
+#     name: nginx.service
+#     state: restarted
+#   listen: restart nginx
+
+- name: Reload nginx
+  ansible.builtin.systemd_service:
+    name: nginx.service
+    state: reloaded
+  listen: reload nginx
+
+# - name: Reload nftables
+#   ansible.builtin.systemd_service:
+#     name: nftables.service
+#     state: reloaded
+#   listen: reload nftables
+
+- name: Register machine to lapi server
+  ansible.builtin.command:
+    cmd: cscli lapi register --machine {{ inventory_hostname_short }} --url {{ crowdsec_lapi_url }} --token {{ crowdsec_auto_registration_token }}
+  register: crowdsec_lapi_register
+  changed_when: crowdsec_lapi_register.rc == 0
+  listen: register lapi
+  notify: reload crowdsec
+
+- name: Create firewall bouncer API key
+  ansible.builtin.command:
+    cmd: cscli bouncers add cs-firewall-bouncer-{{ inventory_hostname_short }} -o raw
+  delegate_to: "{{ crowdsec_lapi_server_host }}"
+  register: crowdsec_firewall_register
+  changed_when: crowdsec_firewall_register.rc == 0
+  listen: create firewall api key
+
+- name: Save firewall API key
+  ansible.builtin.lineinfile:
+    path: /etc/crowdsec/bouncers/crowdsec-firewall-bouncer.yaml
+    regexp: "^api_key:"
+    line: "api_key: {{ crowdsec_firewall_register.stdout }}"
+    mode: "0600"
+  listen: save firewall api key
+  notify: restart firewall bouncer
+
+- name: Create nginx bouncer API key
+  ansible.builtin.command:
+    cmd: cscli bouncers add crowdsec-nginx-bouncer-{{ inventory_hostname_short }} -o raw
+  delegate_to: "{{ crowdsec_lapi_server_host }}"
+  register: crowdsec_nginx_register
+  changed_when: crowdsec_nginx_register.rc == 0
+  listen: create nginx api key
+
+- name: Save nginx bouncer API key
+  ansible.builtin.lineinfile:
+    path: /etc/crowdsec/bouncers/crowdsec-nginx-bouncer.conf
+    regexp: "^API_KEY="
+    line: "API_KEY={{ crowdsec_nginx_register.stdout }}"
+    mode: "0600"
+  listen: save nginx api key
+  notify: reload nginx
