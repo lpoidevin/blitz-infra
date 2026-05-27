@@ -6,7 +6,7 @@ argument_specs:
     options:
       lego_version:
         type: str
-        default: "5.1.0"
+        required: true
         description: The version of the Lego binary to download from GitHub
       lego_arch:
         type: str
