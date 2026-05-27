@@ -1,13 +1,13 @@
 # SPDX-License-Identifier: MIT
 ---
 - name: Setup certificates via ACME
-  hosts: mta-gateway
+  hosts: mta_gateway
   roles:
     - role: lego
       tags: ["lego"]
 
 # - name: Deploy staging mail sandbox
-#   hosts: mta-gateway
+#   hosts: mta_gateway
 #   roles:
 #     - role: mailpit
 #       tags: ["mailpit"]
