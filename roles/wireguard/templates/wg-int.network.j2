@@ -4,8 +4,8 @@ Name={{ wireguard_int_nic }}
 [Network]
 Address={{ wireguard_int_address }}/64
 
+{% for host in groups['all'] if hostvars[host].wireguard_ops_address is defined and host != inventory_hostname %}
 [Route]
 Destination={{ wireguard_ops_network }}
-{% for host in groups['all'] if hostvars[host].wireguard_ops_address is defined %}
 Gateway={{ hostvars[host]['wireguard_int_address'] }}
 {% endfor %}
