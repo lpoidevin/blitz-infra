@@ -1,13 +1,5 @@
 # SPDX-License-Identifier: MIT
 ---
-- name: Deploy user directory
-  hosts: directory
-  roles:
-    - role: slapd
-      tags: ["ldap"]
-    - role: lego
-      tags: ["lego"]
-
 - name: Deploy game server database
   hosts: games
   roles:

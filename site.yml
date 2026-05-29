@@ -6,8 +6,8 @@
 - name: Provision monitoring infrastructure
   ansible.builtin.import_playbook: playbooks/monitoring.yml
 
-- name: Provision mailing infrastructure
-  ansible.builtin.import_playbook: playbooks/mailing.yml
+- name: Provision infrastructure services
+  ansible.builtin.import_playbook: playbooks/infrastructure.yml
 
 - name: Provision databases
   ansible.builtin.import_playbook: playbooks/databases.yml
@@ -16,4 +16,4 @@
   ansible.builtin.import_playbook: playbooks/applications.yml
 
 - name: Provision web services
-  ansible.builtin.import_playbook: playbooks/web-routing.yml
+  ansible.builtin.import_playbook: playbooks/web-services.yml
