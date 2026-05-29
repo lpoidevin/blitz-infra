@@ -143,3 +143,27 @@ argument_specs:
           tls_requires:
             type: dict
             description: TLS requirements dictionary.
+      mariadb_pam_users:
+        type: list
+        elements: dict
+        default: []
+        description: List of users using pam plugin for authentication.
+        options:
+          name:
+            type: str
+            required: true
+            description: The username.
+          host:
+            type: str
+            default: "localhost"
+          priv:
+            type: str
+            default: "*.*:USAGE"
+            description: Privileges string (e.g., 'mydb.*:ALL,GRANT').
+          state:
+            type: str
+            choices: ["present", "absent"]
+            default: "present"
+          tls_requires:
+            type: dict
+            description: TLS requirements dictionary.

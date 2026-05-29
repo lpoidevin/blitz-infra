@@ -1,0 +1,25 @@
+# SPDX-License-Identifier: MIT
+---
+- name: Create the MariaDB PAM service configuration for SSSD
+  ansible.builtin.copy:
+    dest: /etc/pam.d/mariadb
+    content: |
+      auth    required pam_sss.so
+      account required pam_sss.so
+    mode: '0644'
+
+- name: Install auth_pam plugin in MariaDB
+  ansible.mysql.mysql_query:
+    query: "INSTALL SONAME 'auth_pam';"
+  failed_when: false
+
+- name: Ensure MySQL users are present
+  ansible.mysql.mysql_user:
+    name: "{{ item.name }}"
+    host: "{{ item.host | default('localhost') }}"
+    plugin: pam
+    plugin_auth_string: mariadb
+    priv: "{{ item.priv | default('*.*:USAGE') }}"
+    state: "{{ item.state | default('present') }}"
+    tls_requires: "{{ item.tls_requires | default({}) }}"
+  loop: "{{ mariadb_pam_users }}"

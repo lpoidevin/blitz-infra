@@ -39,4 +39,8 @@ mariadb_users: []
 #     password: secret
 #     priv: *.*:USAGE
 
+# PAM-based users
+mariadb_pam_enable: false
+mariadb_pam_users: []
+
 mariadb_hide_passwords: false

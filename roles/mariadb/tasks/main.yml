@@ -37,6 +37,10 @@
   loop: "{{ mariadb_users }}"
   no_log: "{{ mariadb_hide_passwords }}"
 
+- name: Setup PAM-based authentication
+  ansible.builtin.import_tasks: pam.yml
+  when: mariadb_pam_enable
+
 - name: Setup database monitoring
   ansible.builtin.import_tasks: monitoring.yml
 
