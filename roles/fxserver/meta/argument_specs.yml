@@ -51,6 +51,9 @@ argument_specs:
         elements: str
         default: []
         description: List of SSH public keys for SFTP access
+      fxserver_cpu_affinity:
+        type: str
+        description: List of CPU cores that the process is running on (e.g., "0,1,2,3")
 
       # Meta Information
       fxserver_provider_name:
