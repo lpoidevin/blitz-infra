@@ -22,7 +22,6 @@ argument_specs:
         description: The internal subnet to route.
       wireguard_int_public_key:
         type: str
-        required: true
         description: The public key of the internal peer/server.
 
       wireguard_ops_nic:
