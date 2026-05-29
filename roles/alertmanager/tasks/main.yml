@@ -27,7 +27,7 @@
     src: config.alloy.j2
     dest: /etc/alloy/alertmanager.alloy
     mode: '0644'
-  notify: Restart alloy
+  notify: Reload alloy
 
 - name: Deploy firewall rule for Wireguard
   ansible.builtin.copy:

@@ -5,7 +5,12 @@
     name: ssh.service
     state: restarted
 
-# - name: Reload ssh
-#   ansible.builtin.systemd_service:
-#     name: ssh.service
-#     state: reloaded
+- name: Reload ssh
+  ansible.builtin.systemd_service:
+    name: ssh.service
+    state: reloaded
+
+- name: Reload nftables
+  ansible.builtin.systemd_service:
+    name: nftables.service
+    state: reloaded

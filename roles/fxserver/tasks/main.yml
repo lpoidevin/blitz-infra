@@ -15,7 +15,7 @@
     src: 70-fxserver.alloy.j2
     dest: /etc/alloy.d/70-fxserver.alloy
     mode: '0644'
-  notify: Restart alloy
+  notify: Reload alloy
 
 - name: Deploy firewall rules
   ansible.builtin.copy:
