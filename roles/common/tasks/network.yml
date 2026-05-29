@@ -30,6 +30,7 @@
     name: netplan.io
     state: absent
     purge: true
+    autoremove: true
 
 # - name: Create backup directory for old Netplan configs
 #   ansible.builtin.file:

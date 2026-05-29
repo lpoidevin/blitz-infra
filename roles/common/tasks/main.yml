@@ -5,11 +5,11 @@
     name:
       - curl
       - vim
-      - htop
       # - tmux
-      # - dnsutils
+      - htop
+      - iproute2
+      - dnsutils
       - mtr-tiny
-      - gnupg # required to add grafana signing key
       - tpm2-tools # used by systemd credentials
       - unattended-upgrades
     state: present
