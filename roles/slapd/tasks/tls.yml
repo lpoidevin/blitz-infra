@@ -73,5 +73,5 @@
   ansible.builtin.lineinfile:
     path: /etc/default/slapd
     regexp: '^SLAPD_SERVICES='
-    line: SLAPD_SERVICES="ldap://[::1]/ ldaps://[::]/ ldapi:///"
+    line: SLAPD_SERVICES="ldaps://[::]/ ldapi:///"
   notify: Restart slapd
