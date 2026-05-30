@@ -5,12 +5,13 @@
     name: mariadb.service
     state: restarted
 
-# - name: Restart prometheus-mysqld-exporter
-#   ansible.builtin.systemd_service:
-#     name: prometheus-mysqld-exporter.service
-#     state: restarted
-
 - name: Reload nftables
   ansible.builtin.systemd_service:
     name: nftables.service
     state: reloaded
+
+- name: Reload alloy
+  ansible.builtin.uri:
+    url: "http://[::1]:12345/-/reload"
+    method: POST
+    status_code: 200
