@@ -56,7 +56,7 @@ schema_config:
 pattern_ingester:
   enabled: true
   metric_aggregation:
-    loki_address: "localhost:{{ loki_listen_port }}"
+    loki_address: localhost:{{ loki_listen_port }}
 
 ruler:
   alertmanager_url: http://localhost:9093
