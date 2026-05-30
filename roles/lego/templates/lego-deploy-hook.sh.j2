@@ -1,7 +1,11 @@
 #!/bin/bash
+# SPDX-License-Identifier: MIT
 {{ ansible_managed | comment }}
 
-NAME="${LEGO_HOOK_CERT_NAME}"
+# Fallback to the first argument if Lego's native environment variable is missing
+NAME="${1:-$LEGO_HOOK_CERT_NAME}"
+
+# Define base paths dynamically based on how the script is executed
 CERT="${LEGO_HOOK_CERT_PATH}"
 KEY="${LEGO_HOOK_CERT_KEY_PATH}"
 ISSUER="${CERT%.crt}.issuer.crt"
@@ -32,7 +36,24 @@ case "$NAME" in
 
 {% endif %}
 {% if target.service_cmd is defined %}
-    sudo {{ target.service_cmd }}
+    CMD="{{ target.service_cmd }}"
+
+    # Check if the command is a systemctl command
+    if [[ "$CMD" == *"systemctl"* ]]; then
+        # Extract the last word of the command to guess the service name (e.g., 'nginx' from 'systemctl reload nginx')
+        SERVICE_NAME=$(echo "$CMD" | awk '{print $NF}')
+
+        if systemctl is-active --quiet "$SERVICE_NAME"; then
+            echo "Service $SERVICE_NAME is active. Executing: $CMD"
+            sudo $CMD
+        else
+            echo "Service $SERVICE_NAME is not active yet. Skipping command to prevent deployment failure."
+        fi
+    else
+        # If it is a custom script or non-systemd command, just run it
+        echo "Executing custom command: $CMD"
+        sudo $CMD
+    fi
 {% endif %}
     ;;
 {% endfor %}
