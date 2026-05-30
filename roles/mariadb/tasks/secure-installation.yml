@@ -21,6 +21,7 @@
   ansible.mysql.mysql_query:
     query: SELECT Host FROM mysql.user WHERE User = 'root'
   register: mariadb_root_hosts
+  check_mode: false
 
 - name: Ensure root can only login from localhost (Drop all unknown hosts)
   ansible.mysql.mysql_user:

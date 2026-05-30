@@ -41,6 +41,7 @@
     headers:
       Accept: "application/vnd.github.v3+json"
   register: fxserver_github_api_response
+  check_mode: false
 
 - name: Extract commit SHA and construct the download URL
   ansible.builtin.set_fact:

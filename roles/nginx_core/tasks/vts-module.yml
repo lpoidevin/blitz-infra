@@ -17,6 +17,7 @@
   ansible.builtin.command: nginx -v
   register: nginx_core_v_out
   changed_when: false
+  check_mode: false
 
 - name: Parse nginx version
   ansible.builtin.set_fact:
@@ -29,6 +30,7 @@
     headers:
       Accept: "application/vnd.github.v3+json"
   register: nginx_core_github_api_response
+  check_mode: false
 
 - name: Parse VTS module versions
   ansible.builtin.set_fact:
