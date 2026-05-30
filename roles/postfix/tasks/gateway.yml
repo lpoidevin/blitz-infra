@@ -56,8 +56,7 @@
     cmd: >
       set -o pipefail &&
       echo "{{ hostvars[item]['postfix_relay_auth_password'] }}" |
-      saslpasswd2 -p -c -f /var/spool/postfix/etc/sasldb2
-      -u {{ ansible_facts['fqdn'] }}
+      saslpasswd2 -p -c -u {{ ansible_facts['fqdn'] }}
       {{ hostvars[item]['postfix_relay_auth_user'] | default(item) }}
   loop: "{{ groups[postfix_server_client_group] | default([]) }}"
   when:
@@ -74,8 +73,7 @@
     cmd: >
       set -o pipefail &&
       echo "{{ item.password }}" |
-      saslpasswd2 -p -c -f /var/spool/postfix/etc/sasldb2
-      -u {{ ansible_facts['fqdn'] }}
+      saslpasswd2 -p -c -u {{ ansible_facts['fqdn'] }}
       {{ item.user }}
   loop: "{{ postfix_server_app_users }}"
   when:

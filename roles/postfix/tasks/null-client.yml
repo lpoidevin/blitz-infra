@@ -16,7 +16,7 @@
   loop:
     - { name: "smtp_sasl_auth_enable", value: "{{ 'yes' if postfix_relay_auth_enable else 'no' }}" }
     - { name: "smtp_sasl_password_maps", value: "hash:/etc/postfix/sasl_passwd" }
-    - { name: "smtp_sasl_security_options", value: "noanonymous" }
+    - { name: "smtp_sasl_tls_security_options", value: "noanonymous" }
     - { name: "smtp_tls_security_level", value: "{{ 'encrypt' if postfix_relay_auth_enable else 'may' }}" }
     - { name: "smtp_tls_CAfile", value: "{{ postfix_tls_ca_file }}" }
   notify: Reload postfix
