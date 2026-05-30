@@ -1,0 +1,8 @@
+# SPDX-License-Identifier: MIT
+---
+- name: Deploy backup agent
+  # hosts: monitor, games
+  hosts: games
+  roles:
+    - role: restic
+      tags: ["restic"]

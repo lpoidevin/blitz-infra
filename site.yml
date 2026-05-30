@@ -17,3 +17,6 @@
 
 - name: Provision web services
   ansible.builtin.import_playbook: playbooks/web-services.yml
+
+- name: Provision backups
+  ansible.builtin.import_playbook: playbooks/backups.yml

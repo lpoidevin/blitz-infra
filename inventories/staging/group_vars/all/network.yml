@@ -1,9 +1,9 @@
 # SPDX-License-Identifier: MIT
 ---
 # Global network variables
-net_internal_base: "fd1e:039e:c6a4:1ee7::"
+net_internal_base: "fd1e:39e:c6a4:1ee7::"
 net_internal_mask: 64
-net_operators_base: "fd1e:039e:c6a4:42::"
+net_operators_base: "fd1e:39e:c6a4:42::"
 net_operators_mask: 64
 
 ## OVH network

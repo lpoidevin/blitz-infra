@@ -13,10 +13,9 @@ common_network_interfaces:
         gw: "2001:41d0:20a:900::"
         onlink: true
 
+wireguard_int_address: fd1e:39e:c6a4:face::64f
+wireguard_int_public_key: Mld4kDQ+em6BP740MtwcNK0iVymj4QNUvZb+E7qb3S0=
+
 nftables_enable_forwarding: true
-
-wireguard_int_address: fd1e:039e:c6a4:face::64f
-wireguard_int_public_key: B/1IsQXUdV4HRpVPVuXqAYd9TXVAYUPMK89/X6/6qiI=
-
-wireguard_ops_address: fd1e:039e:c6a4:cafe::64f
+wireguard_ops_address: fd1e:39e:c6a4:cafe::64f
 wireguard_ops_peers: "{{ vault_wireguard_ops_peers }}"

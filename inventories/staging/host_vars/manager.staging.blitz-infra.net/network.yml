@@ -15,8 +15,8 @@ common_network_interfaces:
 
 nftables_enable_forwarding: true
 
-wireguard_int_address: fd1e:039e:c6a4:1ee7::64f
+wireguard_int_address: fd1e:39e:c6a4:1ee7::64f
 wireguard_int_public_key: B/1IsQXUdV4HRpVPVuXqAYd9TXVAYUPMK89/X6/6qiI=
 
-wireguard_ops_address: fd1e:039e:c6a4:42::64f
+wireguard_ops_address: fd1e:39e:c6a4:42::64f
 wireguard_ops_peers: "{{ vault_wireguard_ops_peers }}"

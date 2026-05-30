@@ -13,5 +13,5 @@ common_network_interfaces:
         gw: "2001:41d0:20a:900::"
         onlink: true
 
-wireguard_int_address: fd1e:039e:c6a4:1ee7::629
+wireguard_int_address: fd1e:39e:c6a4:1ee7::629
 wireguard_int_public_key: GQ2pfRtPa0zb7tE6c2LNMUUmkC3ww1j0y2SQBYP6LW8=

@@ -1,8 +1,8 @@
 # SPDX-License-Identifier: MIT
 ---
 mariadb_bind_address: "*"
-mariadb_env: staging
-mariadb_hide_passwords: false
+mariadb_env: production
+mariadb_hide_passwords: true
 
 mariadb_databases:
   - name: fivem
@@ -15,3 +15,6 @@ mariadb_users:
     host: localhost
     password: "{{ vault_fivem_db_pass }}"
     priv: fivem.*:ALL
+
+mariadb_pam_enable: true
+mariadb_pam_users: "{{ vault_mariadb_pam_users }}"
