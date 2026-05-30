@@ -64,8 +64,7 @@
 
 - name: Deploy excludes file
   ansible.builtin.copy:
-    content: |
-      {{ restic_exclude_patterns | join('\n') }}
+    content: "{{ restic_exclude_patterns | join('\n') }}"
     dest: "{{ restic_home }}/excludes.txt"
     owner: "{{ restic_user }}"
     group: "{{ restic_user }}"
