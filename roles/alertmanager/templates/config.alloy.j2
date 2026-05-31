@@ -1,4 +1,4 @@
-{{ ansible_managed | comment }}
+{{ ansible_managed | comment('c') }}
 
 prometheus.scrape "alertmanager" {
     targets = [
@@ -7,5 +7,6 @@ prometheus.scrape "alertmanager" {
             "job" = "alertmanager"
         }
     ]
+    scrape_interval = "15s"
     forward_to = [prometheus.remote_write.default.receiver]
 }

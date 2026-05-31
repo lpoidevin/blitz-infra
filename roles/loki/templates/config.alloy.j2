@@ -1,4 +1,7 @@
+{{ ansible_managed | comment('c') }}
+
 prometheus.scrape "loki" {
     targets = [{"__address__" = "localhost:3100", "job" = "loki"}]
+    scrape_interval = "15s"
     forward_to = [prometheus.remote_write.default.receiver]
 }
