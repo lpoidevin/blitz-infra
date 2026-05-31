@@ -30,7 +30,7 @@
 - name: Deploy firewall rule
   ansible.builtin.copy:
     content: |
-      log tcp dport 22 accept \
+      tcp dport 22 log accept \
       comment "Allow SSH"
     dest: /etc/nftables.d/filter-input-v6/sshd.nft
     mode: '0644'
