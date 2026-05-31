@@ -17,6 +17,7 @@ nginx_proxy_vhosts:
 
   - name: txadmin
     domain: "{{ fxserver_txadmin_endpoint }}"
+    upstream_host: 127.0.0.1
     upstream_port: 40120
     firewall_zone: public
     set_x_forwarded_for: true
