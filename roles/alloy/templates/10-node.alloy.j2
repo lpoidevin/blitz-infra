@@ -42,13 +42,14 @@ prometheus.exporter.unix "default" {
 }
 
 prometheus.scrape "node" {
-  targets = array.concat(
-    prometheus.exporter.unix.default.targets,
-    [{
-      __address__ = "localhost:12345",
-      job         = "alloy",
-    }],
-  )
+//  targets = array.concat(
+//    prometheus.exporter.unix.default.targets,
+//    [{
+//      __address__ = "localhost:12345",
+//      job         = "alloy",
+//    }],
+//  )
+  targets = prometheus.exporter.unix.default.targets
 
   scrape_interval = "15s"
 

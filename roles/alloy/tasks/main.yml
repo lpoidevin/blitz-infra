@@ -25,9 +25,9 @@
   ansible.builtin.file:
     path: /etc/alloy.d
     state: directory
-    owner: alloy
+    owner: root
     group: alloy
-    mode: '0755'
+    mode: '0750'
 
 - name: Define config file as directory path
   ansible.builtin.lineinfile:
@@ -47,8 +47,6 @@
   ansible.builtin.template:
     src: "{{ item }}.j2"
     dest: "/etc/alloy.d/{{ item }}"
-    owner: alloy
-    group: alloy
     mode: '0644'
   loop:
     - 00-base.alloy
