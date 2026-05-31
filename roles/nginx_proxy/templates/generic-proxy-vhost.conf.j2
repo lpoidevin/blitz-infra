@@ -14,11 +14,11 @@ upstream {{ item.name }}_backend {
 {% if item.is_default | default(false) %}
 server {
     listen 80 default_server;
-	listen [::]:80 default_server;
+    listen [::]:80 default_server;
 
-	server_name _;
+    server_name _;
 
-	return 308 https://$host$request_uri;
+    return 308 https://$host$request_uri;
 }
 
 {% endif %}
