@@ -13,8 +13,19 @@ local.file_match "nginx_logs" {
 //     forward_to = [loki.write.default.receiver]
 // }
 
+discovery.relabel "nginx_targets" {
+  targets = [
+    { "__address__" = "localhost:9113", "job" = "nginx" },
+  ]
+
+  rule {
+    target_label = "instance"
+    replacement  = constants.hostname
+  }
+}
+
 prometheus.scrape "nginx_metrics" {
-    targets = [{"__address__" = "localhost:9113", "job" = "nginx"}]
+    targets = discovery.relabel.nginx_targets.output
 
     scrape_interval = "15s"
 
