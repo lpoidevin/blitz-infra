@@ -11,15 +11,17 @@ upstream {{ item.name }}_backend {
     server localhost:{{ item.upstream_port }};
 }
 
+{% if item.is_default | default(false) %}
 server {
-    listen 80{% if item.is_default | default(false) %} default_server{% endif %};
-	listen [::]:80 {% if item.is_default | default(false) %} default_server{% endif %};
+    listen 80 default_server;
+	listen [::]:80 default_server;
 
 	server_name _;
 
 	return 308 https://$host$request_uri;
 }
 
+{% endif %}
 server {
     listen [::]:443 ssl{% if item.is_default | default(false) %} default_server{% endif %};
     listen 443 ssl{% if item.is_default | default(false) %} default_server{% endif %};
