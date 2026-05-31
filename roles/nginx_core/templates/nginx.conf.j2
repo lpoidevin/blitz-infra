@@ -1,8 +1,14 @@
 {{ ansible_managed | comment }}
 
 user www-data;
-worker_processes auto;
+{% if nginx_worker_processes is defined %}
+worker_processes {{ nginx_worker_processes }};
+{% endif %}
+{% if nginx_worker_cpu_affinity_mask is defined %}
+worker_cpu_affinity auto {{ nginx_worker_cpu_affinity_mask }};
+{% else %}
 worker_cpu_affinity auto;
+{% endif %}
 pid /run/nginx.pid;
 error_log /var/log/nginx/error.log;
 include /etc/nginx/modules-enabled/*.conf;
