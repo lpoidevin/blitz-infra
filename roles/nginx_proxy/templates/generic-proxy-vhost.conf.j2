@@ -8,7 +8,7 @@ map $http_upgrade $connection_upgrade {
 
 {% endif %}
 upstream {{ item.name }}_backend {
-    server localhost:{{ item.upstream_port }};
+    server {{ item.upstream_host | default('localhost') }}:{{ item.upstream_port }};
 }
 
 {% if item.is_default | default(false) %}

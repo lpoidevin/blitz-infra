@@ -18,6 +18,10 @@ argument_specs:
             type: str
             required: true
             description: The FQDN for the server_name
+          upstream_host:
+            type: int
+            default: localhost
+            description: The internal host to proxy to
           upstream_port:
             type: int
             required: true
