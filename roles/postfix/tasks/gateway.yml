@@ -83,14 +83,6 @@
   changed_when: false
   notify: Restart postfix
 
-- name: Ensure correct permissions on chrooted sasldb2
-  ansible.builtin.file:
-    path: /var/spool/postfix/etc/sasldb2
-    owner: root
-    group: postfix
-    mode: "0640"
-  when: postfix_server_auth_enable
-
 - name: Deploy firewall rule
   ansible.builtin.copy:
     content: |
