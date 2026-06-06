@@ -54,6 +54,6 @@ Scope={{ route.scope }}
 
 {% if item.dhcp4 | default(true) %}
 [DHCPv4]
-RouteMetric=100
+# RouteMetric=100
 UseMTU=true
 {% endif %}
