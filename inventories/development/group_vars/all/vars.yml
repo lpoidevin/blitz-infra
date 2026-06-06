@@ -1,0 +1,12 @@
+# SPDX-License-Identifier: MIT
+---
+# Global variables
+domain: dev.blitz-infra.net
+
+# Common
+common_timezone: Etc/UTC
+common_upgrades_email: "root@{{ domain }}"
+
+# SSH
+sshd_global_config:
+  PermitRootLogin: prohibit-password
