@@ -3,7 +3,6 @@
 # Global variables
 domain: staging.blitz-infra.net
 base_dn: dc=staging,dc=blitz-infra,dc=net
-# install_mail_catcher: true
 
 # Common
 common_timezone: Etc/UTC

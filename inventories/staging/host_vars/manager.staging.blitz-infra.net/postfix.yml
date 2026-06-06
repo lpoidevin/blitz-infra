@@ -1,8 +1,5 @@
 # SPDX-License-Identifier: MIT
 ---
-# Use a email catcher for staging
-postfix_relayhost: "[localhost]:1025"
-
 # Network Options
 postfix_inet_protocols: all
 postfix_inet_interfaces: all
@@ -27,3 +24,7 @@ postfix_virtual_aliases:
     destination: "postmaster@{{ domain }}"
   - alias: root
     destination: "root@{{ domain }}"
+
+# Use a email catcher for staging
+# postfix_relayhost: "[localhost]:1025"
+# install_mail_catcher: true

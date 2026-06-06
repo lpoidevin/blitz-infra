@@ -1,22 +1,20 @@
 # SPDX-License-Identifier: MIT
 ---
 common_network_interfaces:
-  - name: ens3
-    mac: fa:16:3e:04:9f:6c
+  - name: eth0
     dhcp4: true
-    ipv6_address: "2001:41d0:20a:900::64f/128"
+    ipv6_address: "2a01:4f8:c014:1291::1/64"
     dns: "{{ dns_servers }}"
     ntp: "{{ ntp_servers }}"
     domains: ["{{ domain }}"]
     routes:
       - dest: "::/0"
-        gw: "2001:41d0:20a:900::"
-        onlink: true
+        gw: "fe80::1"
 
 nftables_enable_forwarding: true
 
-wireguard_int_address: fd1e:39e:c6a4:1ee7::64f
+wireguard_int_address: fd1e:39e:c6a4:1ee7::1291
 wireguard_int_public_key: B/1IsQXUdV4HRpVPVuXqAYd9TXVAYUPMK89/X6/6qiI=
 
-wireguard_ops_address: fd1e:39e:c6a4:42::64f
+wireguard_ops_address: fd1e:39e:c6a4:42::1291
 wireguard_ops_peers: "{{ vault_wireguard_ops_peers }}"

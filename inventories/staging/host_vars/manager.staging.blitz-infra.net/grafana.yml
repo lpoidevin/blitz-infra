@@ -36,7 +36,7 @@ grafana_datasources:
 
 # LDAP
 grafana_ldap_enabled: true
-grafana_ldap_server: ldap.blitz-infra.net
+grafana_ldap_server: ldap.staging.blitz-infra.net
 grafana_ldap_bind_dn: "uid=grafana,ou=sysaccounts,{{ base_dn }}"
 grafana_ldap_bind_password: "{{ vault_grafana_ldap_bind_password }}"
 grafana_ldap_search_base_dns: "ou=people,{{ base_dn }}"

@@ -1,5 +1,20 @@
 # SPDX-License-Identifier: MIT
 ---
-# FXServer
+# Directories
+fxserver_home_dir: /srv/cfx
+fxserver_install_dir: /opt/cfx
+fxserver_data_dir: "{{ fxserver_home_dir }}/txData"
+
+# Service user
+fxserver_user: citizenfx
+fxserver_group: citizenfx
+fxserver_sftp_keys: "{{ vault_fxserver_sftp_keys }}"
+
+# Database
+fxserver_db_name: fivem
+fxserver_db_user: fivem
+fxserver_db_pass: "{{ vault_fivem_db_pass }}"
+
+# Provider
 fxserver_provider_name: Blitz Infra Staging
 fxserver_provider_logo: https://github.com/citizenfx/txAdmin/raw/master/docs/banner.png

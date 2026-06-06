@@ -3,7 +3,6 @@
 # Global variables
 domain: blitz-infra.net
 base_dn: dc=blitz-infra,dc=net
-# install_mail_catcher: false
 
 # Common
 common_timezone: Europe/Paris

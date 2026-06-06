@@ -7,8 +7,6 @@ lego_certificates:
     domains:
       - "{{ fxserver_connect_endpoint }}"
       - "{{ fxserver_txadmin_endpoint }}"
-      # - play.coursepoursuite.fr
-      # - connect.coursepoursuite.fr
 
 lego_deploy_targets:
   - name: fxserver

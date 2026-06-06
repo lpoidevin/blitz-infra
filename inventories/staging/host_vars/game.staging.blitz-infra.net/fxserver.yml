@@ -2,12 +2,8 @@
 ---
 fxserver_connect_endpoint: connect.staging.blitz-infra.net
 fxserver_txadmin_endpoint: txadmin.staging.blitz-infra.net
+
 fxserver_build_number: 25770
 fxserver_account: Sylou:188175
 
-fxserver_sftp_keys:
-  - ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAACAQC+eUWKidb6gDGwRbDSme0xQSF2epBX6xWxmC3VdHXk88ophcB91l/N7bK4hVdfJAuiWdikVx1mCw7ua1R6B+1NZrYJ1FSNGh2tnjLI48RMG38wjRk5+BpC3MSEa4uNoSEPVpwoXPpiU43mqK4fhcqTLhf8z5SgLf4i2VGlbjAXbTFUQqSNgE2x+9yRzNrzxCJBA8oim7M1q28Qt4icrR9MzIm+MfVez9UYMcwP7ZqOzRgNFG/M5uQX/5pUAJwHoe7kI542LqdQ76LGN527NssWf4xW5FwKYnX6+5EBuj9+XQ3D0KNnyK9qtwgOYKYFR30ogKyUakMOARb/5e2gnV6A+YPqb99TCkHylh5OzbFFV9PIti2eR5HNl5fBjz3+O1HO4oF7uQjVLOYJ2fNTdMVkEab+rvrJc/pTWEOSfCf5ldl2vBuDKS5hyDxYVuKxZ8QM5zoZczcVi2c+f64gMJ8AX+Up3KLI7G5sMzBWTP1tHUUbV2xA93YutygVAkQL9woWcpUcrAqGAqFQPzrqA0vNSKepUrDmy6eBt4vSE+IgVmuTkFRg+Wk+ijHdT29lD3m1PNMg2qHVJ/jkc9B2oMNX0ACTudj2EUcyP6VCT45aoRwrNtabjtjDGYP0SyR8jUn/HQ2AnCu2x8eUI7YuDhT4KqVi9KBnYY/rOxj54mnlHQ== rsa-key-20250503
-
-fxserver_db_name: fivem
-fxserver_db_user: fivem
-fxserver_db_pass: "{{ vault_fivem_db_pass }}"
+fxserver_cpu_affinity: "0,1"

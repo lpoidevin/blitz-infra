@@ -10,7 +10,7 @@ nginx_core_tls_key_path: /var/lib/lego/certificates/cdn.key
 nginx_core_tls_issuer_path: /var/lib/lego/certificates/cdn.issuer.crt
 
 nginx_cache_endpoint: cdn.staging.blitz-infra.net
-nginx_cache_backend: fivem.staging.blitz-infra.net
+nginx_cache_backend: fivem-int.staging.blitz-infra.net
 nginx_cache_keys_zone_size: 50m
 nginx_cache_max_size: 25g
 nginx_cache_inactive: 2d
