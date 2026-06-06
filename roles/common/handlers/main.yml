@@ -14,3 +14,6 @@
   ansible.builtin.systemd_service:
     name: unattended-upgrades.service
     state: restarted
+
+- name: Reboot
+  ansible.builtin.reboot:

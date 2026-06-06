@@ -32,32 +32,13 @@
     purge: true
     autoremove: true
 
-# - name: Create backup directory for old Netplan configs
-#   ansible.builtin.file:
-#     path: /etc/netplan/disabled_by_ansible
-#     state: directory
-#     mode: '0755'
+- name: Ensure networking service is disabled
+  ansible.builtin.systemd_service:
+    name: networking.service
+    enabled: false
+  notify: Reboot
 
-# - name: Find active Netplan configurations
-#   ansible.builtin.find:
-#     paths: /etc/netplan
-#     patterns: "*.yaml"
-#   register: common_netplan_files
-
-# - name: Move Netplan configs to backup to disable them
-#   ansible.builtin.command:
-#     cmd: "mv {{ item.path }} /etc/netplan/disabled_by_ansible/{{ item.path | basename }}.bak"
-#     creates: /etc/netplan/disabled_by_ansible/{{ item.path | basename }}.bak
-#   loop: "{{ common_netplan_files.files }}"
-#   when: common_netplan_files.matched > 0
-
-# - name: Ensure networking service is disabled
-#   ansible.builtin.systemd_service:
-#     name: networking.service
-#     enabled: false
-#   notify: Reboot
-
-# - name: Ensure systemd-networkd is enabled
-#   ansible.builtin.systemd_service:
-#     name: systemd-networkd.service
-#     enabled: true
+- name: Ensure systemd-networkd is enabled
+  ansible.builtin.systemd_service:
+    name: systemd-networkd.service
+    enabled: true
