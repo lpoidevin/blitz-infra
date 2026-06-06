@@ -4,3 +4,8 @@
   ansible.builtin.systemd_service:
     name: sssd.service
     state: restarted
+
+- name: Reload ssh
+  ansible.builtin.systemd_service:
+    name: ssh.service
+    state: reloaded
