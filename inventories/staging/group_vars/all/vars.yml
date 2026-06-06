@@ -15,6 +15,10 @@ restic_admin_email: "root@{{ domain }}"
 alloy_loki_endpoint: monitoring.staging.blitz-infra.net
 alloy_prometheus_endpoint: monitoring.staging.blitz-infra.net
 
+# SSH
+sshd_global_config:
+  PermitRootLogin: prohibit-password
+
 # Security reports
 # fail2ban_destemail: "security@{{ domain }}"
 # Crowdsec
