@@ -1,7 +1,0 @@
-# SPDX-License-Identifier: MIT
----
-fxserver_connect_endpoint: connect.dev.blitz-infra.net
-fxserver_txadmin_endpoint: txadmin.dev.blitz-infra.net
-
-fxserver_build_number: 25770
-fxserver_account: Carbonaraaaaa:16402109

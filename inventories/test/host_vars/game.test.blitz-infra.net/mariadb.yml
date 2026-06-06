@@ -1,7 +1,7 @@
 # SPDX-License-Identifier: MIT
 ---
 mariadb_bind_address: "*"
-mariadb_env: development
+mariadb_env: test
 mariadb_hide_passwords: false
 
 mariadb_databases:
