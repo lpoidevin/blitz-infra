@@ -1,0 +1,50 @@
+# SPDX-License-Identifier: MIT
+---
+- name: Download and install mailpit binary
+  ansible.builtin.unarchive:
+    src: "https://github.com/axllent/mailpit/releases/download/v{{ mailpit_version }}/mailpit-{{ mailpit_arch }}.tar.gz"
+    dest: /usr/local/bin/
+    remote_src: true
+    creates: /usr/local/bin/mailpit
+    owner: root
+    group: root
+    mode: '0755'
+    extra_opts:
+      - mailpit # This tells tar to ONLY extract the binary, ignoring the README/LICENSE files
+
+- name: Ensure mailpit group exists
+  ansible.builtin.group:
+    name: mailpit
+    system: true
+    state: present
+
+- name: Ensure mailpit user exists
+  ansible.builtin.user:
+    name: "{{ mailpit_user }}"
+    group: "{{ mailpit_group }}"
+    system: true
+    home: "{{ mailpit_home }}"
+    shell: /usr/sbin/nologin
+    create_home: true
+    state: present
+
+- name: Deploy systemd service
+  ansible.builtin.template:
+    src: mailpit.service
+    dest: /etc/systemd/system/mailpit.service
+    mode: '0644'
+  notify: Reload daemon and restart mailpit
+
+- name: Enable mailpit
+  ansible.builtin.systemd_service:
+    name: mailpit.service
+    enabled: true
+
+- name: Deploy firewall rule
+  ansible.builtin.copy:
+    content: |
+      tcp dport 8025 accept \
+      comment "Accept mailpit web interface access"
+    dest: /etc/nftables.d/filter-input-wg/mailpit.nft
+    mode: "0644"
+  notify: Reload nftables

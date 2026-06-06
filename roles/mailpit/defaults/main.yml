@@ -1,0 +1,6 @@
+# SPDX-License-Identifier: MIT
+---
+mailpit_arch: "linux-amd64"
+mailpit_user: mailpit
+mailpit_group: mailpit
+mailpit_home: /var/lib/mailpit

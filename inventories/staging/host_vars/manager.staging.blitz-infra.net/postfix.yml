@@ -26,5 +26,8 @@ postfix_virtual_aliases:
     destination: "root@{{ domain }}"
 
 # Use a email catcher for staging
-# postfix_relayhost: "[localhost]:1025"
-# install_mail_catcher: true
+postfix_relayhost: "[localhost]:1025"
+
+# Email sandbox configuration
+install_mail_catcher: true
+mailpit_version: "1.30.0"

@@ -1,0 +1,24 @@
+# SPDX-License-Identifier: MIT
+---
+argument_specs:
+  main:
+    short_description: Email catcher with web interface
+    options:
+      mailpit_version:
+        type: str
+        required: true
+        description: The version of the Mailpit binary to download from GitHub
+      mailpit_arch:
+        type: str
+        default: "linux-amd64"
+        description: The architecture of the Mailpit binary
+      mailpit_user:
+        type: str
+        default: mailpit
+      mailpit_group:
+        type: str
+        default: mailpit
+      mailpit_home:
+        type: str
+        default: /var/lib/mailpit
+        description: The directory where Mailpit will store its database

@@ -12,12 +12,12 @@
     - role: lego
       tags: ["lego"]
 
-# - name: Deploy staging mail sandbox
-#   hosts: mta_gateway
-#   roles:
-#     - role: mailpit
-#       tags: ["mailpit"]
-#       when: install_mail_catcher | bool
+- name: Deploy staging mail sandbox
+  hosts: mta_gateway
+  roles:
+    - role: mailpit
+      tags: ["mailpit"]
+      when: install_mail_catcher is defined and install_mail_catcher
 
 - name: Setup mailling infrastructure
   hosts: all

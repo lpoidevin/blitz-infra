@@ -1,13 +1,5 @@
 # SPDX-License-Identifier: MIT
 ---
-- name: Configure relayhost
-  ansible.builtin.lineinfile:
-    path: /etc/postfix/main.cf
-    regexp: '^relayhost\s*='
-    line: "relayhost = {{ postfix_relayhost }}"
-  when: postfix_relayhost is defined
-  notify: Reload postfix
-
 - name: Configure client SASL authentication
   ansible.builtin.lineinfile:
     path: /etc/postfix/main.cf
