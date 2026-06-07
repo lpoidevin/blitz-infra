@@ -24,8 +24,8 @@ argument_specs:
 
       # Service Configuration
       mariadb_cpu_affinity:
-          type: str
-          description: List of CPU cores that the process is running on (e.g., "0,1,2,3")
+        type: str
+        description: List of CPU cores that the process is running on (e.g., "0,1,2,3")
 
       # Connection Limits
       mariadb_max_connections:
