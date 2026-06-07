@@ -20,7 +20,7 @@ EnvironmentFile=/etc/default/fxserver
 # Performance & Limits
 # ==========================================
 # Allows the server to open many files (crucial for player network sockets)
-LimitNOFILE=1048576
+LimitNOFILE=infinity
 
 {% if fxserver_cpu_affinity is defined %}
 # List of CPU cores that the process is running on
