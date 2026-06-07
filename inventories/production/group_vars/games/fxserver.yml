@@ -1,5 +1,10 @@
 # SPDX-License-Identifier: MIT
 ---
+# Directories
+fxserver_home_dir: /srv/cfx
+fxserver_install_dir: "{{ fxserver_home_dir }}/artifacts"
+fxserver_data_dir: "{{ fxserver_home_dir }}/txData"
+
 # Service user
 fxserver_user: citizenfx
 fxserver_group: citizenfx

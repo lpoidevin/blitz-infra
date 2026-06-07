@@ -1,8 +1,8 @@
 # SPDX-License-Identifier: MIT
 ---
 # Directories
-fxserver_home_dir: /srv/cfx
-fxserver_install_dir: "{{ fxserver_home_dir }}/artifacts"
+fxserver_home_dir: /var/opt/cfx
+fxserver_install_dir: /opt/cfx
 fxserver_data_dir: "{{ fxserver_home_dir }}/txData"
 
 # System defaults

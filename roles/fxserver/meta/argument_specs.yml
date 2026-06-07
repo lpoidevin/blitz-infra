@@ -18,6 +18,16 @@ argument_specs:
         required: true
         description: The specific FXServer build number to install (e.g., "7290")
 
+      # Installation Configuration
+      fxserver_install_dir:
+        type: str
+        default: /opt/cfx
+        description: Artifacts installation directory
+      fxserver_data_dir:
+        type: str
+        default: "{{ fxserver_home_dir }}/txData"
+        description: The path to the txData folder, which contains the txAdmin logs, configs, and data
+
       # Database Configuration
       fxserver_db_host:
         type: str
@@ -45,7 +55,7 @@ argument_specs:
         default: citizenfx
       fxserver_home_dir:
         type: str
-        default: /srv/cfx
+        default: /var/opt/cfx
       fxserver_sftp_keys:
         type: list
         elements: str
