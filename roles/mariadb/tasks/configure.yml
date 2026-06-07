@@ -38,3 +38,20 @@
     mode: '0644'
   notify: Restart mariadb
   when: mariadb_env != 'production'
+
+- name: Create mariadb service drop-in directory
+  ansible.builtin.file:
+    path: /etc/systemd/system/mariadb.service.d
+    state: directory
+    owner: root
+    group: root
+    mode: '0755'
+
+- name: Set CPU affinity on mariadb service
+  ansible.builtin.copy:
+    content: |
+      CPUAffinity={{ mariadb_cpu_affinity }}
+    dest: /etc/systemd/system/mariadb.service.d/cpu.conf
+    mode: '0644'
+  notify: Reload daemon and restart mariadb
+  when: mariadb_cpu_affinity is defined

@@ -22,6 +22,11 @@ argument_specs:
         default: "/run/mysqld/mysqld.sock"
         description: The path to the Unix socket file.
 
+      # Service Configuration
+      mariadb_cpu_affinity:
+          type: str
+          description: List of CPU cores that the process is running on (e.g., "0,1,2,3")
+
       # Connection Limits
       mariadb_max_connections:
         type: int
