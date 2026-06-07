@@ -1,11 +1,11 @@
 {{ ansible_managed | comment }}
 
 user www-data;
-{% if nginx_worker_processes is defined %}
-worker_processes {{ nginx_worker_processes }};
+{% if nginx_core_worker_processes is defined %}
+worker_processes {{ nginx_core_worker_processes }};
 {% endif %}
-{% if nginx_worker_cpu_affinity_mask is defined %}
-worker_cpu_affinity auto {{ nginx_worker_cpu_affinity_mask }};
+{% if nginx_core_worker_cpu_affinity_mask is defined %}
+worker_cpu_affinity auto {{ nginx_core_worker_cpu_affinity_mask }};
 {% else %}
 worker_cpu_affinity auto;
 {% endif %}

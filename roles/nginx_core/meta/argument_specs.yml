@@ -79,10 +79,10 @@ argument_specs:
         description: List of MIME types to compress.
 
       # Tuning
-      nginx_worker_processes:
+      nginx_core_worker_processes:
         type: str
         default: auto
         description: Number of workers
-      nginx_worker_cpu_affinity_mask:
+      nginx_core_worker_cpu_affinity_mask:
         type: str
         description: CPU mask to limit the CPUs available for automatic workers binding
