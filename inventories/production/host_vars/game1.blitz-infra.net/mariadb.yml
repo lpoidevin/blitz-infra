@@ -4,6 +4,8 @@ mariadb_bind_address: "*"
 mariadb_env: production
 mariadb_hide_passwords: true
 
+mariadb_cpu_affinity: "4,5"
+
 mariadb_databases:
   - name: fivem
     collation: utf8mb4_unicode_ci

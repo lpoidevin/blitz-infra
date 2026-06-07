@@ -6,4 +6,4 @@ fxserver_txadmin_endpoint: txadmin.staging.blitz-infra.net
 fxserver_build_number: 25770
 fxserver_account: Sylou:188175
 
-fxserver_cpu_affinity: "0,1"
+# fxserver_cpu_affinity: "0,1"
