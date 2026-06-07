@@ -16,5 +16,5 @@ fxserver_db_user: fivem
 fxserver_db_pass: "{{ vault_fivem_db_pass }}"
 
 # Provider
-fxserver_provider_name: Blitz Infra Staging
+fxserver_provider_name: Blitz Staging
 fxserver_provider_logo: https://github.com/citizenfx/txAdmin/raw/master/docs/banner.png
