@@ -11,6 +11,7 @@
       - dnsutils
       - mtr-tiny
       - tpm2-tools # used by systemd credentials
+      - logrotate
       - unattended-upgrades
     state: present
     update_cache: true
