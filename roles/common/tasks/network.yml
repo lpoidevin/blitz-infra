@@ -32,11 +32,12 @@
     purge: true
     autoremove: true
 
-- name: Ensure networking service is disabled
-  ansible.builtin.systemd_service:
-    name: networking.service
-    enabled: false
-  notify: Reboot
+# TODO: fix the task by checking if the service exists before
+# - name: Ensure networking service is disabled
+#   ansible.builtin.systemd_service:
+#     name: networking.service
+#     enabled: false
+#   notify: Reboot
 
 - name: Ensure systemd-networkd is enabled
   ansible.builtin.systemd_service:
