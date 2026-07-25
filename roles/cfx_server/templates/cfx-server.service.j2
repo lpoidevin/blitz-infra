@@ -1,20 +1,20 @@
 {{ ansible_managed | comment }}
 
 [Unit]
-Description=CitizenFX FXServer - FiveM/RedM Dedicated Server
+Description=Cfx Server
 After=network.target
 
 [Service]
 # ==========================================
 # Core Service & Paths
 # ==========================================
-User={{ fxserver_user }}
-Group={{ fxserver_group }}
-WorkingDirectory={{ fxserver_data_dir }}
-ExecStart={{ fxserver_install_dir }}/current/run.sh
+User={{ cfx_server_user }}
+Group={{ cfx_server_group }}
+WorkingDirectory={{ cfx_server_data_dir }}
+ExecStart={{ cfx_server_install_dir }}/current/run.sh
 
 # Defines txAdmin and server environment variables
-EnvironmentFile=/etc/default/fxserver
+EnvironmentFile=/etc/default/cfx-server
 
 # ==========================================
 # Performance & Limits
@@ -22,9 +22,9 @@ EnvironmentFile=/etc/default/fxserver
 # Allows the server to open many files (crucial for player network sockets)
 LimitNOFILE=infinity
 
-{% if fxserver_cpu_affinity is defined %}
+{% if cfx_server_cpu_affinity is defined %}
 # List of CPU cores that the process is running on
-CPUAffinity={{ fxserver_cpu_affinity }}
+CPUAffinity={{ cfx_server_cpu_affinity }}
 {% endif %}
 
 # ==========================================
@@ -51,8 +51,8 @@ CapabilityBoundingSet=
 # Makes /usr, /boot, and /etc completely read-only
 ProtectSystem=strict
 
-# Grants read/write ONLY to the specific directories FXServer/txAdmin needs
-ReadWritePaths={{ fxserver_install_dir }} {{ fxserver_data_dir }}
+# Grants read/write ONLY to the specific directories Cfx Server/txAdmin needs
+ReadWritePaths={{ cfx_server_install_dir }} {{ cfx_server_data_dir }}
 
 # Hides /home directories of other users entirely
 ProtectHome=yes

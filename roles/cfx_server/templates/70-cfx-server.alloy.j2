@@ -1,7 +1,7 @@
 {{ ansible_managed | comment('c') }}
 
-prometheus.scrape "fxserver" {
-    targets = [{"__address__" = "localhost:30120", "job" = "fxserver"}]
+prometheus.scrape "cfx-server" {
+    targets = [{"__address__" = "localhost:30120", "job" = "cfx"}]
     metrics_path = "/perf"
 
     scrape_interval = "15s"

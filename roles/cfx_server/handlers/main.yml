@@ -1,14 +1,14 @@
 # SPDX-License-Identifier: MIT
 ---
-- name: Reload daemon and restart fxserver
+- name: Reload daemon and restart cfx-server
   ansible.builtin.systemd_service:
-    name: fxserver.service
+    name: cfx-server.service
     state: restarted
     daemon_reload: true
 
-- name: Restart fxserver
+- name: Restart cfx-server
   ansible.builtin.systemd_service:
-    name: fxserver.service
+    name: cfx-server.service
     state: restarted
 
 - name: Reload alloy

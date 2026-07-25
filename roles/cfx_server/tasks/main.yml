@@ -5,15 +5,15 @@
 
 - name: Deploy public SSH key for SFTP access
   ansible.posix.authorized_key:
-    user: "{{ fxserver_user }}"
+    user: "{{ cfx_server_user }}"
     state: present
     key: "{{ item }}"
-  loop: "{{ fxserver_sftp_keys }}"
+  loop: "{{ cfx_server_sftp_keys }}"
 
 - name: Deploy alloy configuration
   ansible.builtin.template:
-    src: 70-fxserver.alloy.j2
-    dest: /etc/alloy.d/70-fxserver.alloy
+    src: 70-cfx-server.alloy.j2
+    dest: /etc/alloy.d/70-cfx-server.alloy
     mode: '0644'
   notify: Reload alloy
 
@@ -21,10 +21,10 @@
   ansible.builtin.copy:
     content: |
       tcp dport 30120 accept \
-      comment "Accept fxserver traffic"
+      comment "Accept cfx server traffic"
       udp dport 30120 accept \
-      comment "Accept fxserver traffic"
-    dest: /etc/nftables.d/filter-input/fxserver.nft
+      comment "Accept cfx server traffic"
+    dest: /etc/nftables.d/filter-input/cfx-server.nft
     mode: '0644'
   notify: Reload nftables
 
@@ -32,7 +32,7 @@
   ansible.builtin.copy:
     content: |
       tcp dport 30120 accept \
-      comment "Accept fxserver traffic"
-    dest: /etc/nftables.d/filter-input-wg/fxserver.nft
+      comment "Accept cfx server traffic"
+    dest: /etc/nftables.d/filter-input-wg/cfx-server.nft
     mode: '0644'
   notify: Reload nftables

@@ -1,0 +1,20 @@
+# SPDX-License-Identifier: MIT
+---
+# Directories
+cfx_server_home_dir: /var/opt/cfx
+cfx_server_install_dir: /opt/cfx
+cfx_server_data_dir: "{{ cfx_server_home_dir }}/txData"
+
+# System defaults
+cfx_server_user: cfx
+cfx_server_group: cfx
+cfx_server_sftp_keys: []
+
+# Database defaults
+cfx_server_db_host: localhost
+cfx_server_db_port: 3306
+cfx_server_db_name: cfx_server
+cfx_server_db_user: cfx
+
+# Provider defaults
+cfx_server_provider_name: DefaultHosting

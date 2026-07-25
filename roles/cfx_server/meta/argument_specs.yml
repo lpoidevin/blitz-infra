@@ -2,76 +2,76 @@
 ---
 argument_specs:
   main:
-    short_description: Deploy and manage FiveM/RedM FXServer
+    short_description: Deploy and manage Cfx Server
     options:
       # Required Endpoints/Build
-      fxserver_connect_endpoint:
+      cfx_server_connect_endpoint:
         type: str
         required: true
         description: The public endpoint for player connection (e.g., play.example.com)
-      fxserver_txadmin_endpoint:
+      cfx_server_txadmin_endpoint:
         type: str
         required: true
         description: The public endpoint for txAdmin (e.g., txadmin.example.com)
-      fxserver_build_number:
+      cfx_server_build_number:
         type: str
         required: true
-        description: The specific FXServer build number to install (e.g., "7290")
+        description: The specific Cfx Server build number to install (e.g., "7290")
 
       # Installation Configuration
-      fxserver_install_dir:
+      cfx_server_install_dir:
         type: str
         default: /opt/cfx
         description: Artifacts installation directory
-      fxserver_data_dir:
+      cfx_server_data_dir:
         type: str
-        default: "{{ fxserver_home_dir }}/txData"
+        default: "{{ cfx_server_home_dir }}/txData"
         description: The path to the txData folder, which contains the txAdmin logs, configs, and data
 
       # Database Configuration
-      fxserver_db_host:
+      cfx_server_db_host:
         type: str
         default: localhost
-      fxserver_db_port:
+      cfx_server_db_port:
         type: int
         default: 3306
-      fxserver_db_name:
+      cfx_server_db_name:
         type: str
-        default: fxserver
-      fxserver_db_user:
+        default: cfx_server
+      cfx_server_db_user:
         type: str
-        default: fxserver
-      fxserver_db_pass:
+        default: cfx
+      cfx_server_db_pass:
         type: str
         required: true
         no_log: true
 
       # Service / User Configuration
-      fxserver_user:
+      cfx_server_user:
         type: str
-        default: citizenfx
-      fxserver_group:
+        default: cfx
+      cfx_server_group:
         type: str
-        default: citizenfx
-      fxserver_home_dir:
+        default: cfx
+      cfx_server_home_dir:
         type: str
         default: /var/opt/cfx
-      fxserver_sftp_keys:
+      cfx_server_sftp_keys:
         type: list
         elements: str
         default: []
         description: List of SSH public keys for SFTP access
-      fxserver_cpu_affinity:
+      cfx_server_cpu_affinity:
         type: str
         description: List of CPU cores that the process is running on (e.g., "0,1,2,3")
 
       # Meta Information
-      fxserver_provider_name:
+      cfx_server_provider_name:
         type: str
         default: "DefaultHosting"
-      fxserver_provider_logo:
+      cfx_server_provider_logo:
         type: str
         description: URL to the provider banner/logo
-      fxserver_account:
+      cfx_server_account:
         type: str
         description: txAdmin initial account
