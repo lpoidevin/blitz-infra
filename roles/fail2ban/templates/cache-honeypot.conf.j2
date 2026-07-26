@@ -1,0 +1,20 @@
+{{ ansible_managed | comment }}
+
+[Definition]
+failregex =
+    ^<HOST> -.*"GET .*/(toto|fake)_[0-9]{1,4}\.(yft|ytd).* HTTP/.*" .*$
+    #^<HOST> -.*"GET .*/grangerb\.(yft|ytd).* HTTP/.*" .*$
+    # Match specific fake files anywhere
+    #^<HOST> -.*"GET .*/admin_core.* HTTP/.*" .*$
+    #^<HOST> -.*"GET .*/esx_bypass.* HTTP/.*" .*$
+    #^<HOST> -.*"GET .*/secret_keys\.lua.* HTTP/.*" .*$
+    #^<HOST> -.*"GET .*/dummy_db\.sql.* HTTP/.*" .*$
+    #^<HOST> -.*"GET .*/fake_token\.js.* HTTP/.*" .*$
+    #^<HOST> -.*"GET .*/hidden_config\.json.* HTTP/.*" .*$
+
+    # Match ANY file requested inside these fake directories
+    #^<HOST> -.*"GET .*/\[admin_tools\]/.* HTTP/.*" .*$
+    #^<HOST> -.*"GET .*/esx_dev_debug/.* HTTP/.*" .*$
+    #^<HOST> -.*"GET .*/vMenu_source/.* HTTP/.*" .*$
+
+ignoreregex =

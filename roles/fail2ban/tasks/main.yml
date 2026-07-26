@@ -1,0 +1,47 @@
+# SPDX-License-Identifier: MIT
+---
+- name: Install fail2ban
+  ansible.builtin.apt:
+    name: fail2ban
+    state: present
+
+- name: Deploy fail2ban configuration
+  ansible.builtin.template:
+    src: jail.local.j2
+    dest: /etc/fail2ban/jail.local
+    mode: '0644'
+  notify: Reload fail2ban
+
+- name: Enable fail2ban sshd jail
+  ansible.builtin.copy:
+    content: |
+      [sshd]
+      enabled = true
+    dest: /etc/fail2ban/jail.d/sshd.local
+    mode: '0644'
+  notify: Reload fail2ban
+
+# - name: Enable fail2ban nginx-limit-req jail
+#   ansible.builtin.copy:
+#     content: |
+#       [nginx-limit-req]
+#       enabled = true
+#     dest: /etc/fail2ban/jail.d/nginx.local
+#     mode: '0644'
+#   notify: Reload fail2ban
+
+- name: Deploy fail2ban filter configuration
+  ansible.builtin.template:
+    src: cache-honeypot.conf.j2
+    dest: /etc/fail2ban/filter.d/cache-honeypot.conf
+    mode: '0644'
+  when: "'cache' in group_names"
+  notify: Reload fail2ban
+
+- name: Deploy fail2ban jail configuration
+  ansible.builtin.template:
+    src: cache.local.j2
+    dest: /etc/fail2ban/jail.d/cache.local
+    mode: '0644'
+  when: "'cache' in group_names"
+  notify: Reload fail2ban

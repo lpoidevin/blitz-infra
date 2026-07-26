@@ -1,0 +1,11 @@
+{{ ansible_managed | comment }}
+
+[cache-honeypot]
+enabled  = true
+port     = https
+filter   = cache-honeypot
+logpath  = /var/log/nginx/access.log
+maxretry = 1
+bantime  = 86400  # Ban for 24 hours
+findtime = 600
+action = %(action_mwl)s
