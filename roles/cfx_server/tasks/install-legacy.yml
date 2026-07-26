@@ -1,0 +1,93 @@
+# SPDX-License-Identifier: MIT
+---
+- name: Ensure group exists
+  ansible.builtin.group:
+    name: "{{ cfx_server_group }}"
+    system: true
+    state: present
+
+- name: Create the system account
+  ansible.builtin.user:
+    name: "{{ cfx_server_user }}"
+    group: "{{ cfx_server_group }}"
+    system: true
+    home: "{{ cfx_server_home_dir }}"
+    shell: /usr/sbin/nologin
+    state: present
+
+- name: Ensure service user's directories exists with correct perms
+  ansible.builtin.file:
+    path: "{{ item }}"
+    state: directory
+    owner: root
+    group: root
+    mode: '0755'
+  loop:
+    - "{{ cfx_server_home_dir }}"
+    - "{{ cfx_server_install_dir }}"
+
+- name: Create data folder owned by the service user
+  ansible.builtin.file:
+    path: "{{ cfx_server_data_dir }}"
+    state: directory
+    owner: "{{ cfx_server_user }}"
+    group: "{{ cfx_server_group }}"
+    mode: '0750'
+
+- name: Fetch the commit data for the build tag from GitHub API
+  ansible.builtin.uri:
+    url: "{{ cfx_server_github_base }}{{ cfx_server_build_number }}"
+    return_content: true
+    headers:
+      Accept: "application/vnd.github.v3+json"
+  register: cfx_server_github_api_response
+  check_mode: false
+
+- name: Extract commit SHA and construct the download URL
+  ansible.builtin.set_fact:
+    cfx_server_artifact_url: "{{ cfx_server_artifacts_base }}{{ cfx_server_build_number }}-{{ cfx_server_github_api_response.json.sha }}/fx.tar.xz"
+
+- name: Create artifact directory
+  ansible.builtin.file:
+    path: "{{ cfx_server_install_dir }}/{{ cfx_server_build_number }}"
+    state: directory
+    owner: root
+    group: root
+    mode: '0755'
+
+- name: Download and extract the artifact directly to the server
+  ansible.builtin.unarchive:
+    src: "{{ cfx_server_artifact_url }}"
+    dest: "{{ cfx_server_install_dir }}/{{ cfx_server_build_number }}"
+    owner: "{{ cfx_server_user }}"
+    group: "{{ cfx_server_group }}"
+    remote_src: true
+    creates: "{{ cfx_server_install_dir }}/{{ cfx_server_build_number }}/run.sh"
+
+- name: Create symlink to the current artifact version
+  ansible.builtin.file:
+    src: "{{ cfx_server_install_dir }}/{{ cfx_server_build_number }}"
+    dest: "{{ cfx_server_install_dir }}/current"
+    state: link
+  notify: Restart cfx-server
+
+- name: Create cfx-server service
+  ansible.builtin.template:
+    src: cfx-server.service.j2
+    dest: /etc/systemd/system/cfx-server.service
+    mode: '0644'
+  notify: Reload daemon and restart cfx-server
+
+- name: Create cfx-server env file
+  ansible.builtin.template:
+    src: cfx-server.env.j2
+    dest: /etc/default/cfx-server
+    owner: "{{ cfx_server_user }}"
+    group: "{{ cfx_server_group }}"
+    mode: '0640'
+  notify: Restart cfx-server
+
+- name: Enable cfx-server
+  ansible.builtin.systemd_service:
+    name: cfx-server.service
+    enabled: true

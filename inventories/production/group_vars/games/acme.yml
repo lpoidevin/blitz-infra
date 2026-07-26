@@ -5,8 +5,8 @@ lego_certificates:
     challenge: ovh-dns
     account: blitz-security
     domains:
-      - "{{ fxserver_connect_endpoint }}"
-      - "{{ fxserver_txadmin_endpoint }}"
+      - "{{ cfx_server_connect_endpoint }}"
+      - "{{ cfx_server_txadmin_endpoint }}"
 
 lego_deploy_targets:
   - name: fxserver

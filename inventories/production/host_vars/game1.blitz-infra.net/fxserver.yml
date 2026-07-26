@@ -1,9 +1,9 @@
 # SPDX-License-Identifier: MIT
 ---
-fxserver_connect_endpoint: play.coursepoursuite.fr
-fxserver_txadmin_endpoint: txadmin.blitz-infra.net
+cfx_server_connect_endpoint: play.coursepoursuite.fr
+cfx_server_txadmin_endpoint: txadmin.blitz-infra.net
 
-fxserver_build_number: 25770
-fxserver_account: Carbonaraaaaa:16402109
+cfx_server_build_number: 25770
+cfx_server_account: Carbonaraaaaa:16402109
 
-fxserver_cpu_affinity: "0,1,2,3"
+cfx_server_cpu_affinity: "0,1,2,3"

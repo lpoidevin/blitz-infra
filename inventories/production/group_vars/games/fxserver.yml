@@ -1,20 +1,20 @@
 # SPDX-License-Identifier: MIT
 ---
 # Directories
-fxserver_home_dir: /srv/cfx
-fxserver_install_dir: "{{ fxserver_home_dir }}/artifacts"
-fxserver_data_dir: "{{ fxserver_home_dir }}/txData"
+cfx_server_home_dir: /srv/cfx
+cfx_server_install_dir: "{{ cfx_server_home_dir }}/artifacts"
+cfx_server_data_dir: "{{ cfx_server_home_dir }}/txData"
 
 # Service user
-fxserver_user: citizenfx
-fxserver_group: citizenfx
-fxserver_sftp_keys: "{{ vault_fxserver_sftp_keys }}"
+cfx_server_user: cfx
+cfx_server_group: cfx
+cfx_server_sftp_keys: "{{ vault_cfx_server_sftp_keys }}"
 
 # Database
-fxserver_db_name: fivem
-fxserver_db_user: fivem
-fxserver_db_pass: "{{ vault_fivem_db_pass }}"
+cfx_server_db_name: fivem
+cfx_server_db_user: fivem
+cfx_server_db_pass: "{{ vault_fivem_db_pass }}"
 
 # Provider
-fxserver_provider_name: Blitz Infra
-fxserver_provider_logo: https://dunb17ur4ymx4.cloudfront.net/webstore/logos/4f9a20e4fbc53a4b0463a5a35fda749a34caa0c7.png
+cfx_server_provider_name: Blitz Infra
+cfx_server_provider_logo: https://dunb17ur4ymx4.cloudfront.net/webstore/logos/4f9a20e4fbc53a4b0463a5a35fda749a34caa0c7.png
