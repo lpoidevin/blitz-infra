@@ -17,7 +17,25 @@ server {
     include /etc/nginx/snippets/ssl-params.conf;
 
     # Enforce user-agent verification
-    if ($http_user_agent != "CitizenFX/1") { return 444; }
+    if ($http_user_agent != "CitizenFX/1") {
+        return 403;
+    }
+
+    # Handle HTTP/1.0 and HTTP/1.1 requests
+    if ($server_protocol ~* "^HTTP/1\.") {
+        return 426;
+    }
+
+    # Map status 426 to a named location
+    error_page 426 = @upgrade_required;
+
+    location @upgrade_required {
+        add_header Upgrade "HTTP/2.0" always;
+        add_header Connection "Upgrade" always;
+
+        default_type text/plain;
+        return 426 "This service requires use of the HTTP/2.0 protocol.";
+    }
 
     location /files/ {
         proxy_pass http://backend$request_uri;
