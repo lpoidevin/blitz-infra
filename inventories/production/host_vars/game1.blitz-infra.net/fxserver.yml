@@ -3,7 +3,7 @@
 fxserver_connect_endpoint: play.coursepoursuite.fr
 fxserver_txadmin_endpoint: txadmin.blitz-infra.net
 
-fxserver_build_number: 25770
+fxserver_build_number: 35245
 fxserver_account: Carbonaraaaaa:16402109
 
 fxserver_cpu_affinity: "0,1,2,3"
