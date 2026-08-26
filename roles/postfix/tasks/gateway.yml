@@ -51,6 +51,35 @@
   when: postfix_server_auth_enable
   notify: Restart postfix
 
+- name: Stat system sasldb2 file
+  ansible.builtin.stat:
+    path: /etc/sasldb2
+  register: postfix_system_sasldb2
+
+- name: Stat chroot sasldb2 file
+  ansible.builtin.stat:
+    path: /var/spool/postfix/etc/sasldb2
+  register: postfix_chroot_sasldb2
+
+- name: Remove chroot sasldb2 if it is a regular file copy (different inode)
+  ansible.builtin.file:
+    path: /var/spool/postfix/etc/sasldb2
+    state: absent
+  when:
+    - postfix_chroot_sasldb2.stat.exists
+    - postfix_system_sasldb2.stat.exists
+    - postfix_chroot_sasldb2.stat.inode != postfix_system_sasldb2.stat.inode
+
+- name: Ensure hard link exists in Postfix chroot with correct ownership
+  ansible.builtin.file:
+    src: /etc/sasldb2
+    dest: /var/spool/postfix/etc/sasldb2
+    state: hard
+    owner: root
+    group: postfix
+    mode: '0640'
+  when: postfix_system_sasldb2.stat.exists
+
 - name: Provision SASL users dynamically from inventory
   ansible.builtin.shell:
     cmd: >
