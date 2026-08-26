@@ -53,5 +53,7 @@
       CPUAffinity={{ mariadb_cpu_affinity }}
     dest: /etc/systemd/system/mariadb.service.d/cpu.conf
     mode: '0644'
-  notify: Reload daemon and restart mariadb
+  notify:
+    - Reload systemd daemons
+    - Restart mariadb
   when: mariadb_cpu_affinity is defined
