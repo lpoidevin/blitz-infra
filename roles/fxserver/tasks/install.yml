@@ -77,7 +77,7 @@
     dest: /etc/systemd/system/fxserver.service
     mode: '0644'
   notify:
-    - Reload systemd daemons
+    - Reload systemd
     - Restart fxserver
 
 - name: Create citizenfx env file
