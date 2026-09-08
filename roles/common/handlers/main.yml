@@ -5,7 +5,7 @@
     name: systemd-networkd.service
     state: restarted
 
-- name: Reload systemd-resovled
+- name: Reload systemd-resolved
   ansible.builtin.systemd_service:
     name: systemd-resolved.service
     state: reloaded

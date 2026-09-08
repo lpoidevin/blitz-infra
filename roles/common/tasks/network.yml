@@ -14,7 +14,7 @@
     option: LLMNR
     value: "false"
     mode: "0644"
-  notify: Reload systemd-resovled
+  notify: Reload systemd-resolved
 
 - name: Deploy systemd-networkd interface configurations
   ansible.builtin.template:
