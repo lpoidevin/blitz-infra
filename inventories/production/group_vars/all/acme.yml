@@ -1,6 +1,6 @@
 # SPDX-License-Identifier: MIT
 ---
-lego_version: "5.1.0"
+lego_version: "5.4.1"
 
 lego_accounts:
   blitz-security:
@@ -16,7 +16,7 @@ lego_challenges:
 
 lego_hooks:
   deploy:
-    command: /usr/local/bin/lego-deploy-hook.sh
+    command: sudo /usr/local/sbin/lego-deploy-hook.sh
 
 lego_ovh_app_key: "{{ vault_lego_ovh_app_key }}"
 lego_ovh_app_secret: "{{ vault_lego_ovh_app_secret }}"

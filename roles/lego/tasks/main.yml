@@ -73,22 +73,16 @@
     group: "{{ lego_group }}"
     mode: '0600'
 
-- name: Deploy generalized deployment hook
+- name: Deploy deployment hook
   ansible.builtin.template:
     src: lego-deploy-hook.sh.j2
-    dest: /usr/local/bin/lego-deploy-hook.sh
-    owner: "{{ lego_user }}"
-    group: "{{ lego_group }}"
+    dest: /usr/local/sbin/lego-deploy-hook.sh
     mode: '0750'
 
-- name: Allow lego user to execute hook commands via sudo
+- name: Allow lego user to execute deployment hook via sudo
   ansible.builtin.copy:
     content: |
-      {% for target in lego_deploy_targets %}
-      {% if target.service_cmd is defined %}
-      {{ lego_user }} ALL=(ALL) NOPASSWD: {{ target.service_cmd }}
-      {% endif %}
-      {% endfor %}
+      {{ lego_user }} ALL=(root) NOPASSWD: /usr/local/sbin/lego-deploy-hook.sh
     dest: /etc/sudoers.d/lego-hooks
     mode: '0440'
     validate: /usr/sbin/visudo -cf %s

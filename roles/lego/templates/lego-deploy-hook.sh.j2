@@ -1,11 +1,8 @@
-#!/bin/bash
+#!/usr/bin/bash
 # SPDX-License-Identifier: MIT
 {{ ansible_managed | comment }}
 
-# Fallback to the first argument if Lego's native environment variable is missing
 NAME="${1:-$LEGO_HOOK_CERT_NAME}"
-
-# Define base paths dynamically based on how the script is executed
 CERT="${LEGO_HOOK_CERT_PATH}"
 KEY="${LEGO_HOOK_CERT_KEY_PATH}"
 ISSUER="${CERT%.crt}.issuer.crt"
@@ -19,7 +16,6 @@ case "$NAME" in
     cp "$CERT" "{{ target.cert_dest }}"
     chown {{ target.owner | default('root') }}:{{ target.group | default('root') }} "{{ target.cert_dest }}"
     chmod 0644 "{{ target.cert_dest }}"
-
 {% endif %}
 {% if target.issuer_dest is defined %}
     if [ -f "$ISSUER" ]; then
@@ -27,32 +23,25 @@ case "$NAME" in
       chown {{ target.owner | default('root') }}:{{ target.group | default('root') }} "{{ target.issuer_dest }}"
       chmod 0644 "{{ target.issuer_dest }}"
     fi
-
 {% endif %}
 {% if target.key_dest is defined %}
     cp "$KEY" "{{ target.key_dest }}"
     chown {{ target.owner | default('root') }}:{{ target.group | default('root') }} "{{ target.key_dest }}"
     chmod {{ target.key_mode | default('0400') }} "{{ target.key_dest }}"
-
 {% endif %}
 {% if target.service_cmd is defined %}
     CMD="{{ target.service_cmd }}"
-
-    # Check if the command is a systemctl command
     if [[ "$CMD" == *"systemctl"* ]]; then
-        # Extract the last word of the command to guess the service name (e.g., 'nginx' from 'systemctl reload nginx')
         SERVICE_NAME=$(echo "$CMD" | awk '{print $NF}')
-
         if systemctl is-active --quiet "$SERVICE_NAME"; then
             echo "Service $SERVICE_NAME is active. Executing: $CMD"
-            sudo $CMD
+            $CMD
         else
             echo "Service $SERVICE_NAME is not active yet. Skipping command to prevent deployment failure."
         fi
     else
-        # If it is a custom script or non-systemd command, just run it
         echo "Executing custom command: $CMD"
-        sudo $CMD
+        $CMD
     fi
 {% endif %}
     ;;

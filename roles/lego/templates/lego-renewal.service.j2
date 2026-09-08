@@ -1,4 +1,5 @@
 {{ ansible_managed | comment }}
+
 [Unit]
 Description=Lego ACME Renewal
 After=network-online.target
@@ -7,14 +8,32 @@ After=network-online.target
 Type=oneshot
 User={{ lego_user }}
 Group={{ lego_group }}
-
 WorkingDirectory={{ lego_home }}
-
 EnvironmentFile=-{{ lego_config_dir }}/ovh.env
-
 ExecStart=/usr/local/bin/lego --config {{ lego_config_dir }}/lego.yml
 
+# Privilege Escalation Control
+NoNewPrivileges=no
+
+# Filesystem Sandboxing
 ProtectSystem=strict
-ReadWritePaths={{ lego_home }}
-PrivateTmp=yes
-NoNewPrivileges=yes
+ProtectHome=true
+PrivateTmp=true
+PrivateDevices=true
+
+# Dynamic write access for home, config, and certificate target directories
+{% set rw_paths = [lego_home, lego_config_dir] %}
+{% for target in lego_deploy_targets %}
+{% if target.cert_dest is defined %}{% set _ = rw_paths.append(target.cert_dest | dirname) %}{% endif %}
+{% if target.key_dest is defined %}{% set _ = rw_paths.append(target.key_dest | dirname) %}{% endif %}
+{% if target.issuer_dest is defined %}{% set _ = rw_paths.append(target.issuer_dest | dirname) %}{% endif %}
+{% endfor %}
+ReadWritePaths={{ rw_paths | unique | join(' ') }}
+
+# Kernel & System Hardening
+ProtectKernelTunables=true
+ProtectKernelModules=true
+ProtectControlGroups=true
+RestrictRealtime=true
+MemoryDenyWriteExecute=true
+LockPersonality=true
