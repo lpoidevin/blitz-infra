@@ -25,18 +25,27 @@
   when: common_network_interfaces | length > 0
   notify: Restart systemd-networkd
 
-- name: Remove netplan.io
-  ansible.builtin.apt:
-    name: netplan.io
-    state: absent
-    purge: true
-    autoremove: true
+- name: Populate service facts
+  ansible.builtin.service_facts:
 
 - name: Ensure networking service is disabled
   ansible.builtin.systemd_service:
     name: networking.service
     enabled: false
+  when:
+    - "'networking.service' in ansible_facts['services']"
+    - "ansible_facts['services']['networking.service']['status'] != 'not-found'"
   notify: Reboot
+
+# - name: Remove other network management tools
+#   ansible.builtin.apt:
+#     name:
+#       - netplan.io
+#       - ifupdown
+#       - ifupdown2
+#     state: absent
+#     purge: true
+#     autoremove: true
 
 - name: Ensure systemd-networkd is enabled
   ansible.builtin.systemd_service:

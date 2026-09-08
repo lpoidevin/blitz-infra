@@ -17,6 +17,13 @@
     update_cache: true
     cache_valid_time: 3600
 
+- name: Remove cloud-init
+  ansible.builtin.apt:
+    name: cloud-init
+    state: absent
+    purge: true
+    autoremove: true
+
 - name: Set hostname from inventory_hostname
   ansible.builtin.hostname:
     name: "{{ inventory_hostname_short }}"
