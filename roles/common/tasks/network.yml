@@ -37,15 +37,15 @@
     - "ansible_facts['services']['networking.service']['status'] != 'not-found'"
   notify: Reboot
 
-# - name: Remove other network management tools
-#   ansible.builtin.apt:
-#     name:
-#       - netplan.io
-#       - ifupdown
-#       - ifupdown2
-#     state: absent
-#     purge: true
-#     autoremove: true
+- name: Remove other network management tools
+  ansible.builtin.apt:
+    name:
+      - netplan.io
+      # - ifupdown
+      # - ifupdown2
+    state: absent
+    purge: true
+    autoremove: true
 
 - name: Ensure systemd-networkd is enabled
   ansible.builtin.systemd_service:

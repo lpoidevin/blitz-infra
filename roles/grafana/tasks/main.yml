@@ -9,17 +9,12 @@
     components: main
     signed_by: https://apt.grafana.com/gpg.key
     state: present
-  register: grafana_repo
-
-- name: Update apt cache
-  ansible.builtin.apt:
-    update_cache: true
-  when: grafana_repo.changed
 
 - name: Install grafana
   ansible.builtin.apt:
     name: grafana
     state: present
+    update_cache: true
 
 - name: Define global grafana configuration
   community.general.ini_file:

@@ -9,17 +9,12 @@
     components: main
     signed_by: https://apt.grafana.com/gpg.key
     state: present
-  register: loki_repo
-
-- name: Update apt cache
-  ansible.builtin.apt:
-    update_cache: true
-  when: loki_repo.changed
 
 - name: Install loki
   ansible.builtin.apt:
     name: loki
     state: present
+    update_cache: true
 
 - name: Deploy loki configuration
   ansible.builtin.template:

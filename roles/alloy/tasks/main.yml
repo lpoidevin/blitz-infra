@@ -9,17 +9,12 @@
     components: main
     signed_by: https://apt.grafana.com/gpg.key
     state: present
-  register: alloy_repo
-
-- name: Update apt cache
-  ansible.builtin.apt:
-    update_cache: true
-  when: alloy_repo.changed
 
 - name: Install alloy
   ansible.builtin.apt:
     name: alloy
     state: present
+    update_cache: true
 
 - name: Create Ansible-managed drop-in directory
   ansible.builtin.file:

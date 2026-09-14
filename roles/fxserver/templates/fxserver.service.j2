@@ -10,7 +10,7 @@ After=network.target
 # ==========================================
 User={{ fxserver_user }}
 Group={{ fxserver_group }}
-WorkingDirectory={{ fxserver_data_dir }}
+#WorkingDirectory={{ fxserver_data_dir }}
 ExecStart={{ fxserver_install_dir }}/current/run.sh
 
 # Defines txAdmin and server environment variables
@@ -20,7 +20,7 @@ EnvironmentFile=/etc/default/fxserver
 # Performance & Limits
 # ==========================================
 # Allows the server to open many files (crucial for player network sockets)
-LimitNOFILE=infinity
+#LimitNOFILE=infinity
 
 {% if fxserver_cpu_affinity is defined %}
 # List of CPU cores that the process is running on
