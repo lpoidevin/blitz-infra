@@ -7,7 +7,7 @@
       tags: ["alloy"]
 
 - name: Deploy monitoring backend
-  hosts: monitor
+  hosts: manager.blitz-infra.net
   roles:
     - role: prometheus
       tags: ["prometheus"]

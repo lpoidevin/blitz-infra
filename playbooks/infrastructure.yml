@@ -1,19 +1,19 @@
 # SPDX-License-Identifier: MIT
 ---
 - name: Setup user directory
-  hosts: directory
+  hosts: manager.blitz-infra.net
   roles:
     - role: slapd
       tags: ["ldap"]
 
 - name: Setup certificates via ACME
-  hosts: mta_gateway, directory, monitor, caches, games
+  hosts: caches, games, manager.blitz-infra.net, !sandboxes
   roles:
     - role: lego
       tags: ["lego"]
 
 - name: Deploy staging mail sandbox
-  hosts: mta_gateway
+  hosts: manager.blitz-infra.net
   roles:
     - role: mailpit
       tags: ["mailpit"]
