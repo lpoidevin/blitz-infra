@@ -7,7 +7,7 @@
       tags: ["alloy"]
 
 - name: Deploy monitoring backend
-  hosts: manager.blitz-infra.net
+  hosts: core.*
   roles:
     - role: prometheus
       tags: ["prometheus"]
@@ -15,3 +15,11 @@
       tags: ["loki"]
     - role: grafana
       tags: ["grafana"]
+    # - role: alertmanager
+    #   tags: ["alertmanager"]
+
+- name: Setup reverse proxy
+  hosts: core.*
+  roles:
+    - role: nginx_proxy
+      tags: ["nginx", "proxy"]

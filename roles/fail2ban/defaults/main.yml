@@ -1,0 +1,4 @@
+# SPDX-License-Identifier: MIT
+---
+fail2ban_destemail: root@localhost
+fail2ban_honeypot_logpath: /var/log/nginx/access.log

@@ -1,0 +1,42 @@
+{{ ansible_managed | comment }}
+
+server {
+	listen 80 default_server;
+	listen [::]:80 default_server;
+
+	server_name _;
+
+{% if inventory_hostname == groups['caches'][0] %}
+	location /.well-known/acme-challenge/ {
+		root /var/www/html;
+	}
+{% else %}
+	location /.well-known/acme-challenge/ {
+		# Look for the challenge token in local webroot (for local node FQDN cert)
+		root /var/www/html;
+
+		# If token file is not found locally, proxy to primary cache server
+		try_files $uri @proxy_to_primary;
+	}
+
+	# Internal fallback location for proxied requests
+	location @proxy_to_primary {
+		proxy_pass http://[{{ hostvars[groups['caches'][0]]['wireguard_address'] }}]:80;
+
+		# Preserve original request headers
+		proxy_set_header Host $host;
+		proxy_set_header X-Real-IP $remote_addr;
+		proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+		proxy_set_header X-Forwarded-Proto $scheme;
+
+		# Timeouts for challenge response
+		proxy_connect_timeout 5s;
+		proxy_read_timeout 10s;
+	}
+{% endif %}
+
+	# Redirect all non-ACME HTTP traffic to HTTPS
+	location / {
+		return 308 https://$host$request_uri;
+	}
+}

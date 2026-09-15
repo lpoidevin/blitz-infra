@@ -1,0 +1,60 @@
+{{ ansible_managed | comment }}
+
+upstream backend_{{ item.name }} {
+	server {{ item.backend_host }}:{{ item.backend_port | default(30120) }};
+	keepalive 32;
+}
+
+server {
+	listen 443 ssl;
+	listen [::]:443 ssl;
+
+	http2 on;
+
+	server_name {{ item.domain }};
+
+	ssl_certificate	{{ item.tls_cert_path }};
+	ssl_certificate_key {{ item.tls_key_path }};
+
+	access_log /var/log/nginx/{{ item.domain }}.access.log;
+	error_log /var/log/nginx/{{ item.domain }}.error.log; # warn/error;
+
+	# Enforce user-agent verification
+	if ($http_user_agent != "CitizenFX/1") {
+		return 403;
+	}
+
+	# Ensure clients have an authz token
+	if ($http_x_citizenfx_token = "") {
+		return 401;
+	}
+
+	# Reject any protocol that is NOT HTTP/2
+	if ($server_protocol !~* "^HTTP/2") {
+		return 426;
+	}
+
+	# Catch 426 status and send to an internal error location
+	error_page 426 = @upgrade_required;
+
+	location @upgrade_required {
+		add_header Upgrade "HTTP/2.0" always;
+		add_header Connection "upgrade" always;
+		add_header Content-Type "text/plain";
+		return 426 "This service requires use of the HTTP/2.0 protocol.";
+	}
+
+	location / {
+		proxy_pass https://backend_{{ item.name }}/files$request_uri;
+		proxy_http_version 1.1; # before version 1.29.7
+		proxy_set_header Connection ""; # before version 1.29.7
+
+		proxy_cache assets_{{ item.name }};
+		proxy_cache_lock on;
+		proxy_cache_valid 200 {{ item.cache_valid_200 | default(nginx_cache_global_valid_200) }};
+		proxy_cache_key $request_uri$is_args$args;
+		proxy_cache_revalidate on;
+
+		add_header X-Cache-Status $upstream_cache_status;
+	}
+}

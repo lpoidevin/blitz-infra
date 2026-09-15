@@ -3,7 +3,7 @@
 common_network_interfaces:
   - name: eth0
     dhcp4: true
-    ipv6_address: "2a01:4f8:c014:49ad::1/64"
+    ipv6_address: "2a01:4f9:c012:a26d::1/64"
     dns: "{{ dns_servers }}"
     ntp: "{{ ntp_servers }}"
     domains: ["{{ domain }}"]
@@ -11,5 +11,5 @@ common_network_interfaces:
       - dest: "::/0"
         gw: "fe80::1"
 
-wireguard_int_address: fd1e:39e:c6a4:1ee7::49ad
-# wireguard_int_public_key: 0jNIWuFpAjy+szApdGusMRP/YwG4IbKNu+hIUlempBo=
+wireguard_address: fd1e:39e:c6a4:1ee7::a26d
+wireguard_public_key: 6dyKm76Wovkv3TDVqQIt3LV7Hm+HKDu3TPvqdEl3yCE=

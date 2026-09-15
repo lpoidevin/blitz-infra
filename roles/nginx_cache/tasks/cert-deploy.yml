@@ -1,0 +1,94 @@
+# SPDX-License-Identifier: MIT
+---
+- name: Ensure certificate directories exist
+  ansible.builtin.file:
+    path: /var/lib/lego/certificates
+    state: directory
+    mode: "0755"
+
+- name: Check if host FQDN certificate exists
+  ansible.builtin.stat:
+    path: "/var/lib/lego/certificates/{{ inventory_hostname_short }}.crt"
+  register: nginx_cache_host_cert_stat
+
+- name: Generate temporary bootstrap certificate for node host FQDN
+  ansible.builtin.command: >-
+    openssl req -x509 -nodes -days 1 -newkey rsa:2048
+    -keyout /var/lib/lego/certificates/{{ inventory_hostname_short }}.key
+    -out /var/lib/lego/certificates/{{ inventory_hostname_short }}.crt
+    -subj "/CN={{ ansible_facts['fqdn'] }}"
+  when: not nginx_cache_host_cert_stat.stat.exists
+  changed_when: true
+
+- name: Deploy ACME challenge vhost
+  ansible.builtin.template:
+    src: vhost-acme-challenge.conf.j2
+    dest: /etc/nginx/sites-available/acme-challenge.conf
+    mode: "0644"
+  notify: Reload nginx
+
+- name: Enable nginx acme-challenge vhost
+  ansible.builtin.file:
+    src: /etc/nginx/sites-available/acme-challenge.conf
+    dest: /etc/nginx/sites-enabled/acme-challenge.conf
+    state: link
+  notify: Restart nginx
+
+- name: Configuration the first cache server to serve certificates
+  when: inventory_hostname == groups['caches'][0]
+  block:
+    - name: Deploy configuration to trusted proxies headers
+      ansible.builtin.template:
+        src: trust-proxies.conf.j2
+        dest: /etc/nginx/conf.d/trust-proxies.conf
+        mode: "0644"
+      notify: Reload nginx
+
+    - name: Create the cert-sync directory
+      ansible.builtin.file:
+        path: /srv/cert-sync
+        state: directory
+        owner: root
+        group: www-data
+        mode: "0750"
+
+    - name: Deploy cert-sync nginx vhost
+      ansible.builtin.template:
+        src: vhost-cert-sync.conf.j2
+        dest: /etc/nginx/sites-available/cert-sync.conf
+        mode: "0644"
+      notify: Reload nginx
+
+    - name: Enable nginx cert-sync vhost
+      ansible.builtin.file:
+        src: /etc/nginx/sites-available/cert-sync.conf
+        dest: /etc/nginx/sites-enabled/cert-sync.conf
+        state: link
+      notify: Restart nginx
+
+- name: Redirect HTTP-01 challenges to the first cache server
+  when: inventory_hostname != groups['caches'][0]
+  block:
+    - name: Deploy cert-pull script
+      ansible.builtin.template:
+        src: pull-certs.sh.j2
+        dest: /usr/local/sbin/pull-certs.sh
+        mode: '0750'
+
+    - name: Deploy systemd service unit for cert pull
+      ansible.builtin.copy:
+        src: cert-pull.service
+        dest: /etc/systemd/system/cert-pull.service
+        mode: "0644"
+
+    - name: Deploy systemd timer unit for cert pull
+      ansible.builtin.copy:
+        src: cert-pull.timer
+        dest: /etc/systemd/system/cert-pull.timer
+        mode: "0644"
+
+    - name: Start and enable cert-pull timer
+      ansible.builtin.systemd_service:
+        name: cert-pull.timer
+        state: started
+        enabled: true

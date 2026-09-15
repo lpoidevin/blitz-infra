@@ -4,30 +4,69 @@ argument_specs:
   main:
     short_description: Deploy NGINX reverse proxy with caching for fxserver
     options:
-      # Required Proxy Settings
-      nginx_cache_endpoint:
-        type: str
-        required: true
-        description: The public FQDN for the CDN/Cache (e.g., cdn.example.com)
-      nginx_cache_backend:
-        type: str
-        required: true
-        description: The internal/backend server to proxy and cache requests for (e.g., app.example.com)
+      # Modules
+      nginx_core_vts_module:
+        type: bool
+        default: false
+        description: Install and enable the VTS monitoring module.
 
-      # Cache Zone Defaults
-      nginx_cache_dir:
+      # Global cache zone configuration
+      nginx_cache_base_dir:
         type: str
         default: "/var/cache/nginx/cfx"
         description: Filesystem path to store cached assets
-      nginx_cache_keys_zone_size:
+      nginx_cache_global_keys_zone_size:
         type: str
-        default: "48m"
+        default: "10m"
         description: Size of the shared memory zone for cache keys
-      nginx_cache_max_size:
+      nginx_cache_global_max_size:
         type: str
         default: "20g"
         description: Maximum size of the cache on disk
-      nginx_cache_inactive:
+      nginx_cache_global_inactive:
         type: str
-        default: "2h"
+        default: "1d"
         description: Time after which inactive cached items are removed
+      nginx_cache_global_valid_200:
+        type: str
+        default: "1w"
+        description: Time after which inactive cached items are removed
+
+      # Per-tenant vhost config
+      nginx_cache_tenants:
+        type: list
+        elements: dict
+        default: []
+        description: List of tenants for the vhost config.
+        options:
+          name:
+            type: str
+            required: true
+          domain:
+            type: str
+            required: true
+          backend_host:
+            type: str
+            required: true
+          backend_port:
+            type: str
+            default: 30120
+          tls_cert_path:
+            type: str
+            required: true
+          tls_key_path:
+            type: str
+            required: true
+          keys_zone_size:
+            type: str
+          max_size:
+            type: str
+          inactive:
+            type: str
+          cache_valid_200:
+            type: str
+
+        nginx_cache_trusted_proxies:
+          type: str
+          required: true
+          description: Network from which proxy headers are trusted.

@@ -1,43 +1,78 @@
 # SPDX-License-Identifier: MIT
 ---
-- name: Ensure nginx cache directory exists
-  ansible.builtin.file:
-    path: /var/cache/nginx
-    state: directory
-    mode: '0755'
+- name: Install nginx and required tools
+  ansible.builtin.apt:
+    name:
+      - nginx
+      - ssl-cert
+      - curl
+    state: present
 
-- name: Deploy nginx vhost
-  ansible.builtin.template:
-    src: vhost.conf.j2
-    dest: /etc/nginx/sites-available/cache.conf
-    mode: '0644'
+- name: Install and setup VTS module
+  ansible.builtin.import_tasks: vts-module.yml
+  when: nginx_cache_vts_module
+
+- name: Deploy nginx configuration
+  ansible.builtin.copy:
+    src: nginx.conf
+    dest: /etc/nginx/nginx.conf
+    mode: "0644"
   notify: Reload nginx
 
-- name: Enable nginx vhost with symbolic link
+- name: Disable default vhost
   ansible.builtin.file:
-    src: /etc/nginx/sites-available/cache.conf
-    dest: /etc/nginx/sites-enabled/cache.conf
+    path: /etc/nginx/sites-enabled/default
+    state: absent
+
+- name: Deploy default catch-all vhost for https traffic
+  ansible.builtin.copy:
+    src: default.conf
+    dest: /etc/nginx/sites-available/default.conf
+    mode: "0644"
+  notify: Reload nginx
+
+- name: Enable default catch-all vhosts
+  ansible.builtin.file:
+    src: /etc/nginx/sites-available/default.conf
+    dest: /etc/nginx/sites-enabled/default.conf
     state: link
+  notify: Restart nginx
+
+- name: Certificates deployment setup
+  ansible.builtin.import_tasks: cert-deploy.yml
+
+- name: Cache vhosts setup
+  ansible.builtin.import_tasks: cache-setup.yml
 
 # - name: Deploy nginx logging config
 #   ansible.builtin.template:
 #     src: logging.conf.j2
 #     dest: /etc/nginx/conf.d/logging.conf
-#     mode: '0644'
+#     mode: "0644"
 #   notify: Reload nginx
 
 - name: Deploy alloy config
   ansible.builtin.template:
     src: 50-nginx.alloy.j2
     dest: /etc/alloy.d/50-nginx.alloy
-    mode: '0644'
+    mode: "0644"
   notify: Reload alloy
 
 - name: Deploy firewall rule
   ansible.builtin.copy:
     content: |
-      tcp dport 443 accept \
+      tcp dport { 80, 443 } accept \
       comment "Accept https traffic"
-    dest: /etc/nftables.d/filter-input/cache.nft
-    mode: '0644'
+    dest: /etc/nftables.d/filter-input/nginx-cache.nft
+    mode: "0644"
+  notify: Reload nftables
+
+- name: Deploy firewall rule for acme and cert-sync
+  ansible.builtin.copy:
+    content: |
+      tcp dport { 80, 8443 } accept \
+      comment "Accept https traffic for acme and cert-sync"
+    dest: /etc/nftables.d/filter-input-wg/nginx-acme.nft
+    mode: "0644"
+  when: inventory_hostname == groups['caches'][0]
   notify: Reload nftables

@@ -1,5 +1,25 @@
 # SPDX-License-Identifier: MIT
 ---
+- name: Ensure certificate directories exist
+  ansible.builtin.file:
+    path: "{{ postfix_tls_cert_file | dirname }}"
+    state: directory
+    mode: "0755"
+
+- name: Check if tenant certificates exist
+  ansible.builtin.stat:
+    path: "{{ postfix_tls_cert_file }}"
+  register: postfix_cert_stat
+
+- name: Generate temporary bootstrap certificate if missing
+  ansible.builtin.command: >-
+    openssl req -x509 -nodes -days 1 -newkey rsa:2048
+    -keyout {{ postfix_tls_key_file }}
+    -out {{ postfix_tls_cert_file }}
+    -subj "/CN=temporary.local"
+  when: not postfix_cert_stat.stat.exists
+  changed_when: true
+
 - name: Configure gateway parameters
   ansible.builtin.lineinfile:
     path: /etc/postfix/main.cf
@@ -9,21 +29,12 @@
     - { name: "smtpd_sasl_auth_enable", value: "{{ 'yes' if postfix_server_auth_enable else 'no' }}" }
     - { name: "smtpd_sasl_security_options", value: "noanonymous" }
     - { name: "smtpd_sasl_local_domain", value: "$myhostname" }
+    - { name: "smtpd_tls_cert_file", value: "{{ postfix_tls_cert_file }}" }
+    - { name: "smtpd_tls_key_file", value: "{{ postfix_tls_key_file }}" }
     - { name: "smtpd_tls_security_level", value: "{{ 'encrypt' if postfix_server_auth_enable else 'may' }}" }
     - { name: "local_recipient_maps", value: "" }
     - { name: "local_transport", value: "error:local mail delivery is disabled" }
     - { name: "virtual_alias_maps", value: "hash:/etc/postfix/virtual" }
-  notify: Reload postfix
-
-- name: Configure gateway TLS certificates
-  ansible.builtin.lineinfile:
-    path: /etc/postfix/main.cf
-    regexp: '^{{ item.name }}\s*='
-    line: "{{ item.name }} = {{ item.value }}"
-  loop:
-    - { name: "smtpd_tls_cert_file", value: "{{ postfix_tls_cert_file }}" }
-    - { name: "smtpd_tls_key_file", value: "{{ postfix_tls_key_file }}" }
-  when: postfix_tls_cert_file is defined and postfix_tls_key_file is defined
   notify: Reload postfix
 
 - name: Deploy virtual aliases file
@@ -77,7 +88,7 @@
     state: hard
     owner: root
     group: postfix
-    mode: '0640'
+    mode: "0640"
   when: postfix_system_sasldb2.stat.exists
 
 - name: Provision SASL users dynamically from inventory

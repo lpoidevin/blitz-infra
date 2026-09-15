@@ -1,26 +1,31 @@
 # SPDX-License-Identifier: MIT
 ---
 - name: Setup user directory
-  hosts: manager.blitz-infra.net
+  hosts: core.*
   roles:
     - role: slapd
       tags: ["ldap"]
-
-- name: Setup certificates via ACME
-  hosts: caches, games, manager.blitz-infra.net, !sandboxes
-  roles:
-    - role: lego
-      tags: ["lego"]
-
-- name: Deploy staging mail sandbox
-  hosts: manager.blitz-infra.net
-  roles:
-    - role: mailpit
-      tags: ["mailpit"]
-      when: install_mail_catcher is defined and install_mail_catcher
 
 - name: Setup mailling infrastructure
   hosts: all
   roles:
     - role: postfix
       tags: ["postfix"]
+
+- name: Setup container runtime
+  hosts: game.*
+  roles:
+    - role: incus
+      tags: ["incus"]
+
+- name: Setup caches
+  hosts: caches
+  roles:
+    - role: nginx_cache
+      tags: ["nginx", "cache"]
+
+- name: Setup certificates via ACME
+  hosts: caches, core.*
+  roles:
+    - role: lego
+      tags: ["lego"]

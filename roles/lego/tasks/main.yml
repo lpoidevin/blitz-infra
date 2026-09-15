@@ -1,10 +1,5 @@
 # SPDX-License-Identifier: MIT
 ---
-# - name: Install lego
-#   ansible.builtin.apt:
-#     name: lego
-#     state: present
-
 - name: Ensure required base packages are installed
   ansible.builtin.apt:
     name:
@@ -12,17 +7,23 @@
       - tar
     state: present
 
+- name: Check currently installed lego version
+  ansible.builtin.command: /usr/local/sbin/lego --version
+  register: lego_current_version
+  failed_when: false
+  changed_when: false
+
 - name: Download and install Lego v5 binary
   ansible.builtin.unarchive:
     src: "https://github.com/go-acme/lego/releases/download/v{{ lego_version }}/lego_v{{ lego_version }}_{{ lego_arch }}.tar.gz"
-    dest: /usr/local/bin/
+    dest: /usr/local/sbin/
     remote_src: true
-    creates: /usr/local/bin/lego
-    owner: root
-    group: root
-    mode: '0755'
+    keep_newer: true
+    creates: /usr/local/sbin/lego
+    mode: "0755"
     extra_opts:
       - lego
+  when: lego_current_version.stdout is not defined or lego_version not in lego_current_version.stdout
 
 - name: Ensure lego group exists
   ansible.builtin.group:
@@ -40,21 +41,30 @@
     create_home: true
     state: present
 
-- name: Create Lego configuration directory
+- name: Ensure ownership, group and permissions of lego home
+  ansible.builtin.file:
+    path: "{{ lego_home }}"
+    state: directory
+    owner: "{{ lego_user }}"
+    group: "{{ lego_group }}"
+    mode: "0755"
+
+- name: Create lego configuration directory
   ansible.builtin.file:
     path: "{{ lego_config_dir }}"
     state: directory
     owner: "{{ lego_user }}"
     group: "{{ lego_group }}"
-    mode: '0750'
+    mode: "0750"
 
-- name: Configure OVH API secrets
-  ansible.builtin.template:
-    src: ovh.env.j2
-    dest: "{{ lego_config_dir }}/ovh.env"
+- name: Configure provider secrets
+  ansible.builtin.copy:
+    content: "{{ lego_provider_env }}"
+    dest: "{{ lego_config_dir }}/provider.env"
     owner: "{{ lego_user }}"
     group: "{{ lego_group }}"
-    mode: '0600'
+    mode: "0600"
+  when: lego_provider_env is defined
 
 - name: Compile unified lego configuration
   ansible.builtin.set_fact:
@@ -71,36 +81,30 @@
     dest: "{{ lego_config_dir }}/lego.yml"
     owner: "{{ lego_user }}"
     group: "{{ lego_group }}"
-    mode: '0600'
+    mode: "0600"
 
 - name: Deploy deployment hook
   ansible.builtin.template:
     src: lego-deploy-hook.sh.j2
     dest: /usr/local/sbin/lego-deploy-hook.sh
-    mode: '0750'
+    mode: "0750"
 
-- name: Allow lego user to execute deployment hook via sudo
-  ansible.builtin.copy:
-    content: |
-      {{ lego_user }} ALL=(root) NOPASSWD: /usr/local/sbin/lego-deploy-hook.sh
-    dest: /etc/sudoers.d/lego-hooks
-    mode: '0440'
-    validate: /usr/sbin/visudo -cf %s
-
-- name: Check if initial certificates exist
+- name: Check if Lego certificate metadata exists
   ansible.builtin.stat:
-    path: "{{ lego_home }}/certificates/{{ item.key }}.crt"
+    path: "{{ lego_home }}/certificates/{{ item.key }}.json"
   loop: "{{ lego_certificates | dict2items }}"
   register: lego_cert_status
 
 - name: Execute initial certificate request
   ansible.builtin.shell:
     cmd: |
-      # Load OVH environment variables safely
-      set -a; source {{ lego_config_dir }}/ovh.env; set +a;
+      {% if lego_provider_env is defined %}
+      # Load provider environment variables safely
+      set -a; source {{ lego_config_dir }}/provider.env; set +a;
 
-      # Execute Lego run as ROOT
-      /usr/local/bin/lego --config {{ lego_config_dir }}/lego.yml
+      {% endif %}
+      # Execute lego as root
+      /usr/local/sbin/lego --config {{ lego_config_dir }}/lego.yml
     executable: /bin/bash
   changed_when: true
   when: lego_cert_status.results | selectattr('stat.exists', 'equalto', false) | list | length > 0
@@ -113,14 +117,14 @@
   ansible.builtin.template:
     src: lego-renewal.service.j2
     dest: /etc/systemd/system/lego-renewal.service
-    mode: '0644'
+    mode: "0644"
   notify: Reload systemd
 
 - name: Create Lego renewal systemd timer
   ansible.builtin.copy:
     src: lego-renewal.timer
     dest: /etc/systemd/system/lego-renewal.timer
-    mode: '0644'
+    mode: "0644"
   notify: Reload systemd
 
 - name: Enable and start Lego renewal timer

@@ -10,19 +10,23 @@ User={{ lego_user }}
 Group={{ lego_group }}
 WorkingDirectory={{ lego_home }}
 EnvironmentFile=-{{ lego_config_dir }}/ovh.env
-ExecStart=/usr/local/bin/lego --config {{ lego_config_dir }}/lego.yml
+ExecStart=/usr/local/sbin/lego --config {{ lego_config_dir }}/lego.yml
 
-# Privilege Escalation Control
-NoNewPrivileges=no
-
-# Filesystem Sandboxing
-ProtectSystem=strict
-ProtectHome=true
-PrivateTmp=true
 PrivateDevices=true
+PrivateTmp=disconnected
+ProtectClock=true
+ProtectControlGroups=true
+ProtectHome=true
+ProtectHostname=true
+ProtectKernelLogs=true
+ProtectKernelModules=true
+ProtectKernelTunables=true
+ProtectProc=invisible
+ProtectSystem=strict
+ProcSubset=pid
 
 # Dynamic write access for home, config, and certificate target directories
-{% set rw_paths = [lego_home, lego_config_dir] %}
+{% set rw_paths = [lego_home, lego_config_dir, lego_webroot] %}
 {% for target in lego_deploy_targets %}
 {% if target.cert_dest is defined %}{% set _ = rw_paths.append(target.cert_dest | dirname) %}{% endif %}
 {% if target.key_dest is defined %}{% set _ = rw_paths.append(target.key_dest | dirname) %}{% endif %}
@@ -30,10 +34,17 @@ PrivateDevices=true
 {% endfor %}
 ReadWritePaths={{ rw_paths | unique | join(' ') }}
 
-# Kernel & System Hardening
-ProtectKernelTunables=true
-ProtectKernelModules=true
-ProtectControlGroups=true
+RestrictAddressFamilies=AF_INET AF_INET6 AF_UNIX
+RestrictNamespaces=true
 RestrictRealtime=true
-MemoryDenyWriteExecute=true
+RestrictSUIDSGID=true
+RemoveIPC=true
 LockPersonality=true
+MemoryDenyWriteExecute=true
+NoNewPrivileges=true
+
+AmbientCapabilities=CAP_DAC_OVERRIDE CAP_FOWNER CAP_CHOWN CAP_SYS_ADMIN
+CapabilityBoundingSet=CAP_DAC_OVERRIDE CAP_FOWNER CAP_CHOWN CAP_SYS_ADMIN
+SystemCallArchitectures=native
+SystemCallFilter=@system-service
+SystemCallFilter=~@clock @module @mount @raw-io @reboot @swap @debug

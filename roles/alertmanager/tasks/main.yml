@@ -10,7 +10,7 @@
     content: |
       ARGS="--web.listen-address={{ alertmanager_listen_address }}"
     dest: /etc/default/alertmanager
-    mode: '0644'
+    mode: "0644"
   notify: Restart alertmanager
 
 - name: Deploy alertmanager main configuration
@@ -19,21 +19,21 @@
     dest: /etc/prometheus/alertmanager.yml
     owner: root
     group: alertmanager
-    mode: '0640'
+    mode: "0640"
   notify: Reload alertmanager
 
 - name: Deploy alloy forwarding configuration
   ansible.builtin.template:
     src: config.alloy.j2
     dest: /etc/alloy/alertmanager.alloy
-    mode: '0644'
+    mode: "0644"
   notify: Reload alloy
 
-- name: Deploy firewall rule for Wireguard
-  ansible.builtin.copy:
-    content: |
-      tcp dport 9093 accept \
-      comment "Accept alertmanager access"
-    dest: /etc/nftables.d/filter-input-wg/alertmanager.nft
-    mode: '0644'
-  notify: Reload nftables
+# - name: Deploy firewall rule for Wireguard
+#   ansible.builtin.copy:
+#     content: |
+#       tcp dport 9093 accept \
+#       comment "Accept alertmanager access"
+#     dest: /etc/nftables.d/filter-input-wg/alertmanager.nft
+#     mode: "0644"
+#   notify: Reload nftables

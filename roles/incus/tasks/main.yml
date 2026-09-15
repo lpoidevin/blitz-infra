@@ -1,0 +1,81 @@
+# SPDX-License-Identifier: MIT
+---
+- name: Install incus for containers only
+  ansible.builtin.apt:
+    name: incus-base
+    state: present
+
+- name: Initialize incus without default network
+  ansible.builtin.command:
+    cmd: incus admin init --preseed
+    stdin: |
+      config: {}
+      networks: []
+      storage_pools:
+      - config: {}
+        description: ""
+        name: default
+        driver: dir
+      storage_volumes: []
+      profiles:
+      - config: {}
+        description: ""
+        devices:
+          root:
+            path: /
+            pool: default
+            type: disk
+        name: default
+        project: default
+      projects: []
+      cluster: null
+    creates: /root/.config/incus/config.yml
+
+- name: Deploy incus recommended limits config
+  ansible.builtin.copy:
+    src: limits.conf
+    dest: /etc/security/limits.d/20-incus.conf
+    mode: "0644"
+
+- name: Deploy incus recommended sysctl config
+  ansible.builtin.copy:
+    src: sysctl.conf
+    dest: /etc/sysctl.d/20-incus.conf
+    mode: "0644"
+
+- name: Deploy incus sysctl config for routed network
+  ansible.builtin.template:
+    src: sysctl-network.conf.j2
+    dest: /etc/sysctl.d/30-incus-network.conf
+    mode: "0644"
+  when: incus_net_routed_enabled
+
+- name: Check core configuration
+  ansible.builtin.command: >-
+    incus config get local: {{ item.key }}
+  loop: "{{ incus_config_core | dict2items }}"
+  register: _incus_current_config_core
+  changed_when: false
+
+- name: Apply core configuration
+  ansible.builtin.command: >-
+    incus config set local: {{ item.item.key }} {{ item.item.value | quote }}
+  loop: "{{ _incus_current_config_core.results }}"
+  changed_when: true
+  when: item.stdout | trim != item.item.value | string
+
+- name: Check acme configuration
+  ansible.builtin.command: >-
+    incus config get local: {{ item.key }}
+  loop: "{{ incus_config_acme | dict2items }}"
+  register: _incus_current_config_acme
+  changed_when: false
+  no_log: true
+
+- name: Apply acme configuration
+  ansible.builtin.command: >-
+    incus config set local: {{ item.item.key }} {{ item.item.value | quote }}
+  loop: "{{ _incus_current_config_acme.results }}"
+  changed_when: true
+  no_log: true
+  when: item.stdout | trim != item.item.value | string

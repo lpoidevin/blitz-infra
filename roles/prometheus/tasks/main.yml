@@ -15,21 +15,21 @@
   ansible.builtin.template:
     src: default_prometheus.j2
     dest: /etc/default/prometheus
-    mode: '0644'
+    mode: "0644"
   notify: Restart prometheus
 
 - name: Deploy prometheus main configuration
   ansible.builtin.template:
     src: prometheus.yml.j2
     dest: /etc/prometheus/prometheus.yml
-    mode: '0644'
+    mode: "0644"
   notify: Reload prometheus
 
 - name: Deploy alloy configuration
   ansible.builtin.template:
     src: config.alloy.j2
     dest: /etc/alloy.d/prometheus.alloy
-    mode: '0644'
+    mode: "0644"
   notify: Reload alloy
 
 - name: Deploy firewall rule
@@ -38,5 +38,5 @@
       tcp dport 9090 accept \
       comment "Accept prometheus access"
     dest: /etc/nftables.d/filter-input-wg/prometheus.nft
-    mode: '0644'
+    mode: "0644"
   notify: Reload nftables

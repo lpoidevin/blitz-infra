@@ -1,12 +1,6 @@
 # SPDX-License-Identifier: MIT
 ---
-# Global network variables
-net_internal_base: "fd1e:39e:c6a4:1ee7::"
-net_internal_mask: 64
-net_operators_base: "fd1e:39e:c6a4:42::"
-net_operators_mask: 64
-
-## OVH network
+# OVH network
 # dns_servers:
 #   - 213.186.33.99
 #   - 2001:41d0:3:163::1
@@ -20,6 +14,5 @@ dns_servers:
 ntp_servers:
   - ntp.hetzner.com
 
-# VPN
-wireguard_int_network: "{{ net_internal_base }}/{{ net_internal_mask }}"
-wireguard_ops_network: "{{ net_operators_base }}/{{ net_operators_mask }}"
+# Timezone
+common_timezone: Asia/Tokyo

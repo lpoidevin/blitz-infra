@@ -23,7 +23,6 @@ argument_specs:
       sssd_bind_passwd:
         type: str
         required: true
-        no_log: true
         description: The password for the bind DN.
       sssd_base_dn:
         type: str

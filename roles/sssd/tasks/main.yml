@@ -14,9 +14,7 @@
   ansible.builtin.template:
     src: sssd.conf.j2
     dest: /etc/sssd/sssd.conf
-    owner: root
-    group: root
-    mode: '0640'
+    mode: "0640"
   notify: Restart sssd
 
 - name: Enable pam_mkhomedir natively
@@ -35,12 +33,10 @@
       AuthorizedKeysCommand /usr/bin/sss_ssh_authorizedkeys
       AuthorizedKeysCommandUser nobody
     dest: /etc/ssh/sshd_config.d/60-sssd.conf
-    owner: root
-    group: root
-    mode: '0644'
+    mode: "0644"
   notify: Reload ssh
 
-# - name: Disable remote access to debian
-#   ansible.builtin.file:
-#     path: /home/debian/.ssh/authorized_keys
-#     state: absent
+- name: Disable remote access to debian
+  ansible.builtin.file:
+    path: /home/debian/.ssh/authorized_keys
+    state: absent

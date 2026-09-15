@@ -1,0 +1,14 @@
+[Unit]
+Description=Pull TLS certificates
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=oneshot
+ExecStart=/usr/local/sbin/pull-certs.sh
+
+ProtectSystem=strict
+ReadWritePaths=/var/lib/lego/certificates
+ProtectHome=true
+PrivateTmp=disconnected
+CapabilityBoundingSet=CAP_DAC_OVERRIDE CAP_FOWNER CAP_CHOWN CAP_KILL

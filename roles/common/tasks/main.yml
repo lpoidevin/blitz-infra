@@ -3,16 +3,15 @@
 - name: Install common packages
   ansible.builtin.apt:
     name:
-      - curl
-      - vim
-      # - tmux
+      - bash-completion
+      - dnsutils
       - htop
       - iproute2
-      - dnsutils
+      - logrotate
       - mtr-tiny
       - tpm2-tools # used by systemd credentials
-      - logrotate
       - unattended-upgrades
+      - vim
     state: present
     update_cache: true
     cache_valid_time: 3600
@@ -45,7 +44,7 @@
 - name: Define report mail for unattended-upgrades
   ansible.builtin.lineinfile:
     dest: /etc/apt/apt.conf.d/50unattended-upgrades
-    regexp: '^\s*//\s*Unattended-Upgrade::Mail\s*|^\s*Unattended-Upgrade::Mail\s*'
+    regexp: '^\s*(//\s*)?Unattended-Upgrade::Mail\b'
     line: 'Unattended-Upgrade::Mail "{{ common_upgrades_email }}";'
   when: common_upgrades_email is defined
   notify: Restart unattended-upgrades

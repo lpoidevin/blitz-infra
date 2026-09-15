@@ -26,7 +26,6 @@ argument_specs:
         type: str
       grafana_ldap_bind_password:
         type: str
-        no_log: true
       grafana_ldap_search_base_dns:
         type: str
       grafana_ldap_search_filter:

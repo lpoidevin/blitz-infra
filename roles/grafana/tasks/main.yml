@@ -22,7 +22,7 @@
     section: "{{ item.section }}"
     option: "{{ item.option }}"
     value: "{{ item.value }}"
-    mode: '0640'
+    mode: "0640"
   loop:
     - { section: server, option: http_addr, value: "::1" }
     - { section: server, option: domain, value: "{{ grafana_domain }}" }
@@ -42,7 +42,7 @@
     dest: /etc/grafana/ldap.toml
     owner: root
     group: grafana
-    mode: '0640'
+    mode: "0640"
   notify: Restart grafana
 
 - name: Deploy datasources config
@@ -51,7 +51,7 @@
     dest: /etc/grafana/provisioning/datasources/default.yaml
     owner: root
     group: grafana
-    mode: '0640'
+    mode: "0640"
   notify: Restart grafana
 
 - name: Deploy dashboards provider config
@@ -60,7 +60,7 @@
     dest: /etc/grafana/provisioning/dashboards/default.yaml
     owner: root
     group: grafana
-    mode: '0640'
+    mode: "0640"
 
 - name: Copy grafana dashboards
   ansible.builtin.copy:
@@ -68,8 +68,8 @@
     dest: /var/lib/grafana/dashboards
     owner: grafana
     group: grafana
-    directory_mode: '0750'
-    mode: '0640'
+    directory_mode: "0750"
+    mode: "0640"
 
 - name: Ensure grafana is enabled and started
   ansible.builtin.systemd_service:

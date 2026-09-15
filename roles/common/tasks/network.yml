@@ -7,19 +7,21 @@
       - systemd-timesyncd
     state: present
 
-- name: Disable LLMNR in systemd-resolved
-  community.general.ini_file:
+- name: Disable unused defaults in systemd-resolved
+  ansible.builtin.lineinfile:
     path: /etc/systemd/resolved.conf
-    section: Resolve
-    option: LLMNR
-    value: "false"
-    mode: "0644"
+    regexp: '^#?{{ item.key }}\b'
+    line: "{{ item.key }}={{ item.value }}"
+    firstmatch: true
+    state: present
+  loop:
+    - { key: LLMNR, value: "false" }
   notify: Reload systemd-resolved
 
 - name: Deploy systemd-networkd interface configurations
   ansible.builtin.template:
-    src: 10-interface.network.j2
-    dest: /etc/systemd/network/10-{{ item.name }}.network
+    src: interface.network.j2
+    dest: /etc/systemd/network/{{ item.name }}.network
     mode: "0644"
   loop: "{{ common_network_interfaces }}"
   when: common_network_interfaces | length > 0
@@ -28,21 +30,23 @@
 - name: Populate service facts
   ansible.builtin.service_facts:
 
-- name: Ensure networking service is disabled
-  ansible.builtin.systemd_service:
-    name: networking.service
-    enabled: false
+- name: Disable networking service if present then reboot
   when:
     - "'networking.service' in ansible_facts['services']"
     - "ansible_facts['services']['networking.service']['status'] != 'not-found'"
-  notify: Reboot
+  block:
+    - name: Disable networking service
+      ansible.builtin.systemd_service:
+        name: networking.service
+        enabled: false
+    - name: Reboot
+      ansible.builtin.reboot:
 
 - name: Remove other network management tools
   ansible.builtin.apt:
     name:
       - netplan.io
-      # - ifupdown
-      # - ifupdown2
+      - ifupdown
     state: absent
     purge: true
     autoremove: true

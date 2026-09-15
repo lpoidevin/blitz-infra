@@ -1,0 +1,32 @@
+{{ ansible_managed | comment }}
+
+map $ssl_client_s_dn $is_allowed_cache_node {
+	default 0;
+{% for host in groups['caches'] if host != inventory_hostname %}
+	"~CN={{ host }}$" 1;
+{% endfor %}
+}
+
+server {
+	listen [{{ wireguard_address }}]:8443 ssl;
+
+	http2 on;
+
+	server_name _;
+
+	ssl_certificate /var/lib/lego/certificates/{{ inventory_hostname_short }}.crt;
+	ssl_certificate_key /var/lib/lego/certificates/{{ inventory_hostname_short }}.key;
+
+	ssl_client_certificate /etc/ssl/certs/ca-certificates.crt;
+	ssl_verify_client on;
+	ssl_verify_depth 3;
+
+	location ~ ^/internal-certs/(?<tenant>[a-zA-Z0-9_-]+)\.(crt|key)$ {
+		# Enforce hostname whitelist mapping
+		if ($is_allowed_cache_node = 0) {
+			return 403;
+		}
+
+		alias /srv/cert-sync/$tenant.$2;
+	}
+}

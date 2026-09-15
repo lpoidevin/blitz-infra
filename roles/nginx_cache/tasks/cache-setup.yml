@@ -1,0 +1,46 @@
+# SPDX-License-Identifier: MIT
+---
+- name: Ensure nginx cache base directory exists
+  ansible.builtin.file:
+    path: "{{ nginx_cache_base_dir }}"
+    state: directory
+    mode: "0755"
+
+- name: Deploy cache zones configuration
+  ansible.builtin.template:
+    src: cache-zones.conf.j2
+    dest: /etc/nginx/conf.d/cache-zones.conf
+    mode: "0644"
+  notify: Reload nginx
+
+- name: Check if tenant certificates exist
+  ansible.builtin.stat:
+    path: "{{ item.tls_cert_path }}"
+  loop: "{{ nginx_cache_tenants }}"
+  register: nginx_cache_tenant_cert_stats
+
+- name: Generate temporary bootstrap certificate if missing
+  ansible.builtin.command: >-
+    openssl req -x509 -nodes -days 1 -newkey rsa:2048
+    -keyout {{ item.item.tls_key_path }}
+    -out {{ item.item.tls_cert_path }}
+    -subj "/CN={{ item.item.domain }}"
+  loop: "{{ nginx_cache_tenant_cert_stats.results }}"
+  when: not item.stat.exists
+  changed_when: true
+
+- name: Deploy nginx proxy vhosts per tenant
+  ansible.builtin.template:
+    src: vhost-proxy.conf.j2
+    dest: "/etc/nginx/sites-available/{{ item.domain }}.conf"
+    mode: "0644"
+  loop: "{{ nginx_cache_tenants }}"
+  notify: Reload nginx
+
+- name: Enable nginx vhosts with symbolic link
+  ansible.builtin.file:
+    src: "/etc/nginx/sites-available/{{ item.domain }}.conf"
+    dest: "/etc/nginx/sites-enabled/{{ item.domain }}.conf"
+    state: link
+  loop: "{{ nginx_cache_tenants }}"
+  notify: Restart nginx

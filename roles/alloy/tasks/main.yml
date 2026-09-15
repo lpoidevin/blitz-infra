@@ -22,7 +22,7 @@
     state: directory
     owner: alloy
     group: alloy
-    mode: '0755'
+    mode: "0755"
 
 - name: Define config file as directory path
   ansible.builtin.lineinfile:
@@ -44,7 +44,7 @@
     dest: "/etc/alloy.d/{{ item }}"
     owner: alloy
     group: alloy
-    mode: '0644'
+    mode: "0644"
   loop:
     - 00-base.alloy
     - 10-node.alloy

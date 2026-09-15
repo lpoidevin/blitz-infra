@@ -11,13 +11,11 @@
     state: reloaded
 
 - name: Rebuild virtual
-  ansible.builtin.command:
-    cmd: postmap /etc/postfix/virtual
+  ansible.builtin.command: postmap /etc/postfix/virtual
   changed_when: true
 
 - name: Rebuild sasl_passwd
-  ansible.builtin.command:
-    cmd: postmap /etc/postfix/sasl_passwd
+  ansible.builtin.command: postmap /etc/postfix/sasl_passwd
   changed_when: true
 
 - name: Reload nftables

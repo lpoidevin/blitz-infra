@@ -1,0 +1,11 @@
+# SPDX-License-Identifier: MIT
+---
+# Internal base defaults for global SSH configuration
+_sshd_global_config_default:
+  AddressFamily: inet6
+  PermitRootLogin: "no"
+  PubkeyAuthentication: "yes"
+  PasswordAuthentication: "no"
+  AllowAgentForwarding: "no"
+  AllowTcpForwarding: "no"
+  X11Forwarding: "no"

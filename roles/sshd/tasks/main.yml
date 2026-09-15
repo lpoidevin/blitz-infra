@@ -8,16 +8,14 @@
     firstmatch: true
     state: present
     validate: /usr/sbin/sshd -t -f %s
-  loop: "{{ sshd_global_config | dict2items }}"
+  loop: "{{ _sshd_global_config_default | combine(sshd_global_config) | dict2items }}"
   notify: Restart ssh
 
 - name: Deploy match blocks to drop-in directory
   ansible.builtin.template:
     src: match-blocks.conf.j2
     dest: /etc/ssh/sshd_config.d/99-match-blocks.conf
-    owner: root
-    group: root
-    mode: '0600'
+    mode: "0600"
     validate: /usr/sbin/sshd -t -f %s
   when: sshd_match_blocks | length > 0
   notify: Reload ssh
@@ -32,6 +30,6 @@
     content: |
       tcp dport 22 log accept \
       comment "Allow SSH"
-    dest: /etc/nftables.d/filter-input-v6/sshd.nft
-    mode: '0644'
+    dest: "/etc/nftables.d/{{ sshd_firewall_chain }}/sshd.nft"
+    mode: "0644"
   notify: Reload nftables

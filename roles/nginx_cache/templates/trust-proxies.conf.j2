@@ -1,0 +1,8 @@
+# Trust real IP headers coming from the WireGuard mesh subnet
+set_real_ip_from {{ nginx_cache_trusted_proxies }};
+
+# Use the IP address provided in X-Forwarded-For
+real_ip_header X-Forwarded-For;
+
+# Search recursively for the first non-trusted IP in X-Forwarded-For
+real_ip_recursive on;

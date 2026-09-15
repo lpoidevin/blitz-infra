@@ -11,12 +11,10 @@ argument_specs:
       slapd_config_passwd:
         type: str
         required: true
-        no_log: true
         description: Argon2 hashed password for the cn=config database root user.
       slapd_admin_passwd:
         type: str
         required: true
-        no_log: true
         description: Argon2 hashed password for the main database admin user.
       slapd_enable_tls:
         type: bool

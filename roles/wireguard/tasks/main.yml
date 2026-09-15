@@ -8,9 +8,9 @@
 - name: Deploy internal network
   ansible.builtin.import_tasks: internal.yml
 
-- name: Deploy operators network
-  ansible.builtin.import_tasks: operators.yml
-  when: wireguard_ops_address is defined
+# - name: Deploy operators network
+#   ansible.builtin.import_tasks: operators.yml
+#   when: wireguard_ops_address is defined
 
 - name: Deploy firewall rules
   ansible.builtin.import_tasks: firewall.yml

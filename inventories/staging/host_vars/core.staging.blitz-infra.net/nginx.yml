@@ -1,0 +1,8 @@
+# SPDX-License-Identifier: MIT
+---
+# TLS
+nginx_proxy_tls_cert_path: /var/lib/lego/certificates/monitoring.crt
+nginx_proxy_tls_key_path: /var/lib/lego/certificates/monitoring.key
+
+# Grafana vhost
+nginx_proxy_grafana_fqdn: "{{ grafana_domain }}"

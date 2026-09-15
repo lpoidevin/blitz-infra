@@ -1,7 +1,0 @@
-# SPDX-License-Identifier: MIT
----
-- name: Deploy game server services
-  hosts: games
-  roles:
-    - role: fxserver
-      tags: ["fxserver"]

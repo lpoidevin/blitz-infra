@@ -1,0 +1,12 @@
+{{ ansible_managed | comment }}
+
+[DEFAULT]
+bantime  = 1h
+findtime = 15m
+maxretry = 5
+
+destemail = {{ fail2ban_destemail }}
+sender = fail2ban@<fq-hostname>
+
+banaction = nftables-multiport
+banaction_allports = nftables-allports

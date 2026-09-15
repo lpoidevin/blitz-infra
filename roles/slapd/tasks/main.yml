@@ -90,6 +90,6 @@
       tcp dport 636 accept \
       comment "Accept ldaps access"
     dest: /etc/nftables.d/filter-input-wg/slapd.nft
-    mode: '0644'
+    mode: "0644"
   notify: Reload nftables
   when: slapd_enable_tls

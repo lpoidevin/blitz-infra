@@ -1,24 +1,15 @@
 # SPDX-License-Identifier: MIT
 ---
+# SPDX-License-Identifier: MIT
 argument_specs:
   main:
     short_description: Configure and harden SSH daemon using global settings and drop-in Match blocks
     options:
       sshd_global_config:
         type: dict
+        default: {}
         description: >
-          A dictionary of global SSH configuration directives.
-          Keys are the directive names (e.g., 'PermitRootLogin') and values are their settings.
-          These are applied directly to /etc/ssh/sshd_config.
-        default:
-          AddressFamily: inet6
-          PermitRootLogin: "no"
-          PubkeyAuthentication: "yes"
-          PasswordAuthentication: "no"
-          AllowAgentForwarding: "yes"
-          AllowTcpForwarding: "yes"
-          X11Forwarding: "no"
-
+          A dictionary of global SSH configuration directives to override or add to base defaults.
       sshd_match_blocks:
         type: list
         elements: dict
@@ -37,3 +28,9 @@ argument_specs:
             description: >
               Dictionary of SSH configuration directives to apply when the condition is met
               (e.g., { ChrootDirectory: "/sftp/%u", ForceCommand: "internal-sftp" }).
+      sshd_firewall_chain:
+        type: str
+        default: "filter-input-v6"
+        description: >
+          The nftables firewall chain folder name inside /etc/nftables.d/ where the firewall rule should be placed.
+          Set to 'filter-input' to allow IPv4 alongside IPv6.

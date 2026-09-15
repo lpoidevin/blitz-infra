@@ -1,4 +1,0 @@
-# SPDX-License-Identifier: MIT
----
-# nginx_core_worker_processes: 1
-# nginx_core_worker_cpu_affinity_mask: 11

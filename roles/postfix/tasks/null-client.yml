@@ -17,6 +17,6 @@
   ansible.builtin.template:
     src: sasl_passwd.j2
     dest: /etc/postfix/sasl_passwd
-    mode: '0600'
+    mode: "0600"
   when: postfix_relay_auth_enable
   notify: Rebuild sasl_passwd

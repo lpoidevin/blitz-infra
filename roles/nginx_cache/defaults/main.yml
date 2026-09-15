@@ -1,7 +1,31 @@
 # SPDX-License-Identifier: MIT
 ---
-# Cache zone
-nginx_cache_dir: /var/cache/nginx/cfx
-nginx_cache_keys_zone_size: 48m
-nginx_cache_max_size: 20g
-nginx_cache_inactive: 2h
+# Modules
+nginx_cache_vts_module: false
+
+# Caching global parameters
+nginx_cache_base_dir: "/var/cache/nginx"
+nginx_cache_global_keys_zone_size: "10m"
+nginx_cache_global_max_size: "20g"
+nginx_cache_global_inactive: "1d"
+nginx_cache_global_valid_200: "1w"
+
+# Per-tenant vhost setup
+nginx_cache_tenants: []
+  # - name: "tenant_alpha"
+  #   domain: "cache1.example.com"
+  #   backend_host: "10.0.0.10"
+  #   backend_port: 30120
+  #   tls_cert_path: "/etc/ssl/certs/tenant_alpha.crt"
+  #   tls_key_path: "/etc/ssl/private/tenant_alpha.key"
+  #   # Custom overrides for high-traffic tenant:
+  #   max_size: "10g"
+  #   keys_zone_size: "20m"
+  #   cache_valid_200: "60m"
+
+  # - name: "tenant_beta"
+  #   domain: "cache2.example.com"
+  #   backend_host: "10.0.0.11"
+  #   # Inherits default backend_port (30120), max_size (10g), keys_zone_size (10m)
+  #   tls_cert_path: "/etc/ssl/certs/tenant_beta.crt"
+  #   tls_key_path: "/etc/ssl/private/tenant_beta.key"

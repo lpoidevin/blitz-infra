@@ -1,0 +1,75 @@
+#!/usr/bin/env bash
+# SPDX-License-Identifier: MIT
+set -euo pipefail
+
+PRIMARY_FQDN="{{ groups['caches'][0] }}"
+PRIMARY_WG_IP="{{ hostvars[groups['caches'][0]]['wireguard_address'] }}"
+PORT="8443"
+
+NODE_CERT="/var/lib/lego/certificates/{{ inventory_hostname_short }}.crt"
+NODE_KEY="/var/lib/lego/certificates/{{ inventory_hostname_short }}.key"
+
+RELOAD_NEEDED=0
+TEMP_DIR=$(mktemp -d)
+trap 'rm -rf "$TEMP_DIR"' EXIT
+
+sync_tenant_cert() {
+    local tenant_name="$1"
+    local target_cert="$2"
+    local target_key="$3"
+
+    local temp_cert="$TEMP_DIR/${tenant_name}.crt"
+    local temp_key="$TEMP_DIR/${tenant_name}.key"
+
+    # Request using the official FQDN
+    local base_url="https://${PRIMARY_FQDN}:${PORT}/internal-certs"
+    local resolve_rule="${PRIMARY_FQDN}:${PORT}:${PRIMARY_WG_IP}"
+
+    # Fetch using mTLS while pinning DNS resolution strictly to WireGuard IP
+    if ! curl --fail --silent --show-error \
+              --resolve "${resolve_rule}" \
+              --cert "${NODE_CERT}" \
+              --key "${NODE_KEY}" \
+              "${base_url}/$(basename "${target_cert}")" -o "${temp_cert}"; then
+        echo "ERROR: Failed to fetch cert for ${tenant_name}" >&2
+        return 1
+    fi
+
+    if ! curl --fail --silent --show-error \
+              --resolve "${resolve_rule}" \
+              --cert "${NODE_CERT}" \
+              --key "${NODE_KEY}" \
+              "${base_url}/$(basename "${target_key}")" -o "${temp_key}"; then
+        echo "ERROR: Failed to fetch key for ${tenant_name}" >&2
+        return 1
+    fi
+
+    # Cryptographic alignment check
+    local pub_cert pub_key
+    pub_cert=$(openssl x509 -noout -pubkey -in "${temp_cert}")
+    pub_key=$(openssl pkey -pubout -in "${temp_key}")
+
+    if [ "${pub_cert}" != "${pub_key}" ]; then
+        echo "ERROR: Key mismatch for ${tenant_name}" >&2
+        return 1
+    fi
+
+    # Update files if changed
+    if ! cmp -s "${temp_cert}" "${target_cert}" || ! cmp -s "${temp_key}" "${target_key}"; then
+        mkdir -p "$(dirname "${target_cert}")" "$(dirname "${target_key}")"
+        umask 0077
+        cp "${temp_key}" "${target_key}"
+        chmod 600 "${target_key}"
+        cp "${temp_cert}" "${target_cert}"
+        chmod 644 "${target_cert}"
+        RELOAD_NEEDED=1
+    fi
+}
+
+{% for tenant in nginx_cache_tenants %}
+sync_tenant_cert "{{ tenant.name }}" "{{ tenant.tls_cert_path }}" "{{ tenant.tls_key_path }}"
+{% endfor %}
+
+if [ "$RELOAD_NEEDED" -eq 1 ]; then
+    systemctl reload nginx.service
+fi

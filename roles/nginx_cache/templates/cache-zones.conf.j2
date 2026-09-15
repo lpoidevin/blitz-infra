@@ -1,0 +1,11 @@
+{{ ansible_managed | comment }}
+
+{% for tenant in nginx_cache_tenants %}
+# Cache zone for {{ tenant.name }}
+proxy_cache_path {{ nginx_cache_base_dir }}/{{ tenant.name }}
+	levels=1:2
+	keys_zone=assets_{{ tenant.name }}:{{ tenant.keys_zone_size | default(nginx_cache_global_keys_zone_size) }}
+	max_size={{ tenant.max_size | default(nginx_cache_global_max_size) }}
+	inactive={{ tenant.inactive | default(nginx_cache_global_inactive) }}
+	use_temp_path=off;
+{% endfor %}

@@ -27,27 +27,6 @@ argument_specs:
         default: /etc/lego
         description: The directory where Lego configuration files (e.g., lego.yml, ovh.env) are stored
 
-      # OVH Specific Variables
-      lego_ovh_endpoint:
-        type: str
-        default: ovh-eu
-        choices: [ovh-eu, ovh-ca]
-        description: OVH API Endpoint
-      lego_ovh_app_key:
-        type: str
-        required: true
-        description: OVH API Application Key
-      lego_ovh_app_secret:
-        type: str
-        required: true
-        no_log: true
-        description: OVH API Application Secret
-      lego_ovh_consumer_key:
-        type: str
-        required: true
-        no_log: true
-        description: OVH API Consumer Key
-
       lego_accounts:
         type: dict
         default: {}
@@ -58,12 +37,18 @@ argument_specs:
         description: Global DNS/HTTP challenge configurations
       lego_hooks:
         type: dict
-        default: {}
+        default:
+          deploy:
+            command: /usr/local/sbin/lego-deploy-hook.sh
         description: Global hook configurations
       lego_certificates:
         type: dict
         required: true
         description: Host-specific certificate definitions
+
+      lego_provider_env:
+        type: str
+        description: Environment variables to set during ACME challenge (used by DNS-01)
 
       lego_deploy_targets:
         type: list
@@ -88,6 +73,6 @@ argument_specs:
             default: root
           key_mode:
             type: str
-            default: "0400"
+            default: "0600"
           service_cmd:
             type: str

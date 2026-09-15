@@ -2,56 +2,56 @@
 ---
 argument_specs:
   main:
-    short_description: Deploy data-driven reverse proxy vhosts
+    short_description: Deploy reverse proxy vhosts
     options:
-      nginx_proxy_vhosts:
-        type: list
-        default: []
-        description: List of proxy definitions to deploy.
-        elements: dict
-        options:
-          name:
-            type: str
-            required: true
-            description: Short name of the service (e.g., grafana)
-          domain:
-            type: str
-            required: true
-            description: The FQDN for the server_name
-          upstream_host:
-            type: str
-            default: localhost
-            description: The internal host to proxy to
-          upstream_port:
-            type: int
-            required: true
-            description: The internal port to proxy to
-          is_default:
-            type: bool
-            default: false
-            description: Mark as the default_server in NGINX
-          firewall_zone:
-            type: str
-            choices: ["public", "wg"]
-            default: "public"
-            description: Determine firewall rules via nftables
-          websockets:
-            type: bool
-            default: false
-            description: Enable websocket upgrade headers
-          set_x_forwarded_for:
-            type: bool
-            default: true
-            description: Pass X-Forwarded-For header
-          set_x_forwarded_proto:
-            type: bool
-            default: false
-            description: Pass X-Forwarded-Proto header
-          pass_request_headers:
-            type: bool
-            default: false
-            description: Enable proxy_pass_request_headers
-          http_version_1_1:
-            type: bool
-            default: false
-            description: Use HTTP/1.1 with the upstream server
+      # TLS Settings
+      # nginx_proxy_enable_http3:
+      #   type: bool
+      #   default: false
+      #   description: Enable HTTP/3 Alt-Svc headers.
+      # nginx_proxy_enable_hsts:
+      #   type: bool
+      #   default: false
+      #   description: Enable Strict-Transport-Security headers.
+      nginx_proxy_tls_cert_path:
+        type: str
+        required: true
+        description: Path to the TLS certificate file.
+      nginx_proxy_tls_key_path:
+        type: str
+        required: true
+        description: Path to the TLS key file.
+
+      # Grafana vhost
+      nginx_proxy_grafana_fqdn:
+        type: str
+        required: true
+        description: The FQDN for the server_name
+      nginx_proxy_grafana_port:
+        type: str
+        description: The internal port to proxy to
+
+      # Others
+      # nginx_proxy_vhosts:
+      #   type: list
+      #   default: []
+      #   description: List of proxy definitions to deploy.
+      #   elements: dict
+      #   options:
+      #     domain:
+      #       type: str
+      #       required: true
+      #       description: The FQDN for the server_name
+      #     upstream_port:
+      #       type: int
+      #       required: true
+      #       description: The internal port to proxy to
+      #     is_default:
+      #       type: bool
+      #       default: false
+      #       description: Mark as the default_server in NGINX
+      #     firewall_zone:
+      #       type: str
+      #       choices: ["public", "wg"]
+      #       default: "public"
+      #       description: Determine firewall rules via nftables

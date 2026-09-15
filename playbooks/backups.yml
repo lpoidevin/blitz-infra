@@ -1,8 +1,0 @@
-# SPDX-License-Identifier: MIT
----
-- name: Deploy backup agent
-  # hosts: games, manager.blitz-infra.net
-  hosts: games, !sandboxes
-  roles:
-    - role: restic
-      tags: ["restic"]

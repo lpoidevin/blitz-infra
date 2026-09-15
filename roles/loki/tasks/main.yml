@@ -22,14 +22,14 @@
     dest: /etc/loki/config.yml
     owner: root
     group: root
-    mode: '0640'
+    mode: "0640"
   notify: Restart loki
 
 - name: Deploy alloy configuration
   ansible.builtin.template:
     src: config.alloy.j2
     dest: /etc/alloy.d/loki.alloy
-    mode: '0644'
+    mode: "0644"
   notify: Reload alloy
 
 - name: Deploy firewall rule
@@ -38,5 +38,5 @@
       tcp dport 3100 accept \
       comment "Accept loki access"
     dest: /etc/nftables.d/filter-input-wg/loki.nft
-    mode: '0644'
+    mode: "0644"
   notify: Reload nftables

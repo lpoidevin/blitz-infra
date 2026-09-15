@@ -29,8 +29,15 @@ argument_specs:
             description: Link MTU bytes
           dhcp4:
             type: bool
-            default: true
+            default: false
             description: Enable IPv4 DHCP
+          proxy_ndp:
+            type: bool
+            default: false
+            description: Enable IPv6 Proxy NDP
+          ipv4_address:
+            type: str
+            description: Static IPv4 address with CIDR (e.g., 192.168.1.1/24)
           ipv6_address:
             type: str
             description: Static IPv6 address with CIDR (e.g., 2001:db8::1/64)

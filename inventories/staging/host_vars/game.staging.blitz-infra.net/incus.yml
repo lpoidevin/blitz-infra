@@ -1,0 +1,19 @@
+# SPDX-License-Identifier: MIT
+---
+incus_config_core:
+  core.https_address: "[::1]:8443"
+
+# incus_config_acme:
+#   acme.agree_tos: "true"
+#   acme.ca_url: https://acme-staging-v02.api.letsencrypt.org/directory
+#   acme.challenge: DNS-01
+#   acme.domain: game.staging.blitz-infra.net
+#   acme.email: "security@{{ domain }}"
+#   acme.provider: ovh
+#   acme.provider.environment: "{{ vault_ovh_api_env }}"
+
+# Enable routed network config
+# Note: ipv6.proxy_ndp must be also enabled in the systemd-networkd configuration
+# of the parent interface to persist over reboots.
+incus_net_routed_enabled: true
+nftables_enable_forwarding: true

@@ -1,16 +1,26 @@
 # SPDX-License-Identifier: MIT
 ---
-nginx_core_geoip2_module: true
-nginx_core_vts_module: true
+# Modules
+nginx_cache_vts_module: true
 
-nginx_core_ipinfo_token: "{{ vault_nginx_core_ipinfo_token }}"
+# Trust proxy headers from wireguard network
+nginx_cache_trusted_proxies: fd1e:39e:c6a4:1ee7::/64
 
-nginx_core_tls_cert_path: /var/lib/lego/certificates/cdn.crt
-nginx_core_tls_key_path: /var/lib/lego/certificates/cdn.key
-nginx_core_tls_issuer_path: /var/lib/lego/certificates/cdn.issuer.crt
+# Per-tenant vhost setup
+nginx_cache_tenants:
+  - name: blitz_dev
+    domain: cache.dev.coursepoursuite.fr
+    backend_host: play.coursepoursuite.fr
+    # backend_host: srv.dev.coursepoursuite.fr
+    tls_cert_path: /var/lib/lego/certificates/blitz_dev.crt
+    tls_key_path: /var/lib/lego/certificates/blitz_dev.key
 
-nginx_cache_endpoint: cdn.staging.blitz-infra.net
-nginx_cache_backend: fivem-int.staging.blitz-infra.net
-nginx_cache_keys_zone_size: 50m
-nginx_cache_max_size: 25g
-nginx_cache_inactive: 2d
+  # - name: "tenant_beta"
+  #   domain: "cache2.example.com"
+  #   backend_host: "10.0.0.11"
+  #   # Inherits default backend_port (30120), max_size (10g), keys_zone_size (10m)
+  #   tls_cert_path: "/etc/ssl/certs/tenant_beta.crt"
+  #   tls_key_path: "/etc/ssl/private/tenant_beta.key"
+
+# Honeypot configuration
+fail2ban_honeypot_logpath: /var/log/nginx/cache.dev.coursepoursuite.fr.access.log

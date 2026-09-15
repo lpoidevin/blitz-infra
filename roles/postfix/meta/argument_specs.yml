@@ -36,7 +36,6 @@ argument_specs:
         type: str
       postfix_relay_auth_password:
         type: str
-        no_log: true
 
       # Server Auth (Gateway)
       postfix_server_auth_enable:
@@ -52,7 +51,6 @@ argument_specs:
         type: list
         elements: dict
         default: []
-        no_log: true
         description: List of standalone application credentials for SMTP auth
         options:
           user:

@@ -1,0 +1,5 @@
+# SPDX-License-Identifier: MIT
+---
+incus_config_core: {}
+incus_config_acme: {}
+incus_net_routed_enabled: false

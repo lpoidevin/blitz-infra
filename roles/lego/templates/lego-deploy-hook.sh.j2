@@ -27,7 +27,7 @@ case "$NAME" in
 {% if target.key_dest is defined %}
     cp "$KEY" "{{ target.key_dest }}"
     chown {{ target.owner | default('root') }}:{{ target.group | default('root') }} "{{ target.key_dest }}"
-    chmod {{ target.key_mode | default('0400') }} "{{ target.key_dest }}"
+    chmod {{ target.key_mode | default('0600') }} "{{ target.key_dest }}"
 {% endif %}
 {% if target.service_cmd is defined %}
     CMD="{{ target.service_cmd }}"
