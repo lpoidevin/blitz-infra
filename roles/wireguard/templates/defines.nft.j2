@@ -1,5 +1,5 @@
 {{ ansible_managed | comment }}
 
 # Internal network
-define wg_int_nic = wg0
-define wg_int_port = {{ wireguard_port }}
+define wg_nic = wg0
+define wg_port = {{ wireguard_port }}

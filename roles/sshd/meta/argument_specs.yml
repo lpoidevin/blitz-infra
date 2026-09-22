@@ -33,4 +33,3 @@ argument_specs:
         default: "filter-input-v6"
         description: >
           The nftables firewall chain folder name inside /etc/nftables.d/ where the firewall rule should be placed.
-          Set to 'filter-input' to allow IPv4 alongside IPv6.

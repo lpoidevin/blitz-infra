@@ -1,20 +1,20 @@
 {{ ansible_managed | comment }}
 ---
 global:
-  # scrape_interval: 15s # The default is every 1 minute.
-  # scrape_timeout: 10s # The default is every 10 seconds.
-  # evaluation_interval: 15s # The default is every 1 minute.
+  #scrape_interval: 15s # The default is every 1 minute.
+  #scrape_timeout: 10s # The default is every 10 seconds.
+  #evaluation_interval: 15s # The default is every 1 minute.
 
 # Alertmanager configuration
-# alerting:
-#   alertmanagers:
-#     - static_configs:
-#         - targets: ["localhost:9093"]
+alerting:
+  alertmanagers:
+    - static_configs:
+        - targets: ['{{ prometheus_alertmanager_url }}']
 
-# Load rules once and periodically evaluate them according to the global 'evaluation_interval'.
+# Load local alert rules
 rule_files:
   # - "first_rules.yml"
   # - "second_rules.yml"
 
-# No scrape configs needed here; metrics are pushed via Alloy remote_write.
+# Metrics are pushed via Alloy remote_write
 scrape_configs: []

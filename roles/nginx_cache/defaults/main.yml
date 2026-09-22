@@ -13,6 +13,7 @@ nginx_cache_global_valid_200: "1w"
 # Per-tenant vhost setup
 nginx_cache_tenants: []
   # - name: "tenant_alpha"
+  #   enabled: true
   #   domain: "cache1.example.com"
   #   backend_host: "10.0.0.10"
   #   backend_port: 30120
@@ -24,6 +25,7 @@ nginx_cache_tenants: []
   #   cache_valid_200: "60m"
 
   # - name: "tenant_beta"
+  #   enabled: false
   #   domain: "cache2.example.com"
   #   backend_host: "10.0.0.11"
   #   # Inherits default backend_port (30120), max_size (10g), keys_zone_size (10m)

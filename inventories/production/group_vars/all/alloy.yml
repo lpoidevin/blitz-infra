@@ -1,0 +1,4 @@
+# SPDX-License-Identifier: MIT
+---
+alloy_loki_endpoint: loki.blitz-infra.net
+alloy_prometheus_endpoint: prometheus.blitz-infra.net

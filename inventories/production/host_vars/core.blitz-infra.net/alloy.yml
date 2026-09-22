@@ -1,0 +1,21 @@
+# SPDX-License-Identifier: MIT
+---
+# Data-Driven Service Definitions
+alloy_monitored_services:
+  prometheus:
+    enabled: false
+    type: "prometheus_scrape"
+    address: "localhost:9090"
+    scrape_interval: "15s"
+
+  alertmanager:
+    enabled: false
+    type: "prometheus_scrape"
+    address: "localhost:9093"
+    scrape_interval: "15s"
+
+  loki:
+    enabled: false
+    type: "prometheus_scrape"
+    address: "localhost:3100"
+    scrape_interval: "15s"

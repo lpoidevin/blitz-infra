@@ -1,0 +1,38 @@
+# SPDX-License-Identifier: MIT
+---
+lego_challenges:
+  ovh-dns:
+    dns:
+      provider: ovh
+
+lego_provider_env: "{{ vault_ovh_api_env }}"
+
+lego_certificates:
+  email:
+    challenge: ovh-dns
+    account: blitz-security
+    domains:
+      - mail.blitz-infra.net
+  monitoring:
+    challenge: ovh-dns
+    account: blitz-security
+    domains:
+      - "{{ grafana_domain }}"
+  ldap:
+    challenge: ovh-dns
+    account: blitz-security
+    domains:
+      - ldap.blitz-infra.net
+
+lego_deploy_targets:
+  - name: email
+    service_cmd: /usr/bin/systemctl reload postfix.service
+  - name: monitoring
+    service_cmd: /usr/bin/systemctl reload nginx.service
+  - name: ldap
+    cert_dest: /etc/ldap/tls/ldap.crt
+    key_dest: /etc/ldap/tls/ldap.key
+    issuer_dest: /etc/ldap/tls/ldap.issuer.crt
+    owner: openldap
+    group: openldap
+    service_cmd: /usr/bin/systemctl restart slapd.service

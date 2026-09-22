@@ -6,20 +6,12 @@ map $http_upgrade $connection_upgrade {
 }
 
 upstream grafana {
-	server localhost:{{ nginx_proxy_grafana_port }};
+	server [::1]:{{ nginx_proxy_grafana_port }};
 }
 
 server {
-	listen [::]:80 default_server;
-
-	server_name _;
-
-	return 308 https://$host$request_uri;
-}
-
-server {
-	listen [::]:443 ssl default_server;
-	listen [::]:443 quic reuseport default_server;
+	listen [::]:443 ssl;
+	listen [::]:443 quic;
 
 	http2 on;
 	http3 on;
@@ -30,6 +22,8 @@ server {
 
 	location / {
 		proxy_pass http://grafana;
+		proxy_http_version 1.1; # before version 1.29.7
+		proxy_set_header Connection ""; # before version 1.29.7
 
 		proxy_set_header Host $host;
 		proxy_set_header X-Real-IP $remote_addr;
@@ -37,7 +31,7 @@ server {
 		proxy_set_header X-Forwarded-Proto $scheme;
 
 		# Advertise the availability of HTTP/3
-		add_header Alt-Svc 'h3=":8443"; ma=86400';
+		add_header Alt-Svc 'h3=":443"; ma=86400';
 
 		# HSTS
 		add_header Strict-Transport-Security "max-age=63072000; includeSubDomains" always;

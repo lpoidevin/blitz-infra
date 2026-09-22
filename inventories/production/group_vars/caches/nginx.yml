@@ -1,16 +1,19 @@
 # SPDX-License-Identifier: MIT
 ---
-nginx_core_geoip2_module: true
-nginx_core_vts_module: true
+# Modules
+nginx_cache_vts_module: true
 
-nginx_core_ipinfo_token: "{{ vault_nginx_core_ipinfo_token }}"
+# Trust proxy headers from wireguard network
+nginx_cache_trusted_proxies: fd1e:39e:c6a4:face::/64
 
-nginx_core_tls_cert_path: /var/lib/lego/certificates/cdn.crt
-nginx_core_tls_key_path: /var/lib/lego/certificates/cdn.key
-nginx_core_tls_issuer_path: /var/lib/lego/certificates/cdn.issuer.crt
+# Per-tenant vhost setup
+nginx_cache_tenants:
+  - name: blitz_legacy
+    enabled: true
+    domain: cache.legacy.coursepoursuite.fr
+    backend_host: "[2001:41d0:c:67:1::dead]"
+    tls_cert_path: /var/lib/lego/certificates/blitz_legacy.crt
+    tls_key_path: /var/lib/lego/certificates/blitz_legacy.key
 
-nginx_cache_endpoint: cdn.blitz-infra.net
-nginx_cache_backend: fivem-int.blitz-infra.net
-nginx_cache_keys_zone_size: 50m
-nginx_cache_max_size: 25g
-nginx_cache_inactive: 2d
+# Honeypot configuration
+fail2ban_honeypot_logpath: /var/log/nginx/cache.legacy.coursepoursuite.fr.access.log

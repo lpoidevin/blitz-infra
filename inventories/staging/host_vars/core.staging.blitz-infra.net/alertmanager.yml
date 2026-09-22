@@ -1,0 +1,44 @@
+# SPDX-License-Identifier: MIT
+---
+alertmanager_config:
+  global:
+    # Global SMTP settings for all emails
+    smtp_smarthost: "smtp.example.com:587"
+    smtp_from: "alertmanager@example.com"
+    smtp_auth_username: "your_smtp_user"
+    smtp_auth_password: "your_smtp_password"
+    smtp_require_tls: true
+
+  route:
+    group_by: ["alertname", "instance", "severity"]
+    group_wait: 30s
+    group_interval: 5m
+    repeat_interval: 12h
+
+    # If an alert doesn't match a route below, it falls back to this
+    receiver: "email_default"
+
+    # The Routing Tree
+    routes:
+      - matchers:
+          # Regex match for high severity
+          - severity=~"critical|high"
+        receiver: "ntfy_critical"
+
+      - matchers:
+          # Regex match for lower severities
+          - severity=~"warning|info|medium|low"
+        receiver: "email_default"
+
+  # The actual integrations
+  receivers:
+    - name: "email_default"
+      email_configs:
+        - to: "admin@example.com"
+          send_resolved: true
+
+    - name: "ntfy_critical"
+      webhook_configs:
+        # Replace 'my_secret_topic' with your ntfy topic
+        - url: "https://ntfy.sh/my_secret_topic"
+          send_resolved: true

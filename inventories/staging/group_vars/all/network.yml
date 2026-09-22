@@ -8,11 +8,14 @@
 #   - ntp0.ovh.net
 
 # Hetzner network
-dns_servers:
-  - 2a01:4ff:ff00::add:2
-  - 2a01:4ff:ff00::add:1
-ntp_servers:
-  - ntp.hetzner.com
+# dns_servers:
+#   - 2a01:4ff:ff00::add:2
+#   - 2a01:4ff:ff00::add:1
+# ntp_servers:
+#   - ntp.hetzner.com
+
+# Local network
+dns_servers: ["192.168.122.1"]
 
 # Timezone
 common_timezone: Asia/Tokyo

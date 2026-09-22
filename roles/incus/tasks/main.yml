@@ -5,28 +5,26 @@
     name: incus-base
     state: present
 
-- name: Initialize incus without default network
+- name: Initialize incus with minimal setup
   ansible.builtin.command:
     cmd: incus admin init --preseed
     stdin: |
       config: {}
-      networks: []
+      networks:
+        - config:
+            ipv4.address: auto
+            ipv6.address: none
+          description: ""
+          name: incusbr0
+          type: ""
+          project: default
       storage_pools:
       - config: {}
         description: ""
         name: default
         driver: dir
       storage_volumes: []
-      profiles:
-      - config: {}
-        description: ""
-        devices:
-          root:
-            path: /
-            pool: default
-            type: disk
-        name: default
-        project: default
+      profiles: []
       projects: []
       cluster: null
     creates: /root/.config/incus/config.yml
@@ -49,6 +47,15 @@
     dest: /etc/sysctl.d/30-incus-network.conf
     mode: "0644"
   when: incus_net_routed_enabled
+
+- name: Deploy firewall rule for incusbr0 setup
+  ansible.builtin.copy:
+    content: |
+      iifname "incusbr0" udp dport 67 accept \
+      comment "Accept DHCPv4 traffic from incus bridge"
+    dest: /etc/nftables.d/filter-input-v4/incus.nft
+    mode: "0644"
+  notify: Reload nftables
 
 - name: Check core configuration
   ansible.builtin.command: >-

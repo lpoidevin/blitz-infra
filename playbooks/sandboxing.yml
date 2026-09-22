@@ -1,0 +1,7 @@
+# SPDX-License-Identifier: MIT
+---
+- name: Deploy staging mail sandbox
+  hosts: core.staging.blitz-infra.net
+  gather_facts: false
+  roles:
+    - role: mailpit

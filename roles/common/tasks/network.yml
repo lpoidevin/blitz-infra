@@ -27,6 +27,11 @@
   when: common_network_interfaces | length > 0
   notify: Restart systemd-networkd
 
+- name: Ensure systemd-networkd is enabled
+  ansible.builtin.systemd_service:
+    name: systemd-networkd.service
+    enabled: true
+
 - name: Populate service facts
   ansible.builtin.service_facts:
 
@@ -50,8 +55,3 @@
     state: absent
     purge: true
     autoremove: true
-
-- name: Ensure systemd-networkd is enabled
-  ansible.builtin.systemd_service:
-    name: systemd-networkd.service
-    enabled: true

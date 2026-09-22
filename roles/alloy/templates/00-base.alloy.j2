@@ -4,14 +4,14 @@ logging {
   level = "warn"
 }
 
-loki.write "default" {
-    endpoint {
-        url = "http://{{ alloy_loki_endpoint }}:3100/loki/api/v1/push"
-    }
+prometheus.remote_write "default" {
+  endpoint {
+    url = "http://{{ alloy_prometheus_endpoint }}:9090/api/v1/write"
+  }
 }
 
-prometheus.remote_write "default" {
-    endpoint {
-        url = "http://{{ alloy_prometheus_endpoint }}:9090/api/v1/write"
-    }
+loki.write "default" {
+  endpoint {
+    url = "http://{{ alloy_loki_endpoint }}:3100/loki/api/v1/push"
+  }
 }

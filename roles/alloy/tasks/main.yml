@@ -1,6 +1,6 @@
 # SPDX-License-Identifier: MIT
 ---
-- name: Add grafana repository
+- name: Add Grafana repository
   ansible.builtin.deb822_repository:
     name: grafana
     types: deb
@@ -10,47 +10,45 @@
     signed_by: https://apt.grafana.com/gpg.key
     state: present
 
-- name: Install alloy
+- name: Install Alloy package
   ansible.builtin.apt:
     name: alloy
     state: present
     update_cache: true
 
-- name: Create Ansible-managed drop-in directory
+- name: Remove default Alloy config
   ansible.builtin.file:
-    path: /etc/alloy.d
-    state: directory
-    owner: alloy
-    group: alloy
-    mode: "0755"
+    path: /etc/alloy/config.alloy
+    state: absent
 
-- name: Define config file as directory path
+- name: Configure Alloy default service environment
   ansible.builtin.lineinfile:
     path: /etc/default/alloy
-    regexp: '^CONFIG_FILE='
-    line: CONFIG_FILE="/etc/alloy.d"
+    regexp: "{{ item.regexp }}"
+    line: "{{ item.line }}"
+  loop:
+    - { regexp: '^CONFIG_FILE=', line: 'CONFIG_FILE="/etc/alloy"' }
+    - { regexp: '^CUSTOM_ARGS=', line: 'CUSTOM_ARGS="--server.http.listen-addr={{ alloy_listen_address }}"' }
+  loop_control:
+    label: "{{ item.regexp }}"
   notify: Restart alloy
 
-- name: Edit alloy listen address
-  ansible.builtin.lineinfile:
-    path: /etc/default/alloy
-    regexp: '^CUSTOM_ARGS='
-    line: CUSTOM_ARGS="--server.http.listen-addr=[::1]:12345"
-  notify: Restart alloy
-
-- name: Deploy alloy configuration
+- name: Deploy base and system Alloy configuration files
   ansible.builtin.template:
-    src: "{{ item }}.j2"
-    dest: "/etc/alloy.d/{{ item }}"
+    src: "{{ item.src }}"
+    dest: "/etc/alloy/{{ item.dest }}"
     owner: alloy
     group: alloy
     mode: "0644"
   loop:
-    - 00-base.alloy
-    - 10-node.alloy
+    - { src: "00-base.alloy.j2", dest: "00-base.alloy" }
+    - { src: "10-node.alloy.j2", dest: "10-node.alloy" }
+    - { src: "20-services.alloy.j2", dest: "20-services.alloy" }
+  loop_control:
+    label: "{{ item.dest }}"
   notify: Reload alloy
 
-- name: Ensure alloy is enabled and started
+- name: Ensure Alloy service is enabled and running
   ansible.builtin.systemd_service:
     name: alloy.service
     enabled: true

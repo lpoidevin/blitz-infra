@@ -1,0 +1,55 @@
+# SPDX-License-Identifier: MIT
+---
+_is_primary_cache: "{{ inventory_hostname == groups['caches'][0] }}"
+
+lego_challenges:
+  nginx-http:
+    http:
+      webroot: /var/www/html
+
+lego_certificates: "{{ _lego_certificates_yaml | from_yaml }}"
+
+_lego_certificates_yaml: >-
+  {% set certs = {} %}
+  {% if _is_primary_cache | default(false) %}
+  {%   for tenant in nginx_cache_tenants | default([]) %}
+  {%     set _ = certs.update({
+           tenant.name: {
+             'challenge': 'nginx-http',
+             'account': 'blitz-security',
+             'domains': [tenant.domain]
+           }
+         }) %}
+  {%   endfor %}
+  {% endif %}
+  {% set _ = certs.update({
+       inventory_hostname_short: {
+         'challenge': 'nginx-http',
+         'account': 'blitz-security',
+         'domains': [ansible_facts['fqdn']]
+       }
+     }) %}
+  {{ certs | to_json }}
+
+lego_deploy_targets: "{{ _lego_deploy_targets_yaml | from_yaml }}"
+
+_lego_deploy_targets_yaml: >-
+  {% set targets = [] %}
+  {% if _is_primary_cache | default(false) %}
+  {%   for tenant in nginx_cache_tenants | default([]) %}
+  {%     set _ = targets.append({
+           'name': tenant.name,
+           'cert_dest': '/srv/cert-sync/' ~ tenant.name ~ '.crt',
+           'key_dest': '/srv/cert-sync/' ~ tenant.name ~ '.key',
+           'owner': 'root',
+           'group': 'www-data',
+           'key_mode': '0640',
+           'service_cmd': '/usr/bin/systemctl reload nginx.service'
+         }) %}
+  {%   endfor %}
+  {% endif %}
+  {% set _ = targets.append({
+       'name': inventory_hostname_short,
+       'service_cmd': '/usr/bin/systemctl reload nginx.service'
+     }) %}
+  {{ targets | to_json }}

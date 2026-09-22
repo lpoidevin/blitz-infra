@@ -1,35 +1,28 @@
 # SPDX-License-Identifier: MIT
 ---
-- name: Install alertmanager
+- name: Install Alertmanager package
   ansible.builtin.apt:
     name: prometheus-alertmanager
     state: present
 
-- name: Deploy alertmanager environment defaults
-  ansible.builtin.copy:
-    content: |
-      ARGS="--web.listen-address={{ alertmanager_listen_address }}"
-    dest: /etc/default/alertmanager
+- name: Deploy Alertmanager environment defaults
+  ansible.builtin.template:
+    src: alertmanager.env.j2
+    dest: /etc/default/prometheus-alertmanager
     mode: "0644"
   notify: Restart alertmanager
 
-- name: Deploy alertmanager main configuration
+- name: Deploy Alertmanager main configuration
   ansible.builtin.template:
     src: alertmanager.yml.j2
     dest: /etc/prometheus/alertmanager.yml
-    owner: root
-    group: alertmanager
-    mode: "0640"
+    # owner: root
+    # group: prometheus
+    # mode: "0640"
+    mode: "0644"
   notify: Reload alertmanager
 
-- name: Deploy alloy forwarding configuration
-  ansible.builtin.template:
-    src: config.alloy.j2
-    dest: /etc/alloy/alertmanager.alloy
-    mode: "0644"
-  notify: Reload alloy
-
-# - name: Deploy firewall rule for Wireguard
+# - name: Deploy nftables firewall rule for Alertmanager
 #   ansible.builtin.copy:
 #     content: |
 #       tcp dport 9093 accept \

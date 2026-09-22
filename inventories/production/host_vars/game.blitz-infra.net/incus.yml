@@ -1,0 +1,17 @@
+# SPDX-License-Identifier: MIT
+---
+incus_config_core:
+  core.https_address: "[::1]:8443"
+  core.metrics_address: "[::1]:9101"
+
+# incus_config_acme:
+#   acme.agree_tos: "true"
+#   acme.ca_url: https://acme-staging-v02.api.letsencrypt.org/directory
+#   acme.challenge: DNS-01
+#   acme.domain: game.staging.blitz-infra.net
+#   acme.email: "security@{{ domain }}"
+#   acme.provider: ovh
+#   acme.provider.environment: "{{ vault_ovh_api_env }}"
+
+# Authorize network forwarding for incusbr0
+nftables_enable_forwarding: true

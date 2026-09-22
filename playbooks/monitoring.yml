@@ -8,6 +8,7 @@
 
 - name: Deploy monitoring backend
   hosts: core.*
+  gather_facts: false
   roles:
     - role: prometheus
       tags: ["prometheus"]
@@ -20,6 +21,7 @@
 
 - name: Setup reverse proxy
   hosts: core.*
+  gather_facts: false
   roles:
     - role: nginx_proxy
       tags: ["nginx", "proxy"]

@@ -16,6 +16,12 @@
     update_cache: true
     cache_valid_time: 3600
 
+- name: Install the kexec-tools package if we're running on a physical server
+  ansible.builtin.apt:
+    name: kexec-tools
+    state: present
+  when: ansible_facts['virtualization_role'] | default('') == 'host'
+
 - name: Remove cloud-init
   ansible.builtin.apt:
     name: cloud-init
@@ -48,3 +54,11 @@
     line: 'Unattended-Upgrade::Mail "{{ common_upgrades_email }}";'
   when: common_upgrades_email is defined
   notify: Restart unattended-upgrades
+
+- name: Define report email for sudoers alerts
+  ansible.builtin.copy:
+    dest: /etc/sudoers.d/mail-report
+    content: |
+      Defaults	mailto="{{ common_sudoers_email }}"
+    mode: "0440"
+  when: common_sudoers_email is defined

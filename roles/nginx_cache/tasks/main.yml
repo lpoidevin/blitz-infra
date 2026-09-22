@@ -44,20 +44,6 @@
 - name: Cache vhosts setup
   ansible.builtin.import_tasks: cache-setup.yml
 
-# - name: Deploy nginx logging config
-#   ansible.builtin.template:
-#     src: logging.conf.j2
-#     dest: /etc/nginx/conf.d/logging.conf
-#     mode: "0644"
-#   notify: Reload nginx
-
-- name: Deploy alloy config
-  ansible.builtin.template:
-    src: 50-nginx.alloy.j2
-    dest: /etc/alloy.d/50-nginx.alloy
-    mode: "0644"
-  notify: Reload alloy
-
 - name: Deploy firewall rule
   ansible.builtin.copy:
     content: |

@@ -2,5 +2,6 @@
 ---
 - name: Setup anti-dump on cache servers
   hosts: caches
+  gather_facts: false
   roles:
     - role: fail2ban

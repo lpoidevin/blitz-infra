@@ -4,10 +4,6 @@ argument_specs:
   main:
     short_description: Deploy Incus server
     options:
-      incus_net_routed_enabled:
-        type: bool
-        default: false
-        description: Enable the possibility to create routed interface config.
       incus_config_core:
         type: dict
         default: {}
@@ -16,3 +12,7 @@ argument_specs:
         type: dict
         default: {}
         description: ACME configuration
+      incus_net_routed_enabled:
+        type: bool
+        default: false
+        description: Enable the possibility to create routed interface config.

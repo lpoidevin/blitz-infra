@@ -1,6 +1,6 @@
 # SPDX-License-Identifier: MIT
 ---
-- name: Install prometheus
+- name: Install Prometheus package
   ansible.builtin.apt:
     name: prometheus
     state: present
@@ -9,30 +9,35 @@
   ansible.builtin.apt:
     name: prometheus-node-exporter
     state: absent
+    purge: true
     autoremove: true
 
-- name: Deploy prometheus environment defaults
+# - name: Create Prometheus rules directory
+#   ansible.builtin.file:
+#     path: "{{ prometheus_rule_files_path }}"
+#     state: directory
+#     owner: prometheus
+#     group: prometheus
+#     mode: "0755"
+
+- name: Deploy Prometheus environment defaults
   ansible.builtin.template:
-    src: default_prometheus.j2
+    src: prometheus.env.j2
     dest: /etc/default/prometheus
     mode: "0644"
   notify: Restart prometheus
 
-- name: Deploy prometheus main configuration
+- name: Deploy Prometheus main configuration
   ansible.builtin.template:
     src: prometheus.yml.j2
     dest: /etc/prometheus/prometheus.yml
+    # owner: root
+    # group: prometheus
+    # mode: "0640"
     mode: "0644"
   notify: Reload prometheus
 
-- name: Deploy alloy configuration
-  ansible.builtin.template:
-    src: config.alloy.j2
-    dest: /etc/alloy.d/prometheus.alloy
-    mode: "0644"
-  notify: Reload alloy
-
-- name: Deploy firewall rule
+- name: Deploy nftables firewall rule for Prometheus
   ansible.builtin.copy:
     content: |
       tcp dport 9090 accept \

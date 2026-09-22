@@ -10,8 +10,7 @@ nginx_cache_trusted_proxies: fd1e:39e:c6a4:1ee7::/64
 nginx_cache_tenants:
   - name: blitz_dev
     domain: cache.dev.coursepoursuite.fr
-    backend_host: play.coursepoursuite.fr
-    # backend_host: srv.dev.coursepoursuite.fr
+    backend_host: srv.dev.coursepoursuite.fr
     tls_cert_path: /var/lib/lego/certificates/blitz_dev.crt
     tls_key_path: /var/lib/lego/certificates/blitz_dev.key
 

@@ -1,0 +1,4 @@
+# SPDX-License-Identifier: MIT
+---
+# Extend prometheus retention to 3 months
+prometheus_retention_time: "14w"

@@ -1,8 +1,27 @@
 {{ ansible_managed | comment('c') }}
 
+{% if alloy_enable_node_exporter %}
+prometheus.exporter.unix "node" {
+  include_exporter_metrics = true
+  disable_collectors       = {{ alloy_node_exporter_disable_collectors | to_json }}
+  enable_collectors        = {{ alloy_node_exporter_enable_collectors | to_json }}
+}
+
+prometheus.scrape "node" {
+//  targets = array.concat(
+//    prometheus.exporter.unix.node.targets,
+//    [{
+//      __address__ = "{{ alloy_listen_address }}",
+//      job         = "alloy",
+//    }],
+//  )
+  targets = prometheus.exporter.unix.node.targets
+  scrape_interval = "{{ alloy_node_exporter_scrape_interval }}"
+  forward_to      = [prometheus.remote_write.default.receiver]
+}
+
 loki.relabel "journal" {
   forward_to = []
-
   rule {
     source_labels = ["__journal__systemd_unit"]
     target_label  = "unit"
@@ -25,32 +44,24 @@ loki.relabel "journal" {
   }
 }
 
-// loki.source.journal "read" {
-//   forward_to = [
-//     loki.write.local.receiver,
-//   ]
-//   relabel_rules = loki.relabel.journal.rules
-//   labels = {
-//     "job" = "integrations/journal",
-//   }
-// }
-
-prometheus.exporter.unix "default" {
-  include_exporter_metrics = true
-  disable_collectors       = ["bcache", "btrfs", "fibrechannel", "infiniband", "ipvs", "nfs", "nfsd", "xfs", "zfs"]
-  enable_collectors        = ["systemd"]
+loki.source.journal "read" {
+  forward_to    = [loki.write.default.receiver]
+  relabel_rules = loki.relabel.journal.rules
+  labels        = { "job" = "integrations/node_exporter" }
 }
+{% endif %}
 
-prometheus.scrape "node" {
-  targets = array.concat(
-    prometheus.exporter.unix.default.targets,
-    [{
-      __address__ = "localhost:12345",
-      job         = "alloy",
-    }],
-  )
-
+{% if alloy_enable_hardware_exporter %}
+prometheus.scrape "hardware" {
   scrape_interval = "15s"
-
-  forward_to = [prometheus.remote_write.default.receiver]
+  forward_to      = [prometheus.remote_write.default.receiver]
+  targets = [
+{% for hw in alloy_hardware_targets %}
+    {
+      "__address__" = "{{ hw.address }}",
+      "job"         = "{{ hw.job }}",
+    },
+{% endfor %}
+  ]
 }
+{% endif %}

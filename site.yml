@@ -3,14 +3,14 @@
 - name: Deploy base system configuration
   ansible.builtin.import_playbook: playbooks/base-os.yml
 
-- name: Provision monitoring tools
-  ansible.builtin.import_playbook: playbooks/monitoring.yml
-
 - name: Provision infrastructure services
   ansible.builtin.import_playbook: playbooks/infrastructure.yml
 
 # - name: Provision web services
 #   ansible.builtin.import_playbook: playbooks/web-services.yml
+
+- name: Provision monitoring tools
+  ansible.builtin.import_playbook: playbooks/monitoring.yml
 
 - name: Provision service-level security
   ansible.builtin.import_playbook: playbooks/security.yml

@@ -1,5 +1,12 @@
 # SPDX-License-Identifier: MIT
 ---
+- name: Setup container runtime
+  hosts: game.*
+  gather_facts: false
+  roles:
+    - role: incus
+      tags: ["incus"]
+
 - name: Setup user directory
   hosts: core.*
   roles:
@@ -11,12 +18,6 @@
   roles:
     - role: postfix
       tags: ["postfix"]
-
-- name: Setup container runtime
-  hosts: game.*
-  roles:
-    - role: incus
-      tags: ["incus"]
 
 - name: Setup caches
   hosts: caches

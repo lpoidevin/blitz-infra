@@ -8,4 +8,5 @@ logpath  = {{ fail2ban_honeypot_logpath }}
 maxretry = 1
 bantime  = 86400  # Ban for 24 hours
 findtime = 600
-action = %(action_mwl)s
+action = %(action_)s
+         %(mta)s[sender="%(sender)s", dest="%(destemail)s", protocol="%(protocol)s", chain="%(chain)s"]

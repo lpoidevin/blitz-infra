@@ -4,12 +4,12 @@
   "metadata": {
     "name": "70ABSeViz",
     "namespace": "default",
-    "uid": "afd2c552-c11c-42ea-9bda-de1babf0ac25",
-    "resourceVersion": "1778247136826013",
-    "generation": 3,
-    "creationTimestamp": "2026-05-08T12:12:30Z",
+    "uid": "a700af6a-4093-4914-930b-72a14bd78201",
+    "resourceVersion": "1780208995981004",
+    "generation": 8,
+    "creationTimestamp": "2026-05-30T15:07:52Z",
     "labels": {
-      "grafana.app/deprecatedInternalID": "3585485509591040"
+      "grafana.app/deprecatedInternalID": "2594950563172352"
     },
     "annotations": {
       "grafana.app/createdBy": "access-policy:service",
@@ -17,12 +17,12 @@
       "grafana.app/managedBy": "classic-file-provisioning",
       "grafana.app/managerAllowsEdits": "true",
       "grafana.app/managerId": "default",
-      "grafana.app/saved-from-ui": "Grafana v13.0.1 (a100054f)",
-      "grafana.app/sourceChecksum": "37ea9910789579a3972f0b5c6a61efc9",
-      "grafana.app/sourcePath": "/var/lib/grafana/dashboards/nginx_vts_stats.json",
-      "grafana.app/sourceTimestamp": "1778097473000",
-      "grafana.app/updatedBy": "user:bfl9hw7br37k0b",
-      "grafana.app/updatedTimestamp": "2026-05-08T13:32:16Z"
+      "grafana.app/saved-from-ui": "Grafana v13.0.1+security-01 (9bbe672d)",
+      "grafana.app/sourceChecksum": "ca4ed826862336173371502c3ced60a8",
+      "grafana.app/sourcePath": "/var/lib/grafana/dashboards/mynginx-vts.json",
+      "grafana.app/sourceTimestamp": "1780153661000",
+      "grafana.app/updatedBy": "user:cfnmuamtqnz7kd",
+      "grafana.app/updatedTimestamp": "2026-05-31T06:29:55Z"
     }
   },
   "spec": {
@@ -70,15 +70,16 @@
                       "group": "prometheus",
                       "version": "v0",
                       "datasource": {
-                        "name": "${ds_prometheus}"
+                        "name": "$datasource"
                       },
                       "spec": {
                         "editorMode": "code",
-                        "expr": "sum(rate(nginx_vts_main_connections{status=~\"active|writing|reading|waiting\"}[10m])) by (status)",
+                        "exemplar": false,
+                        "expr": "sum by(status) (rate(nginx_vts_main_connections{instance=\"$instance\", status=~\"active|writing|reading|waiting\"}[10m]))",
                         "format": "time_series",
                         "interval": "",
-                        "intervalFactor": 2,
-                        "legendFormat": "{{status}}",
+                        "intervalFactor": 1,
+                        "legendFormat": "{{ status }}",
                         "range": true
                       }
                     },
@@ -94,7 +95,7 @@
           "vizConfig": {
             "kind": "VizConfig",
             "group": "timeseries",
-            "version": "13.0.1",
+            "version": "13.0.1+security-01",
             "spec": {
               "options": {
                 "annotations": {
@@ -193,11 +194,11 @@
                       "group": "prometheus",
                       "version": "v0",
                       "datasource": {
-                        "name": "${ds_prometheus}"
+                        "name": "$datasource"
                       },
                       "spec": {
-                        "editorMode": "code",
-                        "expr": "sum(nginx_vts_main_shm_usage_bytes) by (shared)",
+                        "editorMode": "builder",
+                        "expr": "sum by(shared) (nginx_vts_main_shm_usage_bytes{instance=\"$instance\"})",
                         "legendFormat": "{{ shared }}",
                         "range": true
                       }
@@ -214,7 +215,7 @@
           "vizConfig": {
             "kind": "VizConfig",
             "group": "timeseries",
-            "version": "13.0.1",
+            "version": "13.0.1+security-01",
             "spec": {
               "options": {
                 "annotations": {
@@ -314,21 +315,21 @@
                       "group": "prometheus",
                       "version": "v0",
                       "datasource": {
-                        "name": "${ds_prometheus}"
+                        "name": "$datasource"
                       },
                       "spec": {
-                        "editorMode": "code",
-                        "expr": "max(nginx_vts_cache_usage_bytes{cache_size=\"max\"})",
+                        "editorMode": "builder",
+                        "expr": "nginx_vts_cache_usage_bytes{instance=\"$instance\", cache_zone=\"$cache_zone\", cache_size=\"used\"}",
                         "format": "time_series",
                         "instant": false,
                         "interval": "",
-                        "intervalFactor": 2,
-                        "legendFormat": "max",
+                        "intervalFactor": 1,
+                        "legendFormat": "{{ cache_size }}",
                         "metric": "nginx_server_cache",
                         "step": 240
                       }
                     },
-                    "refId": "B",
+                    "refId": "A",
                     "hidden": false
                   }
                 },
@@ -340,21 +341,21 @@
                       "group": "prometheus",
                       "version": "v0",
                       "datasource": {
-                        "name": "${ds_prometheus}"
+                        "name": "$datasource"
                       },
                       "spec": {
-                        "editorMode": "code",
-                        "expr": "nginx_vts_cache_usage_bytes{cache_size=\"used\"}",
+                        "editorMode": "builder",
+                        "expr": "nginx_vts_cache_usage_bytes{instance=\"$instance\", cache_zone=\"$cache_zone\", cache_size=\"max\"}",
                         "format": "time_series",
                         "instant": false,
                         "interval": "",
-                        "intervalFactor": 2,
-                        "legendFormat": "{{ pod }}",
+                        "intervalFactor": 1,
+                        "legendFormat": "{{ cache_size }}",
                         "metric": "nginx_server_cache",
                         "step": 240
                       }
                     },
-                    "refId": "A",
+                    "refId": "B",
                     "hidden": false
                   }
                 }
@@ -366,7 +367,7 @@
           "vizConfig": {
             "kind": "VizConfig",
             "group": "timeseries",
-            "version": "13.0.1",
+            "version": "13.0.1+security-01",
             "spec": {
               "options": {
                 "annotations": {
@@ -482,11 +483,11 @@
                       "group": "prometheus",
                       "version": "v0",
                       "datasource": {
-                        "name": "${ds_prometheus}"
+                        "name": "$datasource"
                       },
                       "spec": {
-                        "editorMode": "code",
-                        "expr": "sum(rate(nginx_vts_cache_bytes_total[5m])) by (direction)",
+                        "editorMode": "builder",
+                        "expr": "sum by(direction) (rate(nginx_vts_cache_bytes_total{instance=\"$instance\"}[5m]))",
                         "format": "time_series",
                         "instant": false,
                         "interval": "",
@@ -508,7 +509,7 @@
           "vizConfig": {
             "kind": "VizConfig",
             "group": "timeseries",
-            "version": "13.0.1",
+            "version": "13.0.1+security-01",
             "spec": {
               "options": {
                 "annotations": {
@@ -654,11 +655,11 @@
                       "group": "prometheus",
                       "version": "v0",
                       "datasource": {
-                        "name": "${ds_prometheus}"
+                        "name": "$datasource"
                       },
                       "spec": {
-                        "editorMode": "code",
-                        "expr": "avg(nginx_vts_server_request_seconds > 0)",
+                        "editorMode": "builder",
+                        "expr": "avg(nginx_vts_server_request_seconds{instance=\"$instance\"} > 0)",
                         "instant": false,
                         "interval": "",
                         "intervalFactor": 2,
@@ -677,7 +678,7 @@
           "vizConfig": {
             "kind": "VizConfig",
             "group": "timeseries",
-            "version": "13.0.1",
+            "version": "13.0.1+security-01",
             "spec": {
               "options": {
                 "annotations": {
@@ -776,11 +777,11 @@
                       "group": "prometheus",
                       "version": "v0",
                       "datasource": {
-                        "name": "${ds_prometheus}"
+                        "name": "$datasource"
                       },
                       "spec": {
-                        "editorMode": "code",
-                        "expr": "sum(rate(nginx_vts_server_requests_total[5m]) > 0) by (host)",
+                        "editorMode": "builder",
+                        "expr": "sum by(host) (rate(nginx_vts_server_requests_total{instance=\"$instance\"}[5m]) > 0)",
                         "format": "time_series",
                         "interval": "",
                         "intervalFactor": 2,
@@ -802,7 +803,7 @@
           "vizConfig": {
             "kind": "VizConfig",
             "group": "timeseries",
-            "version": "13.0.1",
+            "version": "13.0.1+security-01",
             "spec": {
               "options": {
                 "annotations": {
@@ -949,11 +950,11 @@
                       "group": "prometheus",
                       "version": "v0",
                       "datasource": {
-                        "name": "${ds_prometheus}"
+                        "name": "$datasource"
                       },
                       "spec": {
-                        "editorMode": "code",
-                        "expr": "sum(rate(nginx_vts_server_bytes_total[5m])) by (direction)",
+                        "editorMode": "builder",
+                        "expr": "sum by(direction) (rate(nginx_vts_server_bytes_total{instance=\"$instance\"}[5m]))",
                         "format": "time_series",
                         "interval": "",
                         "intervalFactor": 2,
@@ -975,7 +976,7 @@
           "vizConfig": {
             "kind": "VizConfig",
             "group": "timeseries",
-            "version": "13.0.1",
+            "version": "13.0.1+security-01",
             "spec": {
               "options": {
                 "annotations": {
@@ -1106,11 +1107,11 @@
                       "group": "prometheus",
                       "version": "v0",
                       "datasource": {
-                        "name": "${ds_prometheus}"
+                        "name": "$datasource"
                       },
                       "spec": {
-                        "editorMode": "code",
-                        "expr": "sum(rate(nginx_vts_server_requests_total[5m])) by (code)",
+                        "editorMode": "builder",
+                        "expr": "sum by(code) (rate(nginx_vts_server_requests_total{instance=\"$instance\"}[5m]))",
                         "format": "time_series",
                         "interval": "",
                         "intervalFactor": 2,
@@ -1132,7 +1133,7 @@
           "vizConfig": {
             "kind": "VizConfig",
             "group": "timeseries",
-            "version": "13.0.1",
+            "version": "13.0.1+security-01",
             "spec": {
               "options": {
                 "annotations": {
@@ -1279,11 +1280,11 @@
                       "group": "prometheus",
                       "version": "v0",
                       "datasource": {
-                        "name": "${ds_prometheus}"
+                        "name": "$datasource"
                       },
                       "spec": {
-                        "editorMode": "code",
-                        "expr": "sum(rate(nginx_vts_server_cache_total[5m])) by (status)",
+                        "editorMode": "builder",
+                        "expr": "sum by(status) (rate(nginx_vts_server_cache_total{instance=\"$instance\"}[5m]))",
                         "format": "time_series",
                         "interval": "",
                         "intervalFactor": 2,
@@ -1305,7 +1306,7 @@
           "vizConfig": {
             "kind": "VizConfig",
             "group": "timeseries",
-            "version": "13.0.1",
+            "version": "13.0.1+security-01",
             "spec": {
               "options": {
                 "annotations": {
@@ -1406,14 +1407,14 @@
                       "group": "prometheus",
                       "version": "v0",
                       "datasource": {
-                        "name": "${ds_prometheus}"
+                        "name": "$datasource"
                       },
                       "spec": {
-                        "editorMode": "code",
-                        "expr": "sum(rate(nginx_vts_upstream_bytes_total[5m])) by (direction)",
+                        "editorMode": "builder",
+                        "expr": "sum by(direction) (rate(nginx_vts_upstream_bytes_total{instance=\"$instance\"}[5m]))",
                         "format": "time_series",
                         "interval": "",
-                        "intervalFactor": 2,
+                        "intervalFactor": 1,
                         "legendFormat": "{{ direction }}",
                         "metric": "nginx_vts_upstream_bytes_total",
                         "range": true,
@@ -1432,7 +1433,7 @@
           "vizConfig": {
             "kind": "VizConfig",
             "group": "timeseries",
-            "version": "13.0.1",
+            "version": "13.0.1+security-01",
             "spec": {
               "options": {
                 "annotations": {
@@ -1563,11 +1564,11 @@
                       "group": "prometheus",
                       "version": "v0",
                       "datasource": {
-                        "name": "${ds_prometheus}"
+                        "name": "$datasource"
                       },
                       "spec": {
                         "editorMode": "code",
-                        "expr": "sum(rate(nginx_vts_upstream_requests_total{code!=\"total\"}[5m])) by (code)",
+                        "expr": "sum by(code) (rate(nginx_vts_upstream_requests_total{instance=\"$instance\", code!=\"total\"}[5m]))",
                         "format": "time_series",
                         "interval": "",
                         "intervalFactor": 2,
@@ -1589,7 +1590,7 @@
           "vizConfig": {
             "kind": "VizConfig",
             "group": "timeseries",
-            "version": "13.0.1",
+            "version": "13.0.1+security-01",
             "spec": {
               "options": {
                 "annotations": {
@@ -1766,11 +1767,11 @@
                       "group": "prometheus",
                       "version": "v0",
                       "datasource": {
-                        "name": "${ds_prometheus}"
+                        "name": "$datasource"
                       },
                       "spec": {
-                        "editorMode": "code",
-                        "expr": "avg(nginx_vts_upstream_response_seconds > 0) by (backend)",
+                        "editorMode": "builder",
+                        "expr": "avg by(backend) (nginx_vts_upstream_response_seconds{instance=\"$instance\"} > 0)",
                         "format": "time_series",
                         "interval": "",
                         "intervalFactor": 2,
@@ -1792,7 +1793,7 @@
           "vizConfig": {
             "kind": "VizConfig",
             "group": "timeseries",
-            "version": "13.0.1",
+            "version": "13.0.1+security-01",
             "spec": {
               "options": {
                 "annotations": {
@@ -2068,7 +2069,7 @@
       {
         "kind": "DatasourceVariable",
         "spec": {
-          "name": "ds_prometheus",
+          "name": "datasource",
           "pluginId": "prometheus",
           "refresh": "onDashboardLoad",
           "regex": "",
@@ -2082,7 +2083,107 @@
           "label": "Datasource",
           "hide": "dontHide",
           "skipUrlSync": false,
+          "allowCustomValue": false
+        }
+      },
+      {
+        "kind": "QueryVariable",
+        "spec": {
+          "name": "instance",
+          "current": {
+            "text": "localhost:9113",
+            "value": "localhost:9113"
+          },
+          "label": "Instance",
+          "hide": "dontHide",
+          "refresh": "onDashboardLoad",
+          "skipUrlSync": false,
+          "query": {
+            "kind": "DataQuery",
+            "group": "prometheus",
+            "version": "v0",
+            "spec": {
+              "qryType": 1,
+              "query": "label_values(nginx_vts_info,instance)",
+              "refId": "PrometheusVariableQueryEditor-VariableQuery"
+            }
+          },
+          "regex": "",
+          "regexApplyTo": "value",
+          "sort": "disabled",
+          "definition": "label_values(nginx_vts_info,instance)",
+          "options": [],
+          "multi": false,
+          "includeAll": false,
+          "allowCustomValue": false
+        }
+      },
+      {
+        "kind": "QueryVariable",
+        "spec": {
+          "name": "host",
+          "current": {
+            "text": "All",
+            "value": "$__all"
+          },
+          "label": "HTTP Host",
+          "hide": "dontHide",
+          "refresh": "onDashboardLoad",
+          "skipUrlSync": false,
+          "query": {
+            "kind": "DataQuery",
+            "group": "prometheus",
+            "version": "v0",
+            "spec": {
+              "qryType": 1,
+              "query": "label_values(nginx_vts_server_requests_total{host!=\"*\"},host)",
+              "refId": "PrometheusVariableQueryEditor-VariableQuery"
+            }
+          },
+          "regex": "",
+          "regexApplyTo": "value",
+          "sort": "disabled",
+          "definition": "label_values(nginx_vts_server_requests_total{host!=\"*\"},host)",
+          "options": [],
+          "multi": false,
+          "includeAll": true,
+          "allValue": ".{2,}",
           "allowCustomValue": true
+        }
+      },
+      {
+        "kind": "QueryVariable",
+        "spec": {
+          "name": "cache_zone",
+          "current": {
+            "text": "assets",
+            "value": "assets"
+          },
+          "label": "Cache Zone",
+          "hide": "dontHide",
+          "refresh": "onDashboardLoad",
+          "skipUrlSync": false,
+          "query": {
+            "kind": "DataQuery",
+            "group": "prometheus",
+            "version": "v0",
+            "datasource": {
+              "name": "PBFA97CFB590B2093"
+            },
+            "spec": {
+              "qryType": 1,
+              "query": "label_values(nginx_vts_cache_usage_bytes,cache_zone)",
+              "refId": "PrometheusVariableQueryEditor-VariableQuery"
+            }
+          },
+          "regex": "",
+          "regexApplyTo": "value",
+          "sort": "disabled",
+          "definition": "label_values(nginx_vts_cache_usage_bytes,cache_zone)",
+          "options": [],
+          "multi": false,
+          "includeAll": false,
+          "allowCustomValue": false
         }
       }
     ]

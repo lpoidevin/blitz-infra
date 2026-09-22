@@ -1,8 +1,10 @@
 # SPDX-License-Identifier: MIT
 ---
-- name: Install nginx
+- name: Install nginx and required tools
   ansible.builtin.apt:
-    name: nginx
+    name:
+      - nginx
+      - ssl-cert
     state: present
 
 - name: Deploy nginx configuration
@@ -12,17 +14,44 @@
     mode: "0644"
   notify: Reload nginx
 
-- name: Deploy tls snippet
+- name: Disable default vhost
+  ansible.builtin.file:
+    path: /etc/nginx/sites-enabled/default
+    state: absent
+
+- name: Deploy default catch-all vhost
+  ansible.builtin.copy:
+    src: default.conf
+    dest: /etc/nginx/sites-available/default.conf
+    mode: "0644"
+  notify: Reload nginx
+
+- name: Ensure certificate directories exist
+  ansible.builtin.file:
+    path: "{{ nginx_proxy_tls_cert_path | dirname }}"
+    state: directory
+    mode: "0755"
+
+- name: Check if TLS certificates exist
+  ansible.builtin.stat:
+    path: "{{ nginx_proxy_tls_cert_path }}"
+  register: nginx_proxy_tls_cert_stat
+
+- name: Generate temporary bootstrap certificate for Grafana FQDN
+  ansible.builtin.command: >-
+    openssl req -x509 -nodes -days 1 -newkey rsa:2048
+    -keyout {{ nginx_proxy_tls_key_path }}
+    -out {{ nginx_proxy_tls_cert_path }}
+    -subj "/CN={{ nginx_proxy_grafana_fqdn }}"
+  when: not nginx_proxy_tls_cert_stat.stat.exists
+  changed_when: true
+
+- name: Deploy TLS snippet
   ansible.builtin.template:
     src: tls-params.conf.j2
     dest: /etc/nginx/snippets/tls-params.conf
     mode: "0644"
   notify: Reload nginx
-
-- name: Disable default vhost
-  ansible.builtin.file:
-    path: /etc/nginx/sites-enabled/default
-    state: absent
 
 - name: Deploy proxy vhosts
   ansible.builtin.template:
@@ -39,6 +68,7 @@
     dest: "/etc/nginx/sites-enabled/{{ item }}.conf"
     state: link
   loop:
+    - default
     - grafana
   notify: Restart nginx
 

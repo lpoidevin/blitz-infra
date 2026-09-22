@@ -2,7 +2,6 @@
 
 upstream backend_{{ item.name }} {
 	server {{ item.backend_host }}:{{ item.backend_port | default(30120) }};
-	keepalive 32;
 }
 
 server {
@@ -24,7 +23,7 @@ server {
 		return 403;
 	}
 
-	# Ensure clients have an authz token
+	# Ensure that clients have a token
 	if ($http_x_citizenfx_token = "") {
 		return 401;
 	}

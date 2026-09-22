@@ -11,6 +11,9 @@ argument_specs:
       common_upgrades_email:
         type: str
         description: Email address to receive unattended-upgrades reports.
+      common_sudoers_email:
+        type: str
+        description: Email address to receive sudoers security reports.
       common_network_interfaces:
         type: list
         elements: dict

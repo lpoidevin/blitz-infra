@@ -5,13 +5,12 @@
     name: prometheus-alertmanager.service
     state: restarted
 
-- name: Reload alloy
-  ansible.builtin.uri:
-    url: "http://[::1]:12345/-/reload"
-    method: POST
-    status_code: 200
-
-- name: Reload nftables
+- name: Reload alertmanager
   ansible.builtin.systemd_service:
-    name: nftables.service
+    name: prometheus-alertmanager.service
     state: reloaded
+
+# - name: Reload nftables
+#   ansible.builtin.systemd_service:
+#     name: nftables.service
+#     state: reloaded

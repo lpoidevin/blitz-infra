@@ -4,12 +4,13 @@ Before=postfix.service
 
 [Service]
 Type=exec
+User={{ mailpit_user }}
+Group={{ mailpit_group }}
 ExecStart=/usr/local/bin/mailpit -d {{ mailpit_home }}/mailpit.db
 
 Restart=always
 RestartSec=10
 
-DynamicUser=true
 #SyslogIdentifier=mailpit
 
 [Install]

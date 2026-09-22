@@ -11,9 +11,9 @@ ListenPort={{ wireguard_port }}
 PublicKey={{ hostvars[host].wireguard_public_key }}
 AllowedIPs={{ hostvars[host]['wireguard_address'] }}/128
 Endpoint={{ host }}:{{ wireguard_port }}
-
 {% else %}
 # WARNING: Peer configuration for {{ host }} was skipped.
 # Reason: Missing 'wireguard_public_key' or 'wireguard_address' host variables.
 {% endif %}
+
 {% endfor %}

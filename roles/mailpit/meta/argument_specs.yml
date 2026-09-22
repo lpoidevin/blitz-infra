@@ -22,3 +22,8 @@ argument_specs:
         type: str
         default: /var/lib/mailpit
         description: The directory where Mailpit will store its database
+      mailpit_firewall_chain:
+        type: str
+        default: "filter-input-v6"
+        description: >
+          The nftables firewall chain folder name inside /etc/nftables.d/ where the firewall rule should be placed.

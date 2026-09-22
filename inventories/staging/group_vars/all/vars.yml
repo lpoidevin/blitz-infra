@@ -4,13 +4,14 @@
 domain: staging.blitz-infra.net
 base_dn: dc=staging,dc=blitz-infra,dc=net
 
-# Email reports
+# Email reporting
 common_upgrades_email: "root@{{ domain }}"
+common_sudoers_email: "security@{{ domain }}"
 fail2ban_destemail: "security@{{ domain }}"
 
 # Monitoring
-alloy_loki_endpoint: monitoring.staging.blitz-infra.net
-alloy_prometheus_endpoint: monitoring.staging.blitz-infra.net
+alloy_loki_endpoint: loki.staging.blitz-infra.net
+alloy_prometheus_endpoint: prometheus.staging.blitz-infra.net
 
 # SSH
 sshd_global_config:

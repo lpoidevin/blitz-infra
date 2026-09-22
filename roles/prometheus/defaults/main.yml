@@ -3,6 +3,10 @@
 prometheus_listen_address: "[::]:9090"
 prometheus_enable_remote_write: true
 
+# Same-server integration
+prometheus_alertmanager_url: "localhost:9093"
+# prometheus_rule_files_path: "/etc/prometheus/rules"
+
 # Data Retention
 prometheus_retention_time: "4w"
-prometheus_retention_size: "0" # 0 means disabled, retention relies entirely on time.
+prometheus_retention_size: "0"

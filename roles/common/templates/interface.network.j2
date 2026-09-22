@@ -1,19 +1,18 @@
 {{ ansible_managed | comment }}
-
 [Match]
 {% if item.mac is defined %}
 PermanentMACAddress={{ item.mac }}
 {% endif %}
 Name={{ item.name }}
-
 {% if item.mtu is defined %}
+
 [Link]
 MTUBytes={{ item.mtu }}
 {% endif %}
 
 [Network]
 {% if item.dhcp4 | default(false) %}
-DHCP=true
+DHCP=ipv4
 {% endif %}
 LinkLocalAddressing=ipv6
 IPv6AcceptRA=false
@@ -56,8 +55,8 @@ Scope={{ route.scope }}
 {% endif %}
 {% endfor %}
 {% endif %}
-
 {% if item.dhcp4 | default(false) %}
+
 [DHCPv4]
 UseMTU=true
 {% endif %}

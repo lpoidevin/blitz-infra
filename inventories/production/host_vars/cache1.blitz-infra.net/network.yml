@@ -2,16 +2,16 @@
 ---
 common_network_interfaces:
   - name: ens3
-    mac: fa:16:3e:65:be:e1
+    mac: fa:16:3e:03:f0:35
     dhcp4: true
-    ipv6_address: "2001:41d0:20a:900::614/128"
+    ipv6_address: "2001:41d0:305:2100::1:738f/128"
     dns: "{{ dns_servers }}"
     ntp: "{{ ntp_servers }}"
     domains: ["{{ domain }}"]
     routes:
       - dest: "::/0"
-        gw: "2001:41d0:20a:900::"
+        gw: "2001:41d0:305:2100::1"
         onlink: true
 
-wireguard_int_address: fd1e:39e:c6a4:face::614
-wireguard_int_public_key: EcwsIlvKPnKLrFvK1/rs1Oeo3u+DYgP6O67yZgLVSlY=
+wireguard_address: fd1e:39e:c6a4:face::738f
+wireguard_public_key: Zl72auvXK4Lb+5IYPPqUbT00zeDeRzCf/E4aU6C3eC0=

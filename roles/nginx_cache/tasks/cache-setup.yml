@@ -11,7 +11,7 @@
     src: cache-zones.conf.j2
     dest: /etc/nginx/conf.d/cache-zones.conf
     mode: "0644"
-  notify: Reload nginx
+  notify: Restart nginx
 
 - name: Check if tenant certificates exist
   ansible.builtin.stat:
@@ -42,5 +42,14 @@
     src: "/etc/nginx/sites-available/{{ item.domain }}.conf"
     dest: "/etc/nginx/sites-enabled/{{ item.domain }}.conf"
     state: link
+  when: item.enabled
+  loop: "{{ nginx_cache_tenants }}"
+  notify: Restart nginx
+
+- name: Remove symbolic link to disabled vhosts
+  ansible.builtin.file:
+    path: "/etc/nginx/sites-enabled/{{ item.domain }}.conf"
+    state: absent
+  when: not item.enabled
   loop: "{{ nginx_cache_tenants }}"
   notify: Restart nginx

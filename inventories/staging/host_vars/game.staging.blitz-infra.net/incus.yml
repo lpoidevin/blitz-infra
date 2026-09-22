@@ -12,8 +12,11 @@ incus_config_core:
 #   acme.provider: ovh
 #   acme.provider.environment: "{{ vault_ovh_api_env }}"
 
+# Authorize network forwarding for incusbr0
+nftables_enable_forwarding: true
+
 # Enable routed network config
 # Note: ipv6.proxy_ndp must be also enabled in the systemd-networkd configuration
 # of the parent interface to persist over reboots.
-incus_net_routed_enabled: true
-nftables_enable_forwarding: true
+# incus_net_routed_enabled: true
+# nftables_enable_forwarding: true

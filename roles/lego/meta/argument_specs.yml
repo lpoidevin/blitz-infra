@@ -26,6 +26,10 @@ argument_specs:
         type: str
         default: /etc/lego
         description: The directory where Lego configuration files (e.g., lego.yml, ovh.env) are stored
+      lego_webroot:
+        type: str
+        default: /var/www/html
+        description: The directory to use for HTTP-01 based challenges to write directly to the .well-known/acme-challenge file.
 
       lego_accounts:
         type: dict

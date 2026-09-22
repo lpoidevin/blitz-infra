@@ -1,0 +1,5 @@
+# SPDX-License-Identifier: MIT
+---
+# Enable connection to incus via TCP tunnel
+# sshd_global_config:
+#   AllowTcpForwarding: "yes"

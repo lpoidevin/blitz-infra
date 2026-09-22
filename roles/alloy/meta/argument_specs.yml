@@ -2,13 +2,25 @@
 ---
 argument_specs:
   main:
-    short_description: Deploy and configure Grafana Alloy agent
+    short_description: Deploy and configure grafana alloy agent
     options:
       alloy_prometheus_endpoint:
         type: str
         required: true
-        description: The hostname or IP of the Prometheus remote write endpoint.
+        description: Target hostname or IP for Prometheus remote write endpoint.
       alloy_loki_endpoint:
         type: str
         required: true
-        description: The hostname or IP of the Loki push endpoint.
+        description: Target hostname or IP for Loki push endpoint.
+      alloy_listen_address:
+        type: str
+        default: "[::1]:12345"
+        description: Internal HTTP listen address for Alloy reload and self-metrics.
+      alloy_enable_node_exporter:
+        type: bool
+        default: true
+        description: Enable standard Linux system metrics collection via unix exporter.
+      alloy_monitored_services:
+        type: dict
+        required: false
+        description: Data-driven service configuration mapping.

@@ -1,0 +1,127 @@
+{{ ansible_managed | comment('c') }}
+
+{% for service_name, service in alloy_monitored_services.items() %}
+{% if service.enabled | default(false) %}
+// --- {{ service_name | upper }} CONFIGURATION ---
+
+{% if service.type == 'mysql_exporter' %}
+prometheus.exporter.mysql "{{ service_name }}" {
+  data_source_name = "{{ service.data_source_name }}"
+}
+
+prometheus.scrape "{{ service_name }}" {
+  targets         = prometheus.exporter.mysql.{{ service_name }}.targets
+  scrape_interval = "{{ service.scrape_interval | default('15s') }}"
+  forward_to      = [prometheus.remote_write.default.receiver]
+}
+
+{% elif service.type == 'prometheus_scrape' %}
+
+{% if service.relabel_hostname | default(false) %}
+discovery.relabel "{{ service_name }}_targets" {
+  targets = [
+{%   if service.targets is defined %}
+{%     for target in service.targets %}
+    {
+      "__address__" = "{{ target.address }}",
+      "job"         = "{{ service.job_name | default(service_name) }}",
+    },
+{%     endfor %}
+{%   else %}
+    {
+      "__address__" = "{{ service.address }}",
+      "job"         = "{{ service.job_name | default(service_name) }}",
+    },
+{%   endif %}
+  ]
+
+  rule {
+    target_label = "instance"
+    replacement  = constants.hostname
+  }
+}
+{% endif %}
+
+prometheus.scrape "{{ service_name }}" {
+  targets = {% if service.relabel_hostname | default(false) %}discovery.relabel.{{ service_name }}_targets.output{% else %}[
+{% if service.targets is defined %}
+{%   for target in service.targets %}
+    {
+      "__address__" = "{{ target.address }}",
+      "job"         = "{{ service.job_name | default(service_name) }}",
+{%     if target.instance is defined %}
+      "instance"    = "{{ target.instance }}",
+{%     endif %}
+    },
+{%   endfor %}
+{% else %}
+    {
+      "__address__" = "{{ service.address }}",
+      "job"         = "{{ service.job_name | default(service_name) }}",
+    },
+{% endif %}
+  ]{% endif %}
+
+  scrape_interval = "{{ service.scrape_interval | default('15s') }}"
+{% if service.metrics_path is defined %}
+  metrics_path    = "{{ service.metrics_path }}"
+{% endif %}
+{% if service.scheme is defined %}
+  scheme          = "{{ service.scheme }}"
+{% endif %}
+
+{% if service.basic_auth is defined %}
+  basic_auth {
+{%   if service.basic_auth.username is defined %}
+    username = "{{ service.basic_auth.username }}"
+{%   endif %}
+{%   if service.basic_auth.password is defined %}
+    password = "{{ service.basic_auth.password }}"
+{%   endif %}
+{%   if service.basic_auth.password_file is defined %}
+    password_file = "{{ service.basic_auth.password_file }}"
+{%   endif %}
+  }
+
+{% endif %}
+{% if service.tls_config is defined %}
+  tls_config {
+{%   if service.tls_config.ca_file is defined %}
+    ca_file = "{{ service.tls_config.ca_file }}"
+{%   endif %}
+{%   if service.tls_config.cert_file is defined %}
+    cert_file = "{{ service.tls_config.cert_file }}"
+{%   endif %}
+{%   if service.tls_config.key_file is defined %}
+    key_file = "{{ service.tls_config.key_file }}"
+{%   endif %}
+{%   if service.tls_config.server_name is defined %}
+    server_name = "{{ service.tls_config.server_name }}"
+{%   endif %}
+{%   if service.tls_config.insecure_skip_verify is defined %}
+    insecure_skip_verify = {{ service.tls_config.insecure_skip_verify | lower }}
+{%   endif %}
+  }
+
+{% endif %}
+  forward_to = [prometheus.remote_write.default.receiver]
+}
+{% endif %}
+
+{% if service.log_files is defined and service.log_files | length > 0 %}
+local.file_match "{{ service_name }}_logs" {
+  path_targets = [
+{% for log in service.log_files %}
+    { "__path__" = "{{ log.path }}", "job" = "{{ log.job }}" },
+{% endfor %}
+  ]
+}
+
+loki.source.file "{{ service_name }}_tailer" {
+  targets    = local.file_match.{{ service_name }}_logs.targets
+  forward_to = [loki.write.default.receiver]
+}
+{% endif %}
+
+{% endif %}
+{% endfor %}

@@ -1,0 +1,113 @@
+# SPDX-License-Identifier: MIT
+---
+# alloy_prometheus_endpoint: "prometheus.example.com"
+# alloy_loki_endpoint: "loki.example.com"
+alloy_listen_address: "[::1]:12345"
+
+alloy_enable_node_exporter: true
+alloy_node_exporter_scrape_interval: "15s"
+alloy_node_exporter_disable_collectors:
+  - bcache
+  - btrfs
+  - fibrechannel
+  - infiniband
+  - ipvs
+  - nfs
+  - nfsd
+  - xfs
+  - zfs
+alloy_node_exporter_enable_collectors:
+  - systemd
+
+alloy_enable_hardware_exporter: "{{ ansible_facts['virtualization_role'] | default('') == 'host' }}"
+alloy_hardware_targets: {}
+#   - address: "localhost:9633"
+#     job: "smartctl"
+#   - address: "localhost:9290"
+#     job: "ipmi"
+
+# Data-Driven Service Definitions
+alloy_monitored_services: {}
+#   prometheus:
+#     enabled: false
+#     type: "prometheus_scrape"
+#     address: "localhost:9090"
+#     scrape_interval: "15s"
+
+#   alertmanager:
+#     enabled: false
+#     type: "prometheus_scrape"
+#     address: "localhost:9093"
+#     scrape_interval: "15s"
+
+#   loki:
+#     enabled: false
+#     type: "prometheus_scrape"
+#     address: "localhost:3100"
+#     scrape_interval: "15s"
+
+#   incus:
+#     enabled: false
+#     type: "prometheus_scrape"
+#     address: "jupiter.example.com:9101"
+#     metrics_path: "/1.0/metrics"
+#     scheme: "https"
+#     scrape_interval: "15s"
+#     tls_config:
+#       ca_file: "/etc/alloy/tls/jupiter.crt"
+#       cert_file: "/etc/alloy/tls/metrics.crt"
+#       key_file: "/etc/alloy/tls/metrics.key"
+#       server_name: "jupiter"
+#       insecure_skip_verify: false
+
+#   cfx_server:
+#     enabled: false
+#     type: "prometheus_scrape"
+#     address: "localhost:30120"
+#     metrics_path: "/perf"
+#     scrape_interval: "15s"
+#     basic_auth:
+#       username: "cfx_user"
+#       password: "secretpassword"  # or use password_file: "/etc/alloy/cfx.pass"
+
+#   mariadb:
+#     enabled: false
+#     type: "mysql_exporter"
+#     data_source_name: "{{ mariadb_exporter_user | default('root') }}@unix({{ mariadb_socket | default('/run/mysqld/mysqld.sock') }})/"
+#     scrape_interval: "15s"
+
+#   nginx:
+#     enabled: false
+#     type: "prometheus_scrape"
+#     address: "localhost:9113"
+#     scrape_interval: "15s"
+#     relabel_hostname: true
+#     log_files:
+#       - path: "/var/log/nginx/access.log"
+#         job: "nginx_access"
+#       - path: "/var/log/nginx/error.log"
+#         job: "nginx_error"
+
+# ---
+# alloy_monitored_services:
+#   incus:
+#     enabled: true
+#     type: "prometheus_scrape"
+#     address: "jupiter.example.com:9101"
+#     metrics_path: "/1.0/metrics"
+#     scheme: "https"
+#     scrape_interval: "15s"
+#     tls_config:
+#       ca_file: "/etc/alloy/tls/jupiter.crt"
+#       cert_file: "/etc/alloy/tls/metrics.crt"
+#       key_file: "/etc/alloy/tls/metrics.key"
+#       server_name: "jupiter"
+
+#   cfx_server:
+#     enabled: true
+#     type: "prometheus_scrape"
+#     address: "localhost:30120"
+#     metrics_path: "/perf"
+#     basic_auth:
+#       username: "admin"
+#       password: "{{ vault_cfx_metrics_password }}"

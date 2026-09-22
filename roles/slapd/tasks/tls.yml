@@ -16,7 +16,7 @@
     openssl req -x509 -nodes -days 1 -newkey rsa:2048
     -keyout /etc/ldap/tls/ldap.key
     -out /etc/ldap/tls/ldap.crt
-    -subj "/CN=temporary.local"
+    -subj "/CN={{ ansible_facts['fqdn'] }}"
   changed_when: true
   when: not slapd_cert_stat.stat.exists
 
