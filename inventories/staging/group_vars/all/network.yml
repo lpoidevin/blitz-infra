@@ -16,6 +16,7 @@
 
 # Local network
 dns_servers: ["192.168.122.1"]
+ntp_servers: []
 
 # Timezone
 common_timezone: Asia/Tokyo

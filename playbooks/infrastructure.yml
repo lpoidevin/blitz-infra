@@ -11,7 +11,7 @@
   hosts: core.*
   roles:
     - role: slapd
-      tags: ["ldap"]
+      tags: ["slapd", "ldap"]
 
 - name: Setup mailling infrastructure
   hosts: all

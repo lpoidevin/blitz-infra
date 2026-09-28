@@ -1,6 +1,12 @@
 # SPDX-License-Identifier: MIT
 ---
-slapd_base_dn: "{{ base_dn }}"
+slapd_enable_tls: false
 slapd_config_passwd: "{{ vault_slapd_config_passwd }}"
-slapd_admin_passwd: "{{ vault_slapd_admin_passwd }}"
-slapd_enable_tls: true
+
+slapd_databases:
+  - base_dn: "{{ base_dn }}"
+    db_path: /var/lib/ldap/blitz-infra
+    admin_passwd: "{{ vault_slapd_admin_infra_pass }}"
+  - base_dn: dc=blitz-fivem,dc=fr
+    db_path: /var/lib/ldap/blitz-fivem
+    admin_passwd: "{{ vault_slapd_admin_fivem_pass }}"

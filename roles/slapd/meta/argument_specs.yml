@@ -4,18 +4,6 @@ argument_specs:
   main:
     short_description: Deploy and configure OpenLDAP (slapd)
     options:
-      slapd_base_dn:
-        type: str
-        default: "dc=example,dc=com"
-        description: The root suffix for the LDAP directory.
-      slapd_config_passwd:
-        type: str
-        required: true
-        description: Argon2 hashed password for the cn=config database root user.
-      slapd_admin_passwd:
-        type: str
-        required: true
-        description: Argon2 hashed password for the main database admin user.
       slapd_enable_tls:
         type: bool
         default: false
@@ -24,3 +12,27 @@ argument_specs:
         type: float
         default: 3.4
         description: Minimum TLS version (3.4 = TLS 1.3).
+      slapd_config_passwd:
+        type: str
+        required: true
+        description: Argon2 hashed password for the cn=config database root user.
+
+      # Per-tenant config
+      slapd_databases:
+        type: list
+        elements: dict
+        default: []
+        description: List of databases.
+        options:
+          base_dn:
+            type: str
+            required: true
+            description: The root suffix for the LDAP directory.
+          db_path:
+            type: str
+            required: true
+            description: Path to the database.
+          admin_passwd:
+            type: str
+            required: true
+            description: Argon2 hashed password for the database admin user.

@@ -34,62 +34,40 @@
       olcRequires: authc
     state: exact
 
-- name: Set the main database suffix
-  community.general.ldap_attrs:
-    dn: olcDatabase={1}mdb,cn=config
-    attributes:
-      olcSuffix: "{{ slapd_base_dn }}"
-    state: exact
+- name: Check if default database files exists
+  ansible.builtin.stat:
+    path: /var/lib/ldap/data.mdb
+  register: slapd_default_data_mdb_stat
 
-- name: Set the main database root credentials
-  community.general.ldap_attrs:
-    dn: olcDatabase={1}mdb,cn=config
-    attributes:
-      olcRootDN: "cn=admin,{{ slapd_base_dn }}"
-      olcRootPW: "{{ slapd_admin_passwd }}"
-    state: exact
+- name: Remove default database
+  when: slapd_default_data_mdb_stat.stat.exists
+  block:
+    - name: Remove default database config
+      community.general.ldap_entry:
+        dn: olcDatabase={1}mdb,cn=config
+        state: absent
 
-- name: Configure Access Control List
-  community.general.ldap_attrs:
-    dn: olcDatabase={1}mdb,cn=config
-    attributes:
-      olcAccess:
-        - >-
-          to attrs=userPassword
-          by self write
-          by anonymous auth
-          by * none
-        - >-
-          to attrs=shadowLastChange
-          by self write
-          by * read
-        - >-
-          to attrs=loginShell
-          by self write
-          by * read
-        - >-
-          to *
-          by * read
-    ordered: true
-    state: exact
+    - name: Remove default database files
+      ansible.builtin.file:
+        path: "{{ item }}"
+        state: absent
+      loop:
+        - /var/lib/ldap/data.mdb
+        - /var/lib/ldap/lock.mdb
+      notify: Restart slapd
 
-- name: Define indexes present in the main database
-  community.general.ldap_attrs:
-    dn: olcDatabase={1}mdb,cn=config
-    attributes:
-      olcDbIndex:
-        - objectClass eq
-        - cn,uid eq
-        - uidNumber,gidNumber eq
-        - member,memberUid eq
-    state: exact
+- name: Databases provisioning
+  ansible.builtin.include_tasks: database.yml
+  loop: "{{ slapd_databases }}"
+  loop_control:
+    extended: true
 
 - name: Deploy firewall rule
   ansible.builtin.copy:
     content: |
       tcp dport 636 accept \
       comment "Accept ldaps access"
-    dest: /etc/nftables.d/filter-input-wg/slapd.nft
+    dest: /etc/nftables.d/filter-input-v6/slapd.nft
     mode: "0644"
   notify: Reload nftables
   when: slapd_enable_tls

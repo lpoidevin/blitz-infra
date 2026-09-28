@@ -1,0 +1,76 @@
+# SPDX-License-Identifier: MIT
+---
+- name: Create db directory
+  ansible.builtin.file:
+    path: "{{ item.db_path }}"
+    owner: openldap
+    group: openldap
+    mode: "755"
+    state: directory
+
+- name: Compute mdb index
+  ansible.builtin.set_fact:
+    _slapd_mdb_idx: "{{ '{' ~ ansible_loop.index ~ '}' }}mdb"
+
+- name: Create database
+  community.general.ldap_entry:
+    dn: "olcDatabase={{ _slapd_mdb_idx }},cn=config"
+    objectClass:
+      - olcDatabaseConfig
+      - olcMdbConfig
+    attributes:
+      olcDatabase: "{{ _slapd_mdb_idx }}"
+      olcDbDirectory: "{{ item.db_path }}"
+      olcSuffix: "{{ item.base_dn }}"
+    state: present
+
+- name: Set the database storage settings
+  community.general.ldap_attrs:
+    dn: "olcDatabase={{ _slapd_mdb_idx }},cn=config"
+    attributes:
+      olcDbCheckpoint: 512 30
+      olcDbMaxSize: 1073741824
+    state: exact
+
+- name: Set the main database root credentials
+  community.general.ldap_attrs:
+    dn: "olcDatabase={{ _slapd_mdb_idx }},cn=config"
+    attributes:
+      olcRootDN: "cn=admin,{{ item.base_dn }}"
+      olcRootPW: "{{ item.admin_passwd }}"
+    state: exact
+
+- name: Configure Access Control List
+  community.general.ldap_attrs:
+    dn: "olcDatabase={{ _slapd_mdb_idx }},cn=config"
+    attributes:
+      olcAccess:
+        - >-
+          to attrs=userPassword
+          by self write
+          by anonymous auth
+          by * none
+        - >-
+          to attrs=shadowLastChange
+          by self write
+          by * read
+        - >-
+          to attrs=loginShell
+          by self write
+          by * read
+        - >-
+          to *
+          by * read
+    ordered: true
+    state: exact
+
+- name: Define indexes present in the database
+  community.general.ldap_attrs:
+    dn: "olcDatabase={{ _slapd_mdb_idx }},cn=config"
+    attributes:
+      olcDbIndex:
+        - objectClass eq
+        - cn,uid eq
+        - uidNumber,gidNumber eq
+        - member,memberUid eq
+    state: exact
