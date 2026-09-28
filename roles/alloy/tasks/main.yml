@@ -37,8 +37,6 @@
   ansible.builtin.template:
     src: "{{ item.src }}"
     dest: "/etc/alloy/{{ item.dest }}"
-    owner: alloy
-    group: alloy
     mode: "0644"
   loop:
     - { src: "00-base.alloy.j2", dest: "00-base.alloy" }
