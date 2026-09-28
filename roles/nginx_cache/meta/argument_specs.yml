@@ -69,7 +69,8 @@ argument_specs:
           cache_valid_200:
             type: str
 
-        nginx_cache_trusted_proxies:
-          type: str
-          required: true
-          description: Network from which proxy headers are trusted.
+      # ACME related config
+      nginx_cache_trusted_proxies:
+        type: str
+        required: true
+        description: Network from which proxy headers are trusted.
