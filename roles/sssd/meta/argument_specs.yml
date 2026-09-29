@@ -40,7 +40,3 @@ argument_specs:
         type: str
         default: "rfc2307bis"
         description: The LDAP schema in use.
-      sssd_simple_allow_groups:
-        type: str
-        default: "infra"
-        description: Comma-separated list of groups allowed to log in.

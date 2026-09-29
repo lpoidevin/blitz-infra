@@ -55,3 +55,4 @@
     state: absent
     purge: true
     autoremove: true
+  notify: Reboot

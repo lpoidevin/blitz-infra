@@ -31,8 +31,8 @@ ldap_schema = {{ sssd_schema }}
 ldap_pwd_policy = shadow
 ldap_chpass_update_last_change = true
 
-access_provider = simple
-simple_allow_groups = {{ sssd_simple_allow_groups }}
+access_provider = ldap
+ldap_access_order = host
 
 cache_credentials = true
 auto_private_groups = true
