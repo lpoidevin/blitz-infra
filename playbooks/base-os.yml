@@ -9,7 +9,7 @@
       tags: ["nftables"]
     - role: wireguard
       tags: ["wireguard"]
-    - role: sssd
-      tags: ["sssd"]
     - role: sshd
       tags: ["sshd"]
+    - role: sssd
+      tags: ["sssd"]
