@@ -1,0 +1,3 @@
+[submodule "roles/networkd"]
+	path = roles/networkd
+	url = https://github.com/lpoidevin/ansible-role-networkd.git

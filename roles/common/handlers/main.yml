@@ -1,10 +1,5 @@
 # SPDX-License-Identifier: MIT
 ---
-- name: Restart systemd-networkd
-  ansible.builtin.systemd_service:
-    name: systemd-networkd.service
-    state: restarted
-
 - name: Reload systemd-resolved
   ansible.builtin.systemd_service:
     name: systemd-resolved.service
@@ -14,6 +9,3 @@
   ansible.builtin.systemd_service:
     name: unattended-upgrades.service
     state: restarted
-
-- name: Reboot
-  ansible.builtin.reboot:

@@ -5,6 +5,8 @@
   roles:
     - role: common
       tags: ["common"]
+    - role: networkd
+      tags: ["network"]
     - role: nftables
       tags: ["nftables"]
     - role: wireguard
