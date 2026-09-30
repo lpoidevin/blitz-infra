@@ -4,3 +4,6 @@
 [submodule "roles/lego"]
 	path = roles/lego
 	url = https://github.com/lpoidevin/ansible-role-lego.git
+[submodule "roles/sssd"]
+	path = roles/sssd
+	url = https://github.com/lpoidevin/ansible-role-sssd.git

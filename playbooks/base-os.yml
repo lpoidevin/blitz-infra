@@ -15,3 +15,8 @@
       tags: ["sshd"]
     - role: sssd
       tags: ["sssd"]
+  post_tasks:
+    - name: Disable remote access to debian
+      ansible.builtin.file:
+        path: /home/debian/.ssh/authorized_keys
+        state: absent
