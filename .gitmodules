@@ -1,3 +1,6 @@
 [submodule "roles/networkd"]
 	path = roles/networkd
 	url = https://github.com/lpoidevin/ansible-role-networkd.git
+[submodule "roles/lego"]
+	path = roles/lego
+	url = https://github.com/lpoidevin/ansible-role-lego.git
