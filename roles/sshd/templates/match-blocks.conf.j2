@@ -1,9 +1,0 @@
-{{ ansible_managed | comment }}
-
-{% for block in sshd_match_blocks %}
-Match {{ block.condition }}
-{% for key, value in block.rules.items() %}
-    {{ key }} {{ value }}
-{% endfor %}
-
-{% endfor %}

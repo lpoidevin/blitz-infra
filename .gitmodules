@@ -1,9 +1,12 @@
 [submodule "roles/networkd"]
 	path = roles/networkd
 	url = https://github.com/lpoidevin/ansible-role-networkd.git
-[submodule "roles/lego"]
-	path = roles/lego
-	url = https://github.com/lpoidevin/ansible-role-lego.git
+[submodule "roles/sshd"]
+	path = roles/sshd
+	url = https://github.com/lpoidevin/ansible-role-sshd.git
 [submodule "roles/sssd"]
 	path = roles/sssd
 	url = https://github.com/lpoidevin/ansible-role-sssd.git
+[submodule "roles/lego"]
+	path = roles/lego
+	url = https://github.com/lpoidevin/ansible-role-lego.git

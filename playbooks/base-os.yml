@@ -16,6 +16,10 @@
     - role: sssd
       tags: ["sssd"]
   post_tasks:
+    - name: Remove 50-cloud-init.conf
+      ansible.builtin.file:
+        path: /etc/ssh/sshd_config.d/50-cloud-init.conf
+        state: absent
     - name: Disable remote access to debian
       ansible.builtin.file:
         path: /home/debian/.ssh/authorized_keys
