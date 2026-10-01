@@ -6,11 +6,14 @@ nginx_cache_vts_module: true
 # Trust proxy headers from wireguard network
 nginx_cache_trusted_proxies: fd1e:39e:c6a4:face::/64
 
+# Allocation for 20GB/400Mb
+nginx_cache_global_max_size: "20g"
+
 # Per-tenant vhost setup
 nginx_cache_tenants:
   - name: blitz_legacy
     enabled: true
-    domain: cache.legacy.coursepoursuite.fr
+    domain: files.legacy.coursepoursuite.fr
     backend_host: "[2001:41d0:c:67:1::dead]"
     tls_cert_path: /var/lib/lego/certificates/blitz_legacy.crt
     tls_key_path: /var/lib/lego/certificates/blitz_legacy.key

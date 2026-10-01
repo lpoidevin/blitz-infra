@@ -6,8 +6,8 @@ nginx_cache_vts_module: false
 # Caching global parameters
 nginx_cache_base_dir: "/var/cache/nginx"
 nginx_cache_global_keys_zone_size: "10m"
-nginx_cache_global_max_size: "20g"
-nginx_cache_global_inactive: "1d"
+nginx_cache_global_max_size: "10g"
+nginx_cache_global_inactive: "2d"
 nginx_cache_global_valid_200: "1w"
 
 # Per-tenant vhost setup
