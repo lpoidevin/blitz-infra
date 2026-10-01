@@ -6,14 +6,14 @@ Kind=wireguard
 ListenPort={{ wireguard_port }}
 
 {% for host in groups['all'] if host != inventory_hostname %}
-{% if hostvars[host].wireguard_public_key is defined and hostvars[host]['wireguard_address'] is defined %}
+{% if hostvars[host].wireguard_public_key is defined and hostvars[host]['wireguard_address'] is defined and hostvars[host]['wireguard_public_ipv6'] is defined %}
 [WireGuardPeer]
 PublicKey={{ hostvars[host].wireguard_public_key }}
 AllowedIPs={{ hostvars[host]['wireguard_address'] }}/128
-Endpoint={{ host }}:{{ wireguard_port }}
+Endpoint=[{{ hostvars[host]['wireguard_public_ipv6'] }}]:{{ wireguard_port }}
 {% else %}
 # WARNING: Peer configuration for {{ host }} was skipped.
-# Reason: Missing 'wireguard_public_key' or 'wireguard_address' host variables.
+# Reason: Missing required variables ('wireguard_public_key', 'wireguard_address', or 'wireguard_public_ipv6').
 {% endif %}
 
 {% endfor %}
