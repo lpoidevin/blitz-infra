@@ -10,3 +10,6 @@
 [submodule "roles/lego"]
 	path = roles/lego
 	url = https://github.com/lpoidevin/ansible-role-lego.git
+[submodule "roles/nftables"]
+	path = roles/nftables
+	url = https://github.com/lpoidevin/ansible-role-nftables.git
