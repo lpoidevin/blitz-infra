@@ -2,22 +2,128 @@
 ---
 argument_specs:
   main:
-    short_description: Deploy Prometheus as a Remote Write Receiver
+    short_description: Configures Prometheus scrape configuration and global settings.
     options:
-      prometheus_listen_address:
+      prometheus_global_scrape_interval:
         type: str
-        default: "[::]:9090"
-      prometheus_enable_remote_write:
-        type: bool
-        default: true
-        description: Enable the remote write receiver (Required for Alloy push architecture)
+        default: "15s"
+        description: Global rate at which Prometheus scrapes targets.
 
-      # Data Retention Policies
+      prometheus_global_evaluation_interval:
+        type: str
+        default: "15s"
+        description: Global rate at which Prometheus evaluates rules.
+
+      prometheus_global_scrape_timeout:
+        type: str
+        default: "10s"
+        description: Global timeout for target scraping.
+
+      prometheus_alertmanager_targets:
+        type: list
+        elements: str
+        default: []
+        description: List of Alertmanager endpoints (host:port format).
+
+      prometheus_rule_files:
+        type: list
+        elements: str
+        default: []
+        description: List of glob file patterns or paths to rule/alert files.
+
       prometheus_retention_time:
         type: str
         default: "4w"
         description: How long to keep metrics (e.g., 15d, 1y)
+
       prometheus_retention_size:
         type: str
         default: "0"
         description: Maximum size of the database (e.g., 50GB). 0 disables it.
+
+      prometheus_auth_pass_files:
+        type: list
+        elements: dict
+        default: []
+        description: List of HTTP auth password files.
+        options:
+          path:
+            type: str
+            description: Location of the password file (e.g., auth/myservice.pass).
+
+          password:
+            type: str
+            description: HTTP auth password.
+
+      prometheus_monitored_services:
+        type: list
+        elements: dict
+        default: []
+        description: List of Prometheus scrape jobs and their target options.
+        options:
+          name:
+            type: str
+            required: true
+            description: Scrape job name (`job_name`).
+
+          scrape_interval:
+            type: str
+            description: Per-job scrape interval override.
+
+          scrape_timeout:
+            type: str
+            description: Per-job scrape timeout override.
+
+          metrics_path:
+            type: str
+            description: Path to retrieve metrics from (default `/metrics`).
+
+          scheme:
+            type: str
+            choices: ['http', 'https']
+            description: Protocol scheme used to request metrics.
+
+          targets:
+            type: list
+            elements: str
+            description: List of target addresses (host:port) to scrape.
+
+          labels:
+            type: dict
+            description: Key-value map of static labels attached to metrics from this job.
+
+          basic_auth:
+            type: dict
+            description: Basic HTTP authentication settings.
+            options:
+              username:
+                type: str
+                description: HTTP Basic Auth username.
+              password:
+                type: str
+                description: HTTP Basic Auth password.
+              password_file:
+                type: str
+                description: Path to file containing HTTP Basic Auth password.
+
+          tls_config:
+            type: dict
+            description: TLS/SSL connection configuration options.
+            options:
+              ca_file:
+                type: str
+                description: Certificate Authority file path.
+              cert_file:
+                type: str
+                description: Client certificate file path.
+              key_file:
+                type: str
+                description: Client key file path.
+              insecure_skip_verify:
+                type: bool
+                description: Disable server TLS certificate verification.
+
+          relabel_configs:
+            type: list
+            elements: dict
+            description: Dynamic relabeling rules applied to targets before scraping.

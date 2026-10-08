@@ -1,0 +1,54 @@
+# SPDX-License-Identifier: MIT
+---
+- name: Add fluent-bit repository
+  ansible.builtin.deb822_repository:
+    name: fluent-bit
+    types: deb
+    uris: "https://packages.fluentbit.io/debian/{{ ansible_facts['distribution_release'] }}"
+    suites: "{{ ansible_facts['distribution_release'] }}"
+    components: main
+    signed_by: https://packages.fluentbit.io/fluentbit.key
+    state: present
+
+- name: Install fluent-bit package
+  ansible.builtin.apt:
+    name: fluent-bit
+    state: present
+    update_cache: true
+
+- name: Remove old configuration
+  ansible.builtin.file:
+    path: "/etc/fluent-bit/{{ item }}"
+    state: absent
+  loop:
+    - fluent-bit.conf
+    - parsers.conf
+    - plugins.conf
+
+- name: Deploy fluent-bit configuration
+  ansible.builtin.template:
+    src: fluent-bit.yaml.j2
+    dest: /etc/fluent-bit/fluent-bit.yaml
+    mode: "0644"
+  notify: Restart fluent-bit
+
+- name: Deploy fluent-bit parsers
+  ansible.builtin.template:
+    src: parsers.yaml.j2
+    dest: /etc/fluent-bit/parsers.yaml
+    mode: "0644"
+  notify: Restart fluent-bit
+
+- name: Update systemd service
+  ansible.builtin.copy:
+    src: fluent-bit.service
+    dest: /etc/systemd/system/fluent-bit.service
+    mode: "0644"
+  notify:
+    - Reload systemd-daemon
+    - Restart fluent-bit
+
+- name: Ensure fluent-bit service is enabled
+  ansible.builtin.systemd_service:
+    name: fluent-bit.service
+    enabled: true

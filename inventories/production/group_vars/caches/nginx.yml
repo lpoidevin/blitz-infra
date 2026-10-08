@@ -18,5 +18,8 @@ nginx_cache_tenants:
     tls_cert_path: /var/lib/lego/certificates/blitz_legacy.crt
     tls_key_path: /var/lib/lego/certificates/blitz_legacy.key
 
+# Logs centralization
+fluentbit_nginx_logs_enabled: true
+
 # Honeypot configuration
-fail2ban_honeypot_logpath: /var/log/nginx/cache.legacy.coursepoursuite.fr.access.log
+fail2ban_honeypot_logpath: /var/log/nginx/files.legacy.coursepoursuite.fr.access.log

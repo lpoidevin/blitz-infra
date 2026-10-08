@@ -1,11 +1,11 @@
 # SPDX-License-Identifier: MIT
 ---
-- name: Restart alloy
+- name: Restart prometheus-node-exporter
   ansible.builtin.systemd_service:
-    name: alloy.service
+    name: prometheus-node-exporter.service
     state: restarted
 
-- name: Reload alloy
+- name: Reload nftables
   ansible.builtin.systemd_service:
-    name: alloy.service
+    name: nftables.service
     state: reloaded

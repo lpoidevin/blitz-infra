@@ -68,7 +68,7 @@
     dest: /var/lib/grafana/dashboards
     owner: grafana
     group: grafana
-    directory_mode: "0750"
+    directory_mode: "0755"
     mode: "0640"
 
 - name: Ensure grafana is enabled and started

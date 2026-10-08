@@ -18,6 +18,11 @@ server {
 	access_log /var/log/nginx/{{ item.domain }}.access.log;
 	error_log /var/log/nginx/{{ item.domain }}.error.log; # warn/error;
 
+	# Reject any protocol that is NOT HTTP/2
+	if ($server_protocol !~* "^HTTP/2") {
+		return 426;
+	}
+
 	# Enforce user-agent verification
 	if ($http_user_agent != "CitizenFX/1") {
 		return 403;
@@ -26,11 +31,6 @@ server {
 	# Ensure that clients have a token
 	if ($http_x_citizenfx_token = "") {
 		return 401;
-	}
-
-	# Reject any protocol that is NOT HTTP/2
-	if ($server_protocol !~* "^HTTP/2") {
-		return 426;
 	}
 
 	# Catch 426 status and send to an internal error location

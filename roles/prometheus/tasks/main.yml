@@ -5,21 +5,6 @@
     name: prometheus
     state: present
 
-- name: Remove standalone prometheus-node-exporter
-  ansible.builtin.apt:
-    name: prometheus-node-exporter
-    state: absent
-    purge: true
-    autoremove: true
-
-# - name: Create Prometheus rules directory
-#   ansible.builtin.file:
-#     path: "{{ prometheus_rule_files_path }}"
-#     state: directory
-#     owner: prometheus
-#     group: prometheus
-#     mode: "0755"
-
 - name: Deploy Prometheus environment defaults
   ansible.builtin.template:
     src: prometheus.env.j2
@@ -27,21 +12,26 @@
     mode: "0644"
   notify: Restart prometheus
 
-- name: Deploy Prometheus main configuration
+- name: Deploy Prometheus configuration
   ansible.builtin.template:
     src: prometheus.yml.j2
     dest: /etc/prometheus/prometheus.yml
-    # owner: root
-    # group: prometheus
-    # mode: "0640"
     mode: "0644"
   notify: Reload prometheus
 
-- name: Deploy nftables firewall rule for Prometheus
+- name: Create direcotory for HTTP auth password files
+  ansible.builtin.file:
+    path: /etc/prometheus/auth
+    mode: "755"
+    state: directory
+
+- name: Deploy HTTP auth password files
   ansible.builtin.copy:
-    content: |
-      tcp dport 9090 accept \
-      comment "Accept prometheus access"
-    dest: /etc/nftables.d/filter-input-wg/prometheus.nft
-    mode: "0644"
-  notify: Reload nftables
+    content: "{{ item.password }}"
+    dest: "/etc/prometheus/{{ item.path }}"
+    owner: root
+    group: prometheus
+    mode: "0640"
+  no_log: true
+  notify: Reload prometheus
+  loop: "{{ prometheus_auth_pass_files }}"

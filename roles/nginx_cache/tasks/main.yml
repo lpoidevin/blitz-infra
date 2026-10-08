@@ -53,6 +53,16 @@
     mode: "0644"
   notify: Reload nftables
 
+- name: Deploy firewall rule for metrics collection
+  ansible.builtin.copy:
+    content: |
+      tcp dport 9113 accept \
+      comment "Accept metrics traffic"
+    dest: /etc/nftables.d/filter-input-wg/nginx-vts.nft
+    mode: "0644"
+  when: nginx_cache_vts_module
+  notify: Reload nftables
+
 - name: Deploy firewall rule for acme and cert-sync
   ansible.builtin.copy:
     content: |

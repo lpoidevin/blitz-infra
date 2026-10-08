@@ -5,3 +5,4 @@
   gather_facts: false
   roles:
     - role: fail2ban
+      tags: ["fail2ban"]

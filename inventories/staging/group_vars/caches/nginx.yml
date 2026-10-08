@@ -9,8 +9,8 @@ nginx_cache_trusted_proxies: fd1e:39e:c6a4:1ee7::/64
 # Per-tenant vhost setup
 nginx_cache_tenants:
   - name: blitz_dev
-    domain: cache.dev.coursepoursuite.fr
-    backend_host: srv.dev.coursepoursuite.fr
+    domain: files.dev.coursepoursuite.fr
+    backend_host: "[2001:41d0:c:67:1::cafe]"
     tls_cert_path: /var/lib/lego/certificates/blitz_dev.crt
     tls_key_path: /var/lib/lego/certificates/blitz_dev.key
 
@@ -21,5 +21,8 @@ nginx_cache_tenants:
   #   tls_cert_path: "/etc/ssl/certs/tenant_beta.crt"
   #   tls_key_path: "/etc/ssl/private/tenant_beta.key"
 
+# Logs centralization
+fluentbit_nginx_logs_enabled: true
+
 # Honeypot configuration
-fail2ban_honeypot_logpath: /var/log/nginx/cache.dev.coursepoursuite.fr.access.log
+fail2ban_honeypot_logpath: /var/log/nginx/files.dev.coursepoursuite.fr.access.log

@@ -1,0 +1,10 @@
+# SPDX-License-Identifier: MIT
+---
+- name: Reload systemd-daemon
+  ansible.builtin.systemd_service:
+    daemon_reload: true
+
+- name: Restart fluent-bit
+  ansible.builtin.systemd_service:
+    name: fluent-bit.service
+    state: restarted

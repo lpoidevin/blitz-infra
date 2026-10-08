@@ -20,3 +20,6 @@ ntp_servers: []
 
 # Timezone
 common_timezone: Asia/Tokyo
+
+# Use IPv6 of the first interface as Wireguard peering address
+wireguard_public_ipv6: "{{ common_network_interfaces[0]['ipv6_address'] | ansible.utils.ipv6('address') }}"

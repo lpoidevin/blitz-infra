@@ -1,0 +1,36 @@
+# SPDX-License-Identifier: MIT
+---
+prometheus_alertmanager_targets:
+  - "localhost:9093"
+
+# prometheus_rule_files:
+#   - "/etc/prometheus/rules/*.rules.yml"
+
+prometheus_monitored_services:
+  - name: prometheus
+    targets: ["localhost:9090"]
+
+  - name: alertmanager
+    targets: ["localhost:9093"]
+
+  - name: loki
+    targets: ["localhost:3100"]
+
+  - name: node
+    targets:
+      - "localhost:9100"
+      - "[fd1e:39e:c6a4:1ee7::9287]:9100"
+      - "[fd1e:39e:c6a4:1ee7::5d45]:9100"
+
+  - name: nginx
+    targets: ["[fd1e:39e:c6a4:1ee7::9287]:9113"]
+
+  - name: incus
+    metrics_path: /1.0/metrics
+    scheme: https
+    targets: ["[fd1e:39e:c6a4:1ee7::5d45]:9101"]
+    tls_config:
+      ca_file: tls/incus-server.crt
+      cert_file: tls/incus-metrics.crt
+      key_file: tls/incus-metrics.key
+      # insecure_skip_verify: false

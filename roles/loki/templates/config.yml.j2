@@ -1,4 +1,4 @@
-{{ ansible_managed | comment }}
+{# SPDX-License-Identifier: MIT #}
 ---
 auth_enabled: false
 
@@ -11,8 +11,8 @@ common:
   path_prefix: "{{ loki_data_dir }}"
   storage:
     filesystem:
-      chunks_directory: "{{ loki_data_dir }}/chunks"
-      rules_directory: "{{ loki_data_dir }}/rules"
+      chunks_directory: {{ loki_data_dir }}/chunks
+      rules_directory: {{ loki_data_dir }}/rules
   replication_factor: 1
   ring:
     kvstore:
@@ -30,12 +30,12 @@ limits_config:
   enable_multi_variant_queries: true
   allow_structured_metadata: true
 {% if loki_retention_enabled %}
-  retention_period: "{{ loki_retention_period }}"
+  retention_period: {{ loki_retention_period }}
 {% endif %}
 
 {% if loki_retention_enabled %}
 compactor:
-  working_directory: "{{ loki_data_dir }}/retention"
+  working_directory: {{ loki_data_dir }}/retention
   compaction_interval: 10m
   retention_enabled: true
   retention_delete_delay: 2h
@@ -56,10 +56,10 @@ schema_config:
 pattern_ingester:
   enabled: true
   metric_aggregation:
-    loki_address: "localhost:{{ loki_listen_port }}"
+    loki_address: localhost:{{ loki_listen_port }}
 
 ruler:
-  alertmanager_url: "{{ loki_alertmanager_url }}"
+  alertmanager_url: {{ loki_alertmanager_url }}
 
 frontend:
   encoding: protobuf

@@ -1,20 +1,72 @@
-{{ ansible_managed | comment }}
+{# SPDX-License-Identifier: MIT #}
 ---
 global:
-  #scrape_interval: 15s # The default is every 1 minute.
-  #scrape_timeout: 10s # The default is every 10 seconds.
-  #evaluation_interval: 15s # The default is every 1 minute.
+  scrape_interval: "{{ prometheus_global_scrape_interval }}"
+  evaluation_interval: "{{ prometheus_global_evaluation_interval }}"
+  scrape_timeout: "{{ prometheus_global_scrape_timeout }}"
 
-# Alertmanager configuration
+{% if prometheus_alertmanager_targets is defined and prometheus_alertmanager_targets | length > 0 %}
 alerting:
   alertmanagers:
     - static_configs:
-        - targets: ['{{ prometheus_alertmanager_url }}']
+        - targets:
+{% for target in prometheus_alertmanager_targets %}
+            - "{{ target }}"
+{% endfor %}
+{% endif %}
 
-# Load local alert rules
+{% if prometheus_rule_files is defined and prometheus_rule_files | length > 0 %}
 rule_files:
-  # - "first_rules.yml"
-  # - "second_rules.yml"
+{% for rule_file in prometheus_rule_files %}
+  - "{{ rule_file }}"
+{% endfor %}
+{% endif %}
 
-# Metrics are pushed via Alloy remote_write
-scrape_configs: []
+scrape_configs:
+{% for service in prometheus_monitored_services %}
+  - job_name: "{{ service.name }}"
+{% if service.scrape_interval is defined %}
+    scrape_interval: "{{ service.scrape_interval }}"
+{% endif %}
+{% if service.scrape_timeout is defined %}
+    scrape_timeout: "{{ service.scrape_timeout }}"
+{% endif %}
+{% if service.metrics_path is defined %}
+    metrics_path: "{{ service.metrics_path }}"
+{% endif %}
+{% if service.scheme is defined %}
+    scheme: "{{ service.scheme }}"
+{% endif %}
+    static_configs:
+{% if service.targets is defined %}
+      - targets:
+{% for target in service.targets %}
+          - "{{ target }}"
+{% endfor %}
+{% if service.labels is defined %}
+        labels:
+          {{ service.labels | to_nice_yaml(indent=10) | indent(10, True) | trim }}
+{% endif %}
+{% endif %}
+{% if service.basic_auth is defined %}
+    basic_auth:
+{% if service.basic_auth.username is defined %}
+      username: "{{ service.basic_auth.username }}"
+{% endif %}
+{% if service.basic_auth.password is defined %}
+      password: "{{ service.basic_auth.password }}"
+{% endif %}
+{% if service.basic_auth.password_file is defined %}
+      password_file: "{{ service.basic_auth.password_file }}"
+{% endif %}
+{% endif %}
+{% if service.tls_config is defined %}
+    tls_config:
+      {{ service.tls_config | to_nice_yaml(indent=6) | indent(6, True) | trim }}
+{% endif %}
+{% if service.relabel_configs is defined %}
+    relabel_configs:
+      {{ service.relabel_configs | to_nice_yaml(indent=6) | indent(6, True) | trim }}
+{% endif %}
+
+{% endfor %}

@@ -44,12 +44,12 @@ _lego_deploy_targets_yaml: >-
            'owner': 'root',
            'group': 'www-data',
            'key_mode': '0640',
-           'service_cmd': '/usr/bin/systemctl reload nginx.service'
+           'service_cmd': 'sudo systemctl reload nginx.service'
          }) %}
   {%   endfor %}
   {% endif %}
   {% set _ = targets.append({
        'name': inventory_hostname_short,
-       'service_cmd': '/usr/bin/systemctl reload nginx.service'
+       'service_cmd': 'sudo systemctl reload nginx.service'
      }) %}
   {{ targets | to_json }}

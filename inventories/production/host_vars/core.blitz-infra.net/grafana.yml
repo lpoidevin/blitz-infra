@@ -10,8 +10,6 @@ grafana_datasources:
     orgId: 1
     url: http://localhost:9090
     isDefault: true
-    jsonData:
-      timeInterval: 15s # Must match alloy scrape interval
     # version: 1
     editable: false
   - name: Loki

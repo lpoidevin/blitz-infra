@@ -1,12 +1,16 @@
 # SPDX-License-Identifier: MIT
 ---
-prometheus_listen_address: "[::]:9090"
-prometheus_enable_remote_write: true
+# Global
+prometheus_global_scrape_interval: 15s
+prometheus_global_evaluation_interval: 15s
+prometheus_global_scrape_timeout: 10s
 
-# Same-server integration
-prometheus_alertmanager_url: "localhost:9093"
-# prometheus_rule_files_path: "/etc/prometheus/rules"
-
-# Data Retention
+# Data retention
 prometheus_retention_time: "4w"
 prometheus_retention_size: "0"
+
+# HTTP auth password files
+prometheus_auth_pass_files: []
+
+# Monitored services
+prometheus_monitored_services: []

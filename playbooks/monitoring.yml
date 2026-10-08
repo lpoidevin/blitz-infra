@@ -3,8 +3,10 @@
 - name: Deploy monitoring agents
   hosts: all
   roles:
-    - role: alloy
-      tags: ["alloy"]
+    - role: prometheus_node_exporter
+      tags: ["node_exporter"]
+    - role: fluentbit
+      tags: ["fluentbit"]
 
 - name: Deploy monitoring backend
   hosts: core.*

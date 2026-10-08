@@ -1,0 +1,22 @@
+# SPDX-License-Identifier: MIT
+---
+- name: Install prometheus node exporter
+  ansible.builtin.apt:
+    name: prometheus-node-exporter
+    state: present
+
+- name: Define node exporter configuration
+  ansible.builtin.lineinfile:
+    path: /etc/default/prometheus-node-exporter
+    regexp: '^ARGS'
+    line: ARGS="--collector.processes"
+  notify: Restart prometheus-node-exporter
+
+- name: Deploy firewall rule
+  ansible.builtin.copy:
+    content: |
+      tcp dport 9100 accept \
+      comment "Accept metrics traffic"
+    dest: /etc/nftables.d/filter-input-wg/node-exporter.nft
+    mode: "0644"
+  notify: Reload nftables

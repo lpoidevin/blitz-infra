@@ -8,3 +8,6 @@ base_dn: dc=blitz-infra,dc=net
 common_upgrades_email: "root@{{ domain }}"
 common_sudoers_email: "security@{{ domain }}"
 fail2ban_destemail: "security@{{ domain }}"
+
+# Monitoring
+fluentbit_loki_endpoint: loki.blitz-infra.net

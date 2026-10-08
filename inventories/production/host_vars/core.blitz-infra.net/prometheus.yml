@@ -1,4 +1,55 @@
 # SPDX-License-Identifier: MIT
 ---
+prometheus_alertmanager_targets:
+  - "localhost:9093"
+
+# prometheus_rule_files:
+#   - "/etc/prometheus/rules/*.rules.yml"
+
 # Extend prometheus retention to 3 months
 prometheus_retention_time: "14w"
+
+prometheus_auth_pass_files:
+  - path: auth/cfx-server.pass
+    password: "{{ vault_prometheus_cfx_password }}"
+
+prometheus_monitored_services:
+  - name: prometheus
+    targets: ["localhost:9090"]
+
+  - name: alertmanager
+    targets: ["localhost:9093"]
+
+  - name: loki
+    targets: ["localhost:3100"]
+
+  - name: node
+    targets:
+      - "localhost:9100"
+      - "[fd1e:39e:c6a4:face::67]:9100"
+      - "[fd1e:39e:c6a4:face::738d]:9100"
+      - "[fd1e:39e:c6a4:face::738f]:9100"
+      - "[fd1e:39e:c6a4:face::7390]:9100"
+
+  - name: nginx
+    targets:
+      - "[fd1e:39e:c6a4:face::738f]:9113"
+      - "[fd1e:39e:c6a4:face::7390]:9113"
+
+  - name: incus
+    metrics_path: /1.0/metrics
+    scheme: https
+    targets: ["[fd1e:39e:c6a4:face::67]:9101"]
+    tls_config:
+      ca_file: tls/incus-server.crt
+      cert_file: tls/incus-metrics.crt
+      key_file: tls/incus-metrics.key
+      # insecure_skip_verify: false
+
+  - name: cfx-server
+    metrics_path: /perf
+    scheme: https
+    targets: ["endpoint.enhanced.coursepoursuite.fr:30120"]
+    basic_auth:
+      username: cfx_metrics
+      password_file: auth/cfx-server.pass
