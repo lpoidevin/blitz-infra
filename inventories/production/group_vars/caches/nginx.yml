@@ -17,6 +17,7 @@ nginx_cache_tenants:
     backend_host: "[2001:41d0:c:67:1::dead]"
     tls_cert_path: /var/lib/lego/certificates/blitz_legacy.crt
     tls_key_path: /var/lib/lego/certificates/blitz_legacy.key
+
   - name: identity_assets
     enabled: true
     domain: assets.identityrp.fr
