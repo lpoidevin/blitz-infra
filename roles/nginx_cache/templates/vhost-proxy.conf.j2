@@ -18,9 +18,9 @@ server {
 	access_log /var/log/nginx/{{ item.domain }}.access.log;
 	error_log /var/log/nginx/{{ item.domain }}.error.log; # warn/error;
 
-	# Reject any protocol that is NOT HTTP/2
-	if ($server_protocol !~* "^HTTP/2") {
-		return 426;
+	# Ensure that clients have a token
+	if ($http_x_citizenfx_token = "") {
+		return 401;
 	}
 
 	# Enforce user-agent verification
@@ -28,9 +28,9 @@ server {
 		return 403;
 	}
 
-	# Ensure that clients have a token
-	if ($http_x_citizenfx_token = "") {
-		return 401;
+	# Reject any protocol that is NOT HTTP/2
+	if ($server_protocol !~* "^HTTP/2") {
+		return 426;
 	}
 
 	# Catch 426 status and send to an internal error location
@@ -48,7 +48,7 @@ server {
 		proxy_http_version 1.1; # before version 1.29.7
 		proxy_set_header Connection ""; # before version 1.29.7
 
-		proxy_cache assets_{{ item.name }};
+		proxy_cache {{ item.name }};
 		proxy_cache_lock on;
 		proxy_cache_valid 200 {{ item.cache_valid_200 | default(nginx_cache_global_valid_200) }};
 		proxy_cache_key $request_uri$is_args$args;
