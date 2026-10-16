@@ -1,6 +1,6 @@
 # SPDX-License-Identifier: MIT
 ---
-common_network_interfaces:
+networkd_interfaces:
   - name: enp6s0
     mac: 34:5a:60:03:77:86
     dhcp4: true
