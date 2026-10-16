@@ -44,7 +44,7 @@ prometheus_monitored_services:
       ca_file: tls/incus-server.crt
       cert_file: tls/incus-metrics.crt
       key_file: tls/incus-metrics.key
-      # insecure_skip_verify: false
+      server_name: game
 
   - name: cfx-server
     metrics_path: /perf

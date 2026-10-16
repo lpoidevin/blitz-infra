@@ -119,9 +119,9 @@ argument_specs:
               key_file:
                 type: str
                 description: Client key file path.
-              insecure_skip_verify:
-                type: bool
-                description: Disable server TLS certificate verification.
+              server_name:
+                type: str
+                description: Define SAN to match.
 
           relabel_configs:
             type: list
