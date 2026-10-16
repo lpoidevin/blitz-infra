@@ -39,6 +39,7 @@
       olcRootDN: "cn=admin,{{ item.base_dn }}"
       olcRootPW: "{{ item.admin_passwd }}"
     state: exact
+  no_log: true
 
 - name: Configure Access Control List
   community.general.ldap_attrs:

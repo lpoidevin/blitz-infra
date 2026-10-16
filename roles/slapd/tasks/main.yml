@@ -26,6 +26,7 @@
     attributes:
       olcRootPW: "{{ slapd_config_passwd }}"
     state: exact
+  no_log: true
 
 - name: Require authn to get ldap access
   community.general.ldap_attrs:
