@@ -1,7 +1,7 @@
 # SPDX-License-Identifier: MIT
 ---
 sssd_domain: "{{ domain }}"
-sssd_uri: ldaps://ldap.staging.blitz-infra.net
+sssd_uri: ldaps://ldap.test.blitz-infra.net
 sssd_tls_reqcert: allow
 
 sssd_bind_dn: "uid=sssd,ou=sysaccounts,{{ base_dn }}"

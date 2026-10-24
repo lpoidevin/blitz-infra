@@ -1,8 +1,8 @@
 # SPDX-License-Identifier: MIT
 ---
 # Global variables
-domain: staging.blitz-infra.net
-base_dn: dc=staging,dc=blitz-infra,dc=net
+domain: test.blitz-infra.net
+base_dn: dc=test,dc=blitz-infra,dc=net
 
 # Email reporting
 common_upgrades_email: "root@{{ domain }}"
@@ -10,7 +10,7 @@ common_sudoers_email: "security@{{ domain }}"
 fail2ban_destemail: "security@{{ domain }}"
 
 # Monitoring
-fluentbit_loki_endpoint: loki.staging.blitz-infra.net
+fluentbit_loki_endpoint: loki.test.blitz-infra.net
 
 # SSH
 sshd_global_config:

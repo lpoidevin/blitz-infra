@@ -25,7 +25,7 @@ postfix_virtual_aliases:
   - alias: root
     destination: "root@{{ domain }}"
 
-# Use a email catcher for staging
+# Use a email catcher for test
 postfix_relayhost: "[localhost]:1025"
 
 # Email sandbox configuration

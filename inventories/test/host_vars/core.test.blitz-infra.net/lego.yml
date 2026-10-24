@@ -12,7 +12,7 @@ lego_certificates:
     challenge: ovh-dns
     account: blitz-security
     domains:
-      - mail.staging.blitz-infra.net
+      - mail.test.blitz-infra.net
   monitoring:
     challenge: ovh-dns
     account: blitz-security
@@ -22,7 +22,7 @@ lego_certificates:
     challenge: ovh-dns
     account: blitz-security
     domains:
-      - ldap.staging.blitz-infra.net
+      - ldap.test.blitz-infra.net
 
 lego_deploy_targets:
   - name: email
